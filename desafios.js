@@ -48675,6 +48675,24592 @@
       "SBC"
      ]
     }
+   },
+   {
+    "id": "z80-001-guardar-o-valor",
+    "linguagem": "z80",
+    "titulo": "Guardar o valor",
+    "dificuldade": "facil",
+    "trilha": "registradores",
+    "tags": [
+     "ld",
+     "memória",
+     "primeiro programa"
+    ],
+    "prerequisitos": [],
+    "aula": null,
+    "enunciado": "Copie o byte guardado em `origem` para `destino`. O Z80 não copia memória para memória direto (com uma instrução só): o valor passa pelo **acumulador** (A).\n\nO programa termina com `HALT`, que marca o fim para o juiz.\n\n## Exemplos\n\n| origem | destino no final |\n|---|---|\n| 7 | 7 |\n| 0 | 0 |\n| 255 | 255 |\n\n## Restrições\n\n- Use as constantes `origem` e `destino` que já estão no código (endereços da RAM).",
+    "contrato": "Memória: `origem` ($8000) e `destino` ($8001), um byte cada. Os testes preenchem `origem` (e põem lixo em `destino`) e conferem `destino`. Não renomeie as constantes.",
+    "editorial": "O Z80 tem sete registradores de 8 bits para uso geral (A, B, C, D, E, H, L) e o acumulador A é o único que conversa direto com um endereço fixo da memória (`LD A,(nn)` e `LD (nn),A`). Por isso copiar memória para memória é \"carrega em A, guarda em outro lugar\", como no 6502. O Z80 tem ainda `LDI`/`LDIR`, que copiam memória para memória com ponteiros em HL e DE, mas isso fica para os desafios de vetores.\n\nOs parênteses são a diferença entre valor e endereço: `LD A,5` coloca 5 em A; `LD A,(5)` coloca em A o byte que está no endereço 5. Um dos erros mais comuns de quem vem de outras linguagens é esquecer os parênteses.",
+    "codigoInicial": "; destino = origem\norigem  EQU 8000h\ndestino EQU 8001h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "origem  EQU 8000h\ndestino EQU 8001h\n\n    LD A,(origem)\n    LD (destino),A\n    HALT",
+    "dicas": [
+     "`LD A,(endereço)` carrega em A o byte que está no endereço, e `LD (endereço),A` grava A no endereço. Os parênteses querem dizer \"o conteúdo do endereço\".",
+     "Escreva `LD A,(origem)` e depois `LD (destino),A`. Sem os parênteses, `LD A,origem` carregaria o **endereço** e não falharia na montagem, mas daria o valor errado.",
+     "Termine com `HALT`. Sem ele a CPU continua executando bytes que não são seu programa (zeros, que são `NOP`) e o juiz acusa que o programa não terminou."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "valor 7",
+      "visivel": true,
+      "setup": {
+       "origem": 7,
+       "destino": 99
+      },
+      "espera": {
+       "mem": {
+        "destino": 7
+       }
+      }
+     },
+     {
+      "nome": "valor 0",
+      "visivel": true,
+      "setup": {
+       "origem": 0,
+       "destino": 99
+      },
+      "espera": {
+       "mem": {
+        "destino": 0
+       }
+      }
+     },
+     {
+      "nome": "valor 255",
+      "visivel": false,
+      "dica": "falhou com 255 (o byte inteiro precisa ser copiado)",
+      "setup": {
+       "origem": 255,
+       "destino": 99
+      },
+      "espera": {
+       "mem": {
+        "destino": 255
+       }
+      }
+     },
+     {
+      "nome": "valor 128",
+      "visivel": false,
+      "dica": "falhou com 128 (bit 7 ligado)",
+      "setup": {
+       "origem": 128,
+       "destino": 99
+      },
+      "espera": {
+       "mem": {
+        "destino": 128
+       }
+      }
+     },
+     {
+      "nome": "valor 1",
+      "visivel": false,
+      "dica": "falhou com 1",
+      "setup": {
+       "origem": 1,
+       "destino": 99
+      },
+      "espera": {
+       "mem": {
+        "destino": 1
+       }
+      }
+     },
+     {
+      "nome": "valor 127",
+      "visivel": false,
+      "dica": "falhou com 127",
+      "setup": {
+       "origem": 127,
+       "destino": 99
+      },
+      "espera": {
+       "mem": {
+        "destino": 127
+       }
+      }
+     },
+     {
+      "nome": "valor 200",
+      "visivel": false,
+      "dica": "falhou com 200",
+      "setup": {
+       "origem": 200,
+       "destino": 99
+      },
+      "espera": {
+       "mem": {
+        "destino": 200
+       }
+      }
+     },
+     {
+      "nome": "valor 64",
+      "visivel": false,
+      "dica": "falhou com 64",
+      "setup": {
+       "origem": 64,
+       "destino": 99
+      },
+      "espera": {
+       "mem": {
+        "destino": 64
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 7,
+     "ciclos": 26,
+     "exigir": [
+      "LD"
+     ]
+    }
+   },
+   {
+    "id": "z80-002-trocar-a-e-b",
+    "linguagem": "z80",
+    "titulo": "Trocar A e B",
+    "dificuldade": "facil",
+    "trilha": "registradores",
+    "tags": [
+     "ld",
+     "troca",
+     "registradores"
+    ],
+    "prerequisitos": [],
+    "aula": null,
+    "enunciado": "Troque o conteúdo de `A` e `B`. Os testes preenchem os dois registradores antes do programa e conferem os dois depois. `C` pode ser usado como registrador temporário.\n\n## Exemplos\n\n| A antes | B antes | A depois | B depois |\n|---|---|---|---|\n| 1 | 2 | 2 | 1 |\n| 0 | 255 | 255 | 0 |\n\n## Restrições\n\n- Não existe `EX A,B` no Z80: o `EX` troca outros pares de registradores (como `EX DE,HL`).",
+    "contrato": "Registradores: `A` e `B` chegam com os valores do teste; `C` chega com lixo e pode ser alterado. Os testes conferem `A` e `B`.",
+    "editorial": "O Z80 permite copiar entre quaisquer dois registradores de 8 bits com `LD r,r'` (4 ciclos, 1 byte), então a troca é a mesma de qualquer linguagem: guarda, copia, restaura. As trocas prontas que o Z80 oferece são entre **pares**: `EX DE,HL`, `EX AF,AF'` e `EXX` (que troca BC, DE e HL pelos seus gêmeos). Aprender essas instruções pode virar a ferramenta mais rápida do programador Z80: `EXX` troca seis registradores em 4 ciclos.\n\nUm truque comum para trocar A e B sem temporário usa `XOR`, mas no Z80 três `LD` são mais rápidos, mais claros e ocupam o mesmo espaço.",
+    "codigoInicial": "; troca A e B\n\n    ; seu código aqui\n    HALT",
+    "solucao": "    LD C,A         ; guarda A\n    LD A,B\n    LD B,C\n    HALT",
+    "dicas": [
+     "Trocar dois valores precisa de um lugar temporário, como trocar o conteúdo de dois copos precisa de um terceiro.",
+     "Copie `A` para `C` (`LD C,A`) para guardar o valor antigo de A.",
+     "Depois `LD A,B` põe o valor de B em A, e `LD B,C` põe em B o valor que estava em A. Três cópias de 4 ciclos cada."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "A=1, B=2",
+      "visivel": true,
+      "setup": {
+       "A": 1,
+       "B": 2,
+       "C": 9
+      },
+      "espera": {
+       "A": 2,
+       "B": 1
+      }
+     },
+     {
+      "nome": "A=0, B=255",
+      "visivel": true,
+      "setup": {
+       "A": 0,
+       "B": 255,
+       "C": 9
+      },
+      "espera": {
+       "A": 255,
+       "B": 0
+      }
+     },
+     {
+      "nome": "A=255, B=0",
+      "visivel": false,
+      "dica": "falhou com A = 255 e B = 0",
+      "setup": {
+       "A": 255,
+       "B": 0,
+       "C": 9
+      },
+      "espera": {
+       "A": 0,
+       "B": 255
+      }
+     },
+     {
+      "nome": "A=7, B=7",
+      "visivel": false,
+      "dica": "falhou com valores iguais",
+      "setup": {
+       "A": 7,
+       "B": 7,
+       "C": 9
+      },
+      "espera": {
+       "A": 7,
+       "B": 7
+      }
+     },
+     {
+      "nome": "A=128, B=1",
+      "visivel": false,
+      "dica": "falhou com 128 e 1",
+      "setup": {
+       "A": 128,
+       "B": 1,
+       "C": 9
+      },
+      "espera": {
+       "A": 1,
+       "B": 128
+      }
+     },
+     {
+      "nome": "A=42, B=99",
+      "visivel": false,
+      "dica": "falhou com 42 e 99",
+      "setup": {
+       "A": 42,
+       "B": 99,
+       "C": 9
+      },
+      "espera": {
+       "A": 99,
+       "B": 42
+      }
+     },
+     {
+      "nome": "A=10, B=20",
+      "visivel": false,
+      "dica": "falhou com 10 e 20",
+      "setup": {
+       "A": 10,
+       "B": 20,
+       "C": 9
+      },
+      "espera": {
+       "A": 20,
+       "B": 10
+      }
+     },
+     {
+      "nome": "A=200, B=100",
+      "visivel": false,
+      "dica": "falhou com 200 e 100",
+      "setup": {
+       "A": 200,
+       "B": 100,
+       "C": 9
+      },
+      "espera": {
+       "A": 100,
+       "B": 200
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 4,
+     "ciclos": 12
+    }
+   },
+   {
+    "id": "z80-003-zerar-tres-registradores",
+    "linguagem": "z80",
+    "titulo": "Zerar três registradores",
+    "dificuldade": "facil",
+    "trilha": "registradores",
+    "tags": [
+     "xor",
+     "zerar",
+     "otimização"
+    ],
+    "prerequisitos": [
+     "z80-002-trocar-a-e-b"
+    ],
+    "aula": null,
+    "enunciado": "Coloque **zero** em `A`, `B` e `C`, seja qual for o valor que eles tinham.\n\n## Exemplos\n\n| A, B, C antes | A, B, C depois |\n|---|---|\n| 1, 2, 3 | 0, 0, 0 |\n| 255, 255, 255 | 0, 0, 0 |\n\n## Restrições\n\n- Você ganha estrelas por usar poucos bytes e poucos ciclos: pense em qual é a forma mais barata de zerar A.",
+    "contrato": "Registradores: `A`, `B` e `C` chegam com valores do teste. Os testes conferem os três zerados.",
+    "editorial": "`XOR A` é o idioma mais conhecido do Z80: zera A, ocupa 1 byte e gasta 4 ciclos. Um detalhe importante: ele também altera os flags (liga Z e P/V, zera o carry), enquanto `LD A,0` não toca em nenhum. Em código que precisa preservar o carry entre duas instruções, o `XOR A` pode estragar a conta, e então vale o `LD A,0`.\n\nPara os outros registradores, `LD B,A` e `LD C,A` custam 4 ciclos e 1 byte, enquanto `LD B,0` custa 7 ciclos e 2 bytes. Em laços de milhares de voltas, essa diferença decide se um jogo roda a 50 quadros por segundo ou a 25.",
+    "codigoInicial": "; zera A, B e C\n\n    ; seu código aqui\n    HALT",
+    "solucao": "    XOR A          ; A = 0 em 1 byte e 4 ciclos\n    LD B,A\n    LD C,A\n    HALT",
+    "dicas": [
+     "O zero pode vir de três lugares: `LD A,0`, `SUB A` ou `XOR A`. Os três funcionam, mas custam diferente.",
+     "`LD A,0` ocupa 2 bytes e gasta 7 ciclos. `XOR A` (A xor A é sempre 0) ocupa 1 byte e gasta 4.",
+     "Zere A com `XOR A` e **copie** o zero: `LD B,A` e `LD C,A` (4 ciclos cada), mais barato que `LD B,0` (7 ciclos)."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "A=1, B=2, C=3",
+      "visivel": true,
+      "setup": {
+       "A": 1,
+       "B": 2,
+       "C": 3
+      },
+      "espera": {
+       "A": 0,
+       "B": 0,
+       "C": 0
+      }
+     },
+     {
+      "nome": "A=255, B=255, C=255",
+      "visivel": true,
+      "setup": {
+       "A": 255,
+       "B": 255,
+       "C": 255
+      },
+      "espera": {
+       "A": 0,
+       "B": 0,
+       "C": 0
+      }
+     },
+     {
+      "nome": "A=0, B=0, C=0",
+      "visivel": false,
+      "dica": "falhou com tudo já zerado",
+      "setup": {
+       "A": 0,
+       "B": 0,
+       "C": 0
+      },
+      "espera": {
+       "A": 0,
+       "B": 0,
+       "C": 0
+      }
+     },
+     {
+      "nome": "A=7, B=0, C=200",
+      "visivel": false,
+      "dica": "falhou com A = B = C = 1",
+      "setup": {
+       "A": 7,
+       "B": 0,
+       "C": 200
+      },
+      "espera": {
+       "A": 0,
+       "B": 0,
+       "C": 0
+      }
+     },
+     {
+      "nome": "A=128, B=64, C=32",
+      "visivel": false,
+      "dica": "falhou com um registrador diferente dos outros",
+      "setup": {
+       "A": 128,
+       "B": 64,
+       "C": 32
+      },
+      "espera": {
+       "A": 0,
+       "B": 0,
+       "C": 0
+      }
+     },
+     {
+      "nome": "A=1, B=1, C=1",
+      "visivel": false,
+      "dica": "falhou com 128, 64, 32",
+      "setup": {
+       "A": 1,
+       "B": 1,
+       "C": 1
+      },
+      "espera": {
+       "A": 0,
+       "B": 0,
+       "C": 0
+      }
+     },
+     {
+      "nome": "A=90, B=80, C=70",
+      "visivel": false,
+      "dica": "falhou com 90, 80, 70",
+      "setup": {
+       "A": 90,
+       "B": 80,
+       "C": 70
+      },
+      "espera": {
+       "A": 0,
+       "B": 0,
+       "C": 0
+      }
+     },
+     {
+      "nome": "A=13, B=37, C=255",
+      "visivel": false,
+      "dica": "falhou com 13, 37, 255",
+      "setup": {
+       "A": 13,
+       "B": 37,
+       "C": 255
+      },
+      "espera": {
+       "A": 0,
+       "B": 0,
+       "C": 0
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 4,
+     "ciclos": 12
+    }
+   },
+   {
+    "id": "z80-004-copiar-hl-para-de",
+    "linguagem": "z80",
+    "titulo": "Copiar HL para DE",
+    "dificuldade": "facil",
+    "trilha": "registradores",
+    "tags": [
+     "ld",
+     "16 bits",
+     "pares de registradores"
+    ],
+    "prerequisitos": [
+     "z80-001-guardar-o-valor"
+    ],
+    "aula": null,
+    "enunciado": "Copie o valor de 16 bits de `HL` para `DE`, sem alterar `HL`.\n\n## Exemplos\n\n| HL antes | DE depois | HL depois |\n|---|---|---|\n| `$1234` | `$1234` | `$1234` |\n| `$FF00` | `$FF00` | `$FF00` |\n\n## Restrições\n\n- O Z80 não tem `LD DE,HL`. Pense em como mover cada metade.",
+    "contrato": "Registradores: `HL` chega com o valor do teste e `DE` com lixo. Os testes conferem `DE` e `HL`.",
+    "editorial": "No Z80 o par é só uma convenção das instruções de 16 bits (`ADD HL,DE`, `INC BC`, `LD HL,nn`): por baixo, são dois registradores de 8 bits independentes. Copiar um par é, portanto, copiar suas metades, por 8 ciclos. Com `PUSH`/`POP` se obtém o mesmo efeito, mas passando pela memória, por 21 ciclos.\n\nComo não existe `LD DE,HL`, o Z80 tem uma troca pronta: `EX DE,HL` (4 ciclos). Ela troca, e não copia: se você precisar dos dois valores depois, `EX DE,HL` não serve.",
+    "codigoInicial": "; DE = HL\n\n    ; seu código aqui\n    HALT",
+    "solucao": "    LD D,H\n    LD E,L\n    HALT",
+    "dicas": [
+     "`BC`, `DE` e `HL` são pares: cada um é um registrador de 16 bits formado por dois de 8 (B e C, D e E, H e L). O primeiro é o byte **alto** e o segundo o **baixo**.",
+     "Copie o byte alto: `LD D,H`. Copie o baixo: `LD E,L`. Cada `LD r,r` custa 4 ciclos.",
+     "Há outra forma, `PUSH HL` seguido de `POP DE`, que também funciona, mas custa 11 + 10 = 21 ciclos contra os 8 das duas cópias."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "HL = $1234",
+      "visivel": true,
+      "setup": {
+       "HL": 4660,
+       "DE": 21845
+      },
+      "espera": {
+       "DE": 4660,
+       "HL": 4660
+      }
+     },
+     {
+      "nome": "HL = $0000",
+      "visivel": true,
+      "setup": {
+       "HL": 0,
+       "DE": 21845
+      },
+      "espera": {
+       "DE": 0,
+       "HL": 0
+      }
+     },
+     {
+      "nome": "HL = $FFFF",
+      "visivel": false,
+      "dica": "falhou com HL = FFFFh",
+      "setup": {
+       "HL": 65535,
+       "DE": 21845
+      },
+      "espera": {
+       "DE": 65535,
+       "HL": 65535
+      }
+     },
+     {
+      "nome": "HL = $00FF",
+      "visivel": false,
+      "dica": "falhou com HL = 00FFh (só o byte baixo)",
+      "setup": {
+       "HL": 255,
+       "DE": 21845
+      },
+      "espera": {
+       "DE": 255,
+       "HL": 255
+      }
+     },
+     {
+      "nome": "HL = $FF00",
+      "visivel": false,
+      "dica": "falhou com HL = FF00h (só o byte alto)",
+      "setup": {
+       "HL": 65280,
+       "DE": 21845
+      },
+      "espera": {
+       "DE": 65280,
+       "HL": 65280
+      }
+     },
+     {
+      "nome": "HL = $8001",
+      "visivel": false,
+      "dica": "falhou com HL = 8001h",
+      "setup": {
+       "HL": 32769,
+       "DE": 21845
+      },
+      "espera": {
+       "DE": 32769,
+       "HL": 32769
+      }
+     },
+     {
+      "nome": "HL = $7FFF",
+      "visivel": false,
+      "dica": "falhou com HL = 7FFFh",
+      "setup": {
+       "HL": 32767,
+       "DE": 21845
+      },
+      "espera": {
+       "DE": 32767,
+       "HL": 32767
+      }
+     },
+     {
+      "nome": "HL = $ABCD",
+      "visivel": false,
+      "dica": "falhou com HL = ABCDh",
+      "setup": {
+       "HL": 43981,
+       "DE": 21845
+      },
+      "espera": {
+       "DE": 43981,
+       "HL": 43981
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 3,
+     "ciclos": 8
+    }
+   },
+   {
+    "id": "z80-005-somar-dois-bytes",
+    "linguagem": "z80",
+    "titulo": "Somar dois bytes",
+    "dificuldade": "facil",
+    "trilha": "aritmetica",
+    "tags": [
+     "add",
+     "soma",
+     "carry"
+    ],
+    "prerequisitos": [
+     "z80-001-guardar-o-valor"
+    ],
+    "aula": null,
+    "enunciado": "Some os bytes `x` e `y` e guarde o resultado de **8 bits** (módulo 256) em `res`.\n\n## Exemplos\n\n| x | y | res |\n|---|---|---|\n| 3 | 4 | 7 |\n| 255 | 1 | 0 |\n| 200 | 100 | 44 |\n\n## Restrições\n\n- O que passar de 255 é descartado (vai para o carry, que você não precisa guardar).",
+    "contrato": "Memória: `x` ($8000), `y` ($8001) e `res` ($8002). Os testes preenchem `x` e `y` e conferem `res`.",
+    "editorial": "A soma do Z80 tem duas formas: `ADD A,x` (ignora o carry anterior) e `ADC A,x` (soma também o carry). O 6502 tem só o equivalente de `ADC`, e por isso exige o `CLC` antes de cada soma; o Z80 dispensa, mas oferece `ADC` para encadear somas de vários bytes.\n\nO Z80 não tem `ADD A,(endereço)` direto; o segundo operando de memória só pode ser `(HL)`, `(IX+d)` ou `(IY+d)`. É por isso que `HL` costuma funcionar como \"ponteiro de uso geral\": é o par que as instruções de 8 bits mais aceitam como endereço.",
+    "codigoInicial": "; res = x + y\nx   EQU 8000h\ny   EQU 8001h\nres EQU 8002h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "x   EQU 8000h\ny   EQU 8001h\nres EQU 8002h\n\n    LD A,(x)\n    LD HL,y\n    ADD A,(HL)     ; A = a + (b)\n    LD (res),A\n    HALT",
+    "dicas": [
+     "`ADD A,x` soma `x` ao acumulador. O operando `x` pode ser outro registrador, um número ou **o byte apontado por HL**: `ADD A,(HL)`.",
+     "Carregue `x` em A com `LD A,(x)`. Ponha em HL o **endereço** de `y` (`LD HL,y`, sem parênteses) e some o byte apontado: `ADD A,(HL)`.",
+     "Grave com `LD (res),A`. Não precisa de `CLC`-equivalente: o `ADD` ignora o carry que havia antes (ao contrário do `ADC`)."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "3 + 4",
+      "visivel": true,
+      "setup": {
+       "x": 3,
+       "y": 4,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 7
+       }
+      }
+     },
+     {
+      "nome": "0 + 0",
+      "visivel": true,
+      "setup": {
+       "x": 0,
+       "y": 0,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "255 + 1",
+      "visivel": false,
+      "dica": "falhou com 255 + 1: o resultado é 0 (8 bits)",
+      "setup": {
+       "x": 255,
+       "y": 1,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "128 + 128",
+      "visivel": false,
+      "dica": "falhou com 128 + 128",
+      "setup": {
+       "x": 128,
+       "y": 128,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "100 + 155",
+      "visivel": false,
+      "dica": "falhou com 100 + 155 = 255",
+      "setup": {
+       "x": 100,
+       "y": 155,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "200 + 100",
+      "visivel": false,
+      "dica": "falhou com 200 + 100 = 300 (módulo 256 é 44)",
+      "setup": {
+       "x": 200,
+       "y": 100,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 44
+       }
+      }
+     },
+     {
+      "nome": "1 + 254",
+      "visivel": false,
+      "dica": "falhou com 1 + 254",
+      "setup": {
+       "x": 1,
+       "y": 254,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "255 + 255",
+      "visivel": false,
+      "dica": "falhou com 255 + 255 = 510 (módulo 256 é 254)",
+      "setup": {
+       "x": 255,
+       "y": 255,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 254
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 11,
+     "ciclos": 43,
+     "exigir": [
+      "ADD"
+     ]
+    }
+   },
+   {
+    "id": "z80-006-subtrair-dois-bytes",
+    "linguagem": "z80",
+    "titulo": "Subtrair dois bytes",
+    "dificuldade": "facil",
+    "trilha": "aritmetica",
+    "tags": [
+     "sub",
+     "subtração",
+     "empréstimo"
+    ],
+    "prerequisitos": [
+     "z80-005-somar-dois-bytes"
+    ],
+    "aula": null,
+    "enunciado": "Subtraia: `res = x - y`, com 8 bits (módulo 256). Se `y > x`, o resultado \"dá a volta\" (por exemplo, `0 - 1 = 255`).\n\n## Exemplos\n\n| x | y | res |\n|---|---|---|\n| 9 | 4 | 5 |\n| 5 | 9 | 252 |\n| 0 | 1 | 255 |\n\n## Restrições\n\n- Sem sinal: trate os bytes como 0 a 255.",
+    "contrato": "Memória: `x` ($8000), `y` ($8001) e `res` ($8002). Os testes preenchem `x` e `y` e conferem `res`.",
+    "editorial": "No Z80, `SUB` e `SBC` são duas instruções: `SUB` ignora o carry anterior; `SBC` subtrai também o carry (empréstimo). O 6502 só tem o segundo, com a convenção invertida (carry ligado = sem empréstimo): lá o `SEC` é obrigatório. No Z80 o carry é um **empréstimo** de verdade: fica ligado quando `A < operando`.\n\nIsso torna as comparações naturais: `CP x` (subtrai sem guardar) deixa o carry ligado se `A < x`, e é com esse flag que `JR C` e `JR NC` decidem.",
+    "codigoInicial": "; res = x - y\nx   EQU 8000h\ny   EQU 8001h\nres EQU 8002h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "x   EQU 8000h\ny   EQU 8001h\nres EQU 8002h\n\n    LD A,(x)\n    LD HL,y\n    SUB (HL)       ; A = a - (b)\n    LD (res),A\n    HALT",
+    "dicas": [
+     "`SUB x` subtrai `x` do acumulador (`A = A - x`). Com um único operando, o A é implícito.",
+     "`LD A,(x)`, `LD HL,y` e `SUB (HL)`. Note que o `SUB` do Z80 **não precisa** de `SEC` (ao contrário do `SBC` do 6502).",
+     "Se `y > x`, o resultado \"dá a volta\" e o carry fica ligado (empréstimo). Como o desafio pede módulo 256, nada a fazer: grave com `LD (res),A`."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "9 - 4",
+      "visivel": true,
+      "setup": {
+       "x": 9,
+       "y": 4,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 5
+       }
+      }
+     },
+     {
+      "nome": "0 - 0",
+      "visivel": true,
+      "setup": {
+       "x": 0,
+       "y": 0,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "0 - 1",
+      "visivel": false,
+      "dica": "falhou com 0 - 1: o resultado é 255 (módulo 256)",
+      "setup": {
+       "x": 0,
+       "y": 1,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "5 - 9",
+      "visivel": false,
+      "dica": "falhou com 5 - 9",
+      "setup": {
+       "x": 5,
+       "y": 9,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 252
+       }
+      }
+     },
+     {
+      "nome": "255 - 255",
+      "visivel": false,
+      "dica": "falhou com 255 - 255",
+      "setup": {
+       "x": 255,
+       "y": 255,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "128 - 1",
+      "visivel": false,
+      "dica": "falhou com 128 - 1",
+      "setup": {
+       "x": 128,
+       "y": 1,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 127
+       }
+      }
+     },
+     {
+      "nome": "100 - 200",
+      "visivel": false,
+      "dica": "falhou com 100 - 200",
+      "setup": {
+       "x": 100,
+       "y": 200,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 156
+       }
+      }
+     },
+     {
+      "nome": "1 - 255",
+      "visivel": false,
+      "dica": "falhou com 1 - 255",
+      "setup": {
+       "x": 1,
+       "y": 255,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 2
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 11,
+     "ciclos": 43,
+     "exigir": [
+      "SUB"
+     ]
+    }
+   },
+   {
+    "id": "z80-007-soma-de-16-bits",
+    "linguagem": "z80",
+    "titulo": "Soma de 16 bits",
+    "dificuldade": "facil",
+    "trilha": "aritmetica",
+    "tags": [
+     "16 bits",
+     "add hl",
+     "ld hl",
+     "little-endian"
+    ],
+    "prerequisitos": [
+     "z80-005-somar-dois-bytes"
+    ],
+    "aula": null,
+    "enunciado": "Some os números de 16 bits `x` e `y` (*little-endian*: o byte baixo vem primeiro na memória) e guarde o resultado de 16 bits em `res`, também *little-endian*.\n\n## Exemplos\n\n| x | y | res |\n|---|---|---|\n| 1000 | 234 | 1234 |\n| 255 | 1 | 256 |\n| 65535 | 1 | 0 |\n\n## Restrições\n\n- O que passar de 65535 é descartado.",
+    "contrato": "Memória: `x` ($8000-$8001), `y` ($8002-$8003) e `res` ($8004-$8005). Os testes conferem `res`.",
+    "editorial": "A grande vantagem do Z80 sobre o 6502 é a aritmética de 16 bits: `ADD HL,rr` soma dois pares em 11 ciclos. O 6502 precisa somar byte a byte, com o carry no meio. Por isso o Z80 equipa `HL` como o \"acumulador de 16 bits\", e `LD HL,(nn)` / `LD (nn),HL` fazem a ponte com a memória.\n\nA ordem *little-endian* é a mesma do 6502 e do 8086: o byte baixo no endereço menor. `LD HL,(x)` já cuida disso, colocando `x` em L e `x+1` em H.",
+    "codigoInicial": "; res = x + y\nx   EQU 8000h   ; 16 bits\ny   EQU 8002h   ; 16 bits\nres EQU 8004h   ; 16 bits\n\n    ; seu código aqui\n    HALT",
+    "solucao": "x   EQU 8000h\ny   EQU 8002h\nres EQU 8004h\n\n    LD HL,(x)\n    LD DE,(y)\n    ADD HL,DE\n    LD (res),HL\n    HALT",
+    "dicas": [
+     "O Z80 lê e grava 16 bits de uma vez: `LD HL,(endereço)` carrega os dois bytes (o do endereço em L e o seguinte em H) e `LD (endereço),HL` grava os dois.",
+     "Carregue `x` em HL e `y` em DE com `LD HL,(x)` e `LD DE,(y)`. Some com `ADD HL,DE`, que soma 16 bits de uma vez e deixa o resultado em HL.",
+     "Grave com `LD (res),HL`. Quatro instruções fazem tudo, contra doze do 6502 para o mesmo trabalho."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "1000 + 234",
+      "visivel": true,
+      "setup": {
+       "x": {
+        "w": 1000
+       },
+       "y": {
+        "w": 234
+       },
+       "res": {
+        "w": 7
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": 1234
+        }
+       }
+      }
+     },
+     {
+      "nome": "0 + 0",
+      "visivel": true,
+      "setup": {
+       "x": {
+        "w": 0
+       },
+       "y": {
+        "w": 0
+       },
+       "res": {
+        "w": 7
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": 0
+        }
+       }
+      }
+     },
+     {
+      "nome": "65535 + 1",
+      "visivel": false,
+      "dica": "falhou com 65535 + 1: o resultado é 0 (16 bits)",
+      "setup": {
+       "x": {
+        "w": 65535
+       },
+       "y": {
+        "w": 1
+       },
+       "res": {
+        "w": 7
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": 0
+        }
+       }
+      }
+     },
+     {
+      "nome": "255 + 1",
+      "visivel": false,
+      "dica": "falhou com 255 + 1: o vai-um passa para o byte alto",
+      "setup": {
+       "x": {
+        "w": 255
+       },
+       "y": {
+        "w": 1
+       },
+       "res": {
+        "w": 7
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": 256
+        }
+       }
+      }
+     },
+     {
+      "nome": "32768 + 32768",
+      "visivel": false,
+      "dica": "falhou com 32768 + 32768",
+      "setup": {
+       "x": {
+        "w": 32768
+       },
+       "y": {
+        "w": 32768
+       },
+       "res": {
+        "w": 7
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": 0
+        }
+       }
+      }
+     },
+     {
+      "nome": "12345 + 54321",
+      "visivel": false,
+      "dica": "falhou com 12345 + 54321",
+      "setup": {
+       "x": {
+        "w": 12345
+       },
+       "y": {
+        "w": 54321
+       },
+       "res": {
+        "w": 7
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": 1130
+        }
+       }
+      }
+     },
+     {
+      "nome": "1 + 65534",
+      "visivel": false,
+      "dica": "falhou com 1 + 65534",
+      "setup": {
+       "x": {
+        "w": 1
+       },
+       "y": {
+        "w": 65534
+       },
+       "res": {
+        "w": 7
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": 65535
+        }
+       }
+      }
+     },
+     {
+      "nome": "40000 + 40000",
+      "visivel": false,
+      "dica": "falhou com 40000 + 40000",
+      "setup": {
+       "x": {
+        "w": 40000
+       },
+       "y": {
+        "w": 40000
+       },
+       "res": {
+        "w": 7
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": 14464
+        }
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 12,
+     "ciclos": 63,
+     "exigir": [
+      "ADD"
+     ]
+    }
+   },
+   {
+    "id": "z80-008-multiplicar-por-10",
+    "linguagem": "z80",
+    "titulo": "Multiplicar por 10",
+    "dificuldade": "facil",
+    "trilha": "aritmetica",
+    "tags": [
+     "multiplicação",
+     "deslocamento",
+     "add a",
+     "a"
+    ],
+    "prerequisitos": [
+     "z80-005-somar-dois-bytes"
+    ],
+    "aula": null,
+    "enunciado": "Multiplique `valor` (de 0 a 25) por **10** e guarde em `res`. O Z80 não tem multiplicação: use somas e deslocamentos.\n\n## Exemplos\n\n| valor | res |\n|---|---|\n| 5 | 50 |\n| 25 | 250 |\n| 0 | 0 |\n\n## Restrições\n\n- O resultado cabe em 8 bits (`25 x 10 = 250`).",
+    "contrato": "Memória: `valor` ($8000) e `res` ($8001). Os testes preenchem `valor` e conferem `res`.",
+    "editorial": "Multiplicar por uma constante pequena é decomposição em somas e deslocamentos: `10 = 8 + 2 = 2 * (4 + 1)`. Cada `ADD A,A` dobra o acumulador (um deslocamento à esquerda), e `ADD A,B` soma o original. É bem mais rápido que um laço de 10 somas e é o que se faz em jogos para calcular endereços de tela.\n\nPara multiplicar por uma variável, e não por uma constante, o jeito é o algoritmo de deslocar e somar de 8 voltas (desafio 029). Os Z80 mais novos (eZ80) têm `MLT`, mas o Z80 original não.",
+    "codigoInicial": "; res = valor * 10\nvalor EQU 8000h\nres   EQU 8001h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "valor EQU 8000h\nres   EQU 8001h\n\n    LD A,(valor)\n    LD B,A         ; guarda x\n    ADD A,A        ; 2x\n    ADD A,A        ; 4x\n    ADD A,B        ; 5x\n    ADD A,A        ; 10x\n    LD (res),A\n    HALT",
+    "dicas": [
+     "`10x = 2 * (4x + x)`. Dobrar é somar o número com ele mesmo: `ADD A,A`.",
+     "Guarde `x` em B (`LD B,A`). Dobre duas vezes (`ADD A,A` duas vezes = `4x`), some `x` (`ADD A,B` = `5x`) e dobre de novo (`ADD A,A` = `10x`).",
+     "Grave com `LD (res),A`. Cinco instruções de 4 ciclos cada, sem laço: a mesma ideia de deslocar e somar usada pelos compiladores."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "valor 0",
+      "visivel": true,
+      "setup": {
+       "valor": 0,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "valor 1",
+      "visivel": true,
+      "setup": {
+       "valor": 1,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 10
+       }
+      }
+     },
+     {
+      "nome": "valor 5",
+      "visivel": false,
+      "dica": "falhou com valor 5",
+      "setup": {
+       "valor": 5,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 50
+       }
+      }
+     },
+     {
+      "nome": "valor 10",
+      "visivel": false,
+      "dica": "falhou com valor 10",
+      "setup": {
+       "valor": 10,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 100
+       }
+      }
+     },
+     {
+      "nome": "valor 25",
+      "visivel": false,
+      "dica": "falhou com valor 25 (250: o maior que cabe)",
+      "setup": {
+       "valor": 25,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 250
+       }
+      }
+     },
+     {
+      "nome": "valor 12",
+      "visivel": false,
+      "dica": "falhou com valor 12",
+      "setup": {
+       "valor": 12,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 120
+       }
+      }
+     },
+     {
+      "nome": "valor 7",
+      "visivel": false,
+      "dica": "falhou com valor 7",
+      "setup": {
+       "valor": 7,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 70
+       }
+      }
+     },
+     {
+      "nome": "valor 20",
+      "visivel": false,
+      "dica": "falhou com valor 20",
+      "setup": {
+       "valor": 20,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 200
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 12,
+     "ciclos": 46,
+     "exigir": [
+      "ADD"
+     ]
+    }
+   },
+   {
+    "id": "z80-009-media-de-dois-bytes",
+    "linguagem": "z80",
+    "titulo": "Média de dois bytes",
+    "dificuldade": "facil",
+    "trilha": "aritmetica",
+    "tags": [
+     "média",
+     "rra",
+     "carry",
+     "overflow"
+    ],
+    "prerequisitos": [
+     "z80-005-somar-dois-bytes"
+    ],
+    "aula": null,
+    "enunciado": "Calcule a média **inteira** (arredondada para baixo) de `x` e `y` e guarde em `res`. A soma pode passar de 255, e o resultado não pode perder o 9º bit.\n\n## Exemplos\n\n| x | y | res |\n|---|---|---|\n| 10 | 20 | 15 |\n| 1 | 2 | 1 |\n| 255 | 255 | 255 |\n\n## Restrições\n\n- Sem laços. Use o carry como o 9º bit da soma.",
+    "contrato": "Memória: `x` ($8000), `y` ($8001) e `res` ($8002). Os testes preenchem `x` e `y` e conferem `res`.",
+    "editorial": "A média de dois bytes é um clássico: `(x + y) / 2` falha quando a soma passa de 255. A solução é tratar o carry como o bit 8 e deslocar tudo junto: `RRA` faz exatamente isso, e o resultado já sai arredondado para baixo.\n\nCompare com a solução em 8086, em que `ADC AL,0` e `RCR` fazem o mesmo, ou com a do 6502 (`ROR A` depois do `ADC`). Quase todo processador de 8 bits tem uma rotação \"pelo carry\" justamente para este tipo de operação em precisão estendida.",
+    "codigoInicial": "; res = (x + y) / 2\nx   EQU 8000h\ny   EQU 8001h\nres EQU 8002h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "x   EQU 8000h\ny   EQU 8001h\nres EQU 8002h\n\n    LD A,(x)\n    LD HL,y\n    ADD A,(HL)     ; o 9º bit da soma fica no carry\n    RRA            ; gira o carry para dentro do bit 7: divide por 2 sem perder o bit\n    LD (res),A\n    HALT",
+    "dicas": [
+     "Dividir por 2 é deslocar um bit à direita. O problema é que `x + y` pode ter 9 bits, e A só guarda 8.",
+     "O 9º bit da soma fica no **carry** logo após o `ADD`. A instrução `RRA` gira A uma casa para a direita **pelo carry**: o carry entra no bit 7 e o bit 0 sai para o carry.",
+     "`LD A,(x)`, `LD HL,y`, `ADD A,(HL)`, `RRA`, `LD (res),A`. Nenhuma instrução entre o `ADD` e o `RRA` pode mexer no carry."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "média de 10 e 20",
+      "visivel": true,
+      "setup": {
+       "x": 10,
+       "y": 20,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 15
+       }
+      }
+     },
+     {
+      "nome": "média de 0 e 0",
+      "visivel": true,
+      "setup": {
+       "x": 0,
+       "y": 0,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "média de 255 e 255",
+      "visivel": false,
+      "dica": "falhou com 255 e 255: a soma tem 9 bits",
+      "setup": {
+       "x": 255,
+       "y": 255,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "média de 255 e 0",
+      "visivel": false,
+      "dica": "falhou com 255 e 0",
+      "setup": {
+       "x": 255,
+       "y": 0,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 127
+       }
+      }
+     },
+     {
+      "nome": "média de 1 e 2",
+      "visivel": false,
+      "dica": "falhou com 1 e 2 (arredonda para baixo)",
+      "setup": {
+       "x": 1,
+       "y": 2,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "média de 200 e 100",
+      "visivel": false,
+      "dica": "falhou com 200 e 100 (a soma passa de 255)",
+      "setup": {
+       "x": 200,
+       "y": 100,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 150
+       }
+      }
+     },
+     {
+      "nome": "média de 7 e 8",
+      "visivel": false,
+      "dica": "falhou com 7 e 8",
+      "setup": {
+       "x": 7,
+       "y": 8,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 7
+       }
+      }
+     },
+     {
+      "nome": "média de 254 e 255",
+      "visivel": false,
+      "dica": "falhou com 254 e 255",
+      "setup": {
+       "x": 254,
+       "y": 255,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 254
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 12,
+     "ciclos": 47,
+     "exigir": [
+      "RRA"
+     ]
+    }
+   },
+   {
+    "id": "z80-010-separar-os-nibbles",
+    "linguagem": "z80",
+    "titulo": "Separar os nibbles",
+    "dificuldade": "facil",
+    "trilha": "bits",
+    "tags": [
+     "and",
+     "rrca",
+     "nibble",
+     "máscara"
+    ],
+    "prerequisitos": [
+     "z80-001-guardar-o-valor"
+    ],
+    "aula": null,
+    "enunciado": "Separe o byte `valor` em dois **nibbles** (metades de 4 bits): grave o nibble de cima (bits 7 a 4) em `alto` e o de baixo (bits 3 a 0) em `baixo`. Os dois resultados vão de 0 a 15.\n\n## Exemplos\n\n| valor | alto | baixo |\n|---|---|---|\n| `$AB` | `$0A` | `$0B` |\n| `$12` | `$01` | `$02` |\n| `$F0` | `$0F` | `$00` |\n\n## Restrições\n\n- `valor` não pode mudar.",
+    "contrato": "Memória: `valor` ($8000), `alto` ($8001) e `baixo` ($8002). Os testes preenchem `valor` e conferem `alto` e `baixo`.",
+    "editorial": "`AND` com uma máscara isola bits; `RRCA` (rotaciona A à direita, com o bit 0 voltando ao bit 7) leva os bits para a posição desejada. Como o Z80 só desloca/gira **uma casa** por instrução, descer 4 casas exige 4 instruções (16 ciclos). O 8086 resolve em uma instrução com contador (`SHR AL,CL`); o Z80 compensa nos pares de nibbles com `RLD`/`RRD`, que giram nibbles entre A e a memória em 18 ciclos.\n\nOs nibbles importam em BCD (cada dígito decimal é um nibble) e em tabelas compactas. Quem programa Z80 aprende a pensar em nibbles.",
+    "codigoInicial": "; alto e baixo = nibbles de valor\nvalor EQU 8000h\nalto  EQU 8001h\nbaixo EQU 8002h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "valor EQU 8000h\nalto  EQU 8001h\nbaixo EQU 8002h\n\n    LD A,(valor)\n    LD B,A\n    AND 0Fh        ; mantém só o nibble baixo\n    LD (baixo),A\n    LD A,B\n    RRCA\n    RRCA\n    RRCA\n    RRCA           ; o nibble alto desce para a parte de baixo\n    AND 0Fh\n    LD (alto),A\n    HALT",
+    "dicas": [
+     "Para o nibble de baixo basta uma **máscara**: `AND 0Fh` zera os bits 7 a 4 e mantém os 3 a 0.",
+     "Para o de cima, é preciso descê-lo 4 posições. Quatro `RRCA` giram o acumulador 4 casas à direita; depois, `AND 0Fh` limpa a parte de cima que sobrou do giro.",
+     "Guarde o valor original em B (`LD B,A`) antes de mascarar, para ter de onde tirar o nibble alto. O `LD A,B` recupera o valor."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "$AB",
+      "visivel": true,
+      "setup": {
+       "valor": 171,
+       "alto": 99,
+       "baixo": 99
+      },
+      "espera": {
+       "mem": {
+        "alto": 10,
+        "baixo": 11
+       }
+      }
+     },
+     {
+      "nome": "$12",
+      "visivel": true,
+      "setup": {
+       "valor": 18,
+       "alto": 99,
+       "baixo": 99
+      },
+      "espera": {
+       "mem": {
+        "alto": 1,
+        "baixo": 2
+       }
+      }
+     },
+     {
+      "nome": "$00",
+      "visivel": false,
+      "dica": "falhou com 00h",
+      "setup": {
+       "valor": 0,
+       "alto": 99,
+       "baixo": 99
+      },
+      "espera": {
+       "mem": {
+        "alto": 0,
+        "baixo": 0
+       }
+      }
+     },
+     {
+      "nome": "$FF",
+      "visivel": false,
+      "dica": "falhou com FFh",
+      "setup": {
+       "valor": 255,
+       "alto": 99,
+       "baixo": 99
+      },
+      "espera": {
+       "mem": {
+        "alto": 15,
+        "baixo": 15
+       }
+      }
+     },
+     {
+      "nome": "$F0",
+      "visivel": false,
+      "dica": "falhou com F0h: o nibble alto é F e o baixo 0",
+      "setup": {
+       "valor": 240,
+       "alto": 99,
+       "baixo": 99
+      },
+      "espera": {
+       "mem": {
+        "alto": 15,
+        "baixo": 0
+       }
+      }
+     },
+     {
+      "nome": "$0F",
+      "visivel": false,
+      "dica": "falhou com 0Fh: o nibble alto é 0 e o baixo F",
+      "setup": {
+       "valor": 15,
+       "alto": 99,
+       "baixo": 99
+      },
+      "espera": {
+       "mem": {
+        "alto": 0,
+        "baixo": 15
+       }
+      }
+     },
+     {
+      "nome": "$81",
+      "visivel": false,
+      "dica": "falhou com 81h",
+      "setup": {
+       "valor": 129,
+       "alto": 99,
+       "baixo": 99
+      },
+      "espera": {
+       "mem": {
+        "alto": 8,
+        "baixo": 1
+       }
+      }
+     },
+     {
+      "nome": "$3C",
+      "visivel": false,
+      "dica": "falhou com 3Ch",
+      "setup": {
+       "valor": 60,
+       "alto": 99,
+       "baixo": 99
+      },
+      "espera": {
+       "mem": {
+        "alto": 3,
+        "baixo": 12
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 20,
+     "ciclos": 77,
+     "exigir": [
+      "AND"
+     ]
+    }
+   },
+   {
+    "id": "z80-011-ligar-desligar-inverter-bits",
+    "linguagem": "z80",
+    "titulo": "Ligar, desligar e inverter bits",
+    "dificuldade": "facil",
+    "trilha": "bits",
+    "tags": [
+     "set",
+     "res",
+     "xor",
+     "bit"
+    ],
+    "prerequisitos": [
+     "z80-010-separar-os-nibbles"
+    ],
+    "aula": null,
+    "enunciado": "Em `valor`, faça três coisas e guarde o resultado em `res`:\n\n- **ligue** o bit 0;\n- **desligue** o bit 7;\n- **inverta** o bit 4.\n\nOs demais bits ficam como estão.\n\n## Exemplos\n\n| valor | res |\n|---|---|\n| `%00000000` | `%00010001` |\n| `%11111111` | `%01101111` |\n| `%10000000` | `%00010001` |\n\n## Restrições\n\n- Use `SET` e `RES` para ligar e desligar.",
+    "contrato": "Memória: `valor` ($8000) e `res` ($8001). Os testes preenchem `valor` e conferem `res`.",
+    "editorial": "`SET`, `RES` e `BIT` são um dos grandes diferenciais do Z80 sobre o 6502 e o 8080: cada uma opera em um bit de qualquer registrador (ou de `(HL)`, `(IX+d)`) em 8 ciclos. No 6502, o mesmo exige `ORA #máscara`, `AND #máscara` e `EOR #máscara`.\n\nPara inverter bits, o idioma é o `XOR` com a máscara. Há também `CPL`, que inverte todos os bits de A de uma vez. Combinar `SET`/`RES` para o que é fixo e `XOR` para o que alterna deixa o código legível: cada instrução diz qual bit está mexendo.",
+    "codigoInicial": "; res = valor com o bit 0 ligado, o 7 desligado e o 4 invertido\nvalor EQU 8000h\nres   EQU 8001h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "valor EQU 8000h\nres   EQU 8001h\n\n    LD A,(valor)\n    SET 0,A        ; liga o bit 0\n    RES 7,A        ; desliga o bit 7\n    XOR 10h        ; inverte o bit 4\n    LD (res),A\n    HALT",
+    "dicas": [
+     "O Z80 tem instruções que mexem em **um bit** por vez: `SET n,r` liga, `RES n,r` desliga e `BIT n,r` testa o bit `n` do registrador `r`.",
+     "`SET 0,A` liga o bit 0 e `RES 7,A` desliga o bit 7. Elas não mexem em nenhum flag.",
+     "Para inverter, não há instrução de um bit: use `XOR` com uma máscara que tenha só o bit 4 ligado: `XOR 10h` (`%00010000`)."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "$00",
+      "visivel": true,
+      "setup": {
+       "valor": 0,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 17
+       }
+      }
+     },
+     {
+      "nome": "$FF",
+      "visivel": true,
+      "setup": {
+       "valor": 255,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 111
+       }
+      }
+     },
+     {
+      "nome": "$80",
+      "visivel": false,
+      "dica": "falhou com 80h: o bit 7 deve ser apagado",
+      "setup": {
+       "valor": 128,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 17
+       }
+      }
+     },
+     {
+      "nome": "$01",
+      "visivel": false,
+      "dica": "falhou com 01h: o bit 0 já está ligado",
+      "setup": {
+       "valor": 1,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 17
+       }
+      }
+     },
+     {
+      "nome": "$A5",
+      "visivel": false,
+      "dica": "falhou com A5h",
+      "setup": {
+       "valor": 165,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 53
+       }
+      }
+     },
+     {
+      "nome": "$5A",
+      "visivel": false,
+      "dica": "falhou com 5Ah",
+      "setup": {
+       "valor": 90,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 75
+       }
+      }
+     },
+     {
+      "nome": "$10",
+      "visivel": false,
+      "dica": "falhou com 10h: o bit 4 deve ser invertido para 0",
+      "setup": {
+       "valor": 16,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "$7E",
+      "visivel": false,
+      "dica": "falhou com 7Eh",
+      "setup": {
+       "valor": 126,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 111
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 13,
+     "ciclos": 49,
+     "exigir": [
+      "SET",
+      "RES"
+     ]
+    }
+   },
+   {
+    "id": "z80-012-trocar-os-nibbles",
+    "linguagem": "z80",
+    "titulo": "Trocar os nibbles",
+    "dificuldade": "facil",
+    "trilha": "bits",
+    "tags": [
+     "rlca",
+     "rotação",
+     "nibble"
+    ],
+    "prerequisitos": [
+     "z80-010-separar-os-nibbles"
+    ],
+    "aula": null,
+    "enunciado": "Troque os dois nibbles de `valor` e guarde o resultado em `res`: o de cima vai para baixo e o de baixo vai para cima.\n\n## Exemplos\n\n| valor | res |\n|---|---|\n| `$AB` | `$BA` |\n| `$12` | `$21` |\n| `$F0` | `$0F` |\n\n## Restrições\n\n- `valor` não pode mudar.",
+    "contrato": "Memória: `valor` ($8000) e `res` ($8001). Os testes preenchem `valor` e conferem `res`.",
+    "editorial": "Rotação e deslocamento diferem em um detalhe: o deslocamento (`SLA`, `SRL`) perde os bits que saem e preenche com zeros; a rotação (`RLCA`, `RRCA`) devolve os bits que saem pelo outro lado. Para trocar nibbles a rotação serve sem máscara alguma, porque 4 giros de um byte de 8 bits trocam as duas metades.\n\nO Z80 tem ainda `RLD` e `RRD`, que giram 3 nibbles entre A e a memória apontada por HL, úteis em BCD, mas para esta troca simples os quatro `RLCA` (16 ciclos, 4 bytes) são a solução mais curta.",
+    "codigoInicial": "; res = valor com os nibbles trocados\nvalor EQU 8000h\nres   EQU 8001h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "valor EQU 8000h\nres   EQU 8001h\n\n    LD A,(valor)\n    RLCA\n    RLCA\n    RLCA\n    RLCA           ; 4 giros de 8 bits = trocar os nibbles\n    LD (res),A\n    HALT",
+    "dicas": [
+     "Girar um byte de 8 bits em 4 posições faz o nibble alto ir para baixo **e** o baixo ir para cima, tudo de uma vez: é a troca de nibbles.",
+     "`RLCA` gira A uma casa à esquerda (o bit 7 volta no bit 0). Quatro `RLCA` seguidos são uma rotação de 4 casas.",
+     "`LD A,(valor)`, quatro vezes `RLCA`, `LD (res),A`. Sem máscaras: ao contrário do deslocamento, a rotação não perde bits."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "$AB",
+      "visivel": true,
+      "setup": {
+       "valor": 171,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 186
+       }
+      }
+     },
+     {
+      "nome": "$12",
+      "visivel": true,
+      "setup": {
+       "valor": 18,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 33
+       }
+      }
+     },
+     {
+      "nome": "$00",
+      "visivel": false,
+      "dica": "falhou com 00h",
+      "setup": {
+       "valor": 0,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "$FF",
+      "visivel": false,
+      "dica": "falhou com FFh",
+      "setup": {
+       "valor": 255,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "$F0",
+      "visivel": false,
+      "dica": "falhou com F0h: vira 0Fh",
+      "setup": {
+       "valor": 240,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 15
+       }
+      }
+     },
+     {
+      "nome": "$0F",
+      "visivel": false,
+      "dica": "falhou com 0Fh: vira F0h",
+      "setup": {
+       "valor": 15,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 240
+       }
+      }
+     },
+     {
+      "nome": "$81",
+      "visivel": false,
+      "dica": "falhou com 81h",
+      "setup": {
+       "valor": 129,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 24
+       }
+      }
+     },
+     {
+      "nome": "$3C",
+      "visivel": false,
+      "dica": "falhou com 3Ch",
+      "setup": {
+       "valor": 60,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 195
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 11,
+     "ciclos": 42,
+     "exigir": [
+      "RLCA"
+     ]
+    }
+   },
+   {
+    "id": "z80-013-contar-bits-ligados",
+    "linguagem": "z80",
+    "titulo": "Contar bits ligados",
+    "dificuldade": "facil",
+    "trilha": "bits",
+    "tags": [
+     "rrca",
+     "djnz",
+     "laço",
+     "popcount"
+    ],
+    "prerequisitos": [
+     "z80-010-separar-os-nibbles"
+    ],
+    "aula": null,
+    "enunciado": "Conte quantos bits de `valor` valem 1 e guarde a contagem (de 0 a 8) em `res`.\n\n## Exemplos\n\n| valor | res |\n|---|---|\n| `$00` | 0 |\n| `$FF` | 8 |\n| `$A5` | 4 |\n\n## Restrições\n\n- `valor` não pode mudar.",
+    "contrato": "Memória: `valor` ($8000) e `res` ($8001). Os testes preenchem `valor` e conferem `res`.",
+    "editorial": "`DJNZ` é uma instrução exclusiva do Z80 (e do 8080, pelo equivalente `DCR`/`JNZ`): decrementa B e desvia se o resultado não for zero, em uma só instrução de 2 bytes e 13 ciclos (8 quando termina). Ela é o laço \"for i = n até 1\" do Z80, e por isso B é o registrador de contagem por convenção.\n\nA rotação com o bit indo para o carry é o jeito padrão de testar bits em sequência. O Z80 também poderia usar `BIT n,A` com `n` fixo, mas isso exigiria desenrolar o laço. Para contar bits muito rápido, o truque é uma tabela de 256 bytes com a contagem de cada valor.",
+    "codigoInicial": "; res = quantidade de bits 1 em valor\nvalor EQU 8000h\nres   EQU 8001h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "valor EQU 8000h\nres   EQU 8001h\n\n    LD A,(valor)\n    LD B,8         ; oito bits\n    LD C,0         ; contador\nlaco:\n    RRCA           ; o bit 0 vai para o carry\n    JR NC,sem\n    INC C\nsem:\n    DJNZ laco\n    LD A,C\n    LD (res),A\n    HALT",
+    "dicas": [
+     "Examine os 8 bits, um por volta. O bit que está sendo examinado precisa ir para um lugar onde se possa testar: o **carry**.",
+     "`RRCA` gira A à direita e copia o bit que saiu para o carry. Depois, `JR NC,sem` pula se era 0, e `INC C` conta se era 1.",
+     "`DJNZ` decrementa B e repete enquanto B não for zero: use `LD B,8` e `DJNZ laco`. No fim, copie o contador para A (`LD A,C`) e grave."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "$00",
+      "visivel": true,
+      "setup": {
+       "valor": 0,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "$FF",
+      "visivel": true,
+      "setup": {
+       "valor": 255,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 8
+       }
+      }
+     },
+     {
+      "nome": "$01",
+      "visivel": false,
+      "dica": "falhou com 01h (um bit)",
+      "setup": {
+       "valor": 1,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "$80",
+      "visivel": false,
+      "dica": "falhou com 80h (o bit mais alto)",
+      "setup": {
+       "valor": 128,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "$A5",
+      "visivel": false,
+      "dica": "falhou com A5h",
+      "setup": {
+       "valor": 165,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 4
+       }
+      }
+     },
+     {
+      "nome": "$55",
+      "visivel": false,
+      "dica": "falhou com 55h",
+      "setup": {
+       "valor": 85,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 4
+       }
+      }
+     },
+     {
+      "nome": "$0F",
+      "visivel": false,
+      "dica": "falhou com 0Fh",
+      "setup": {
+       "valor": 15,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 4
+       }
+      }
+     },
+     {
+      "nome": "$F0",
+      "visivel": false,
+      "dica": "falhou com F0h",
+      "setup": {
+       "valor": 240,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 4
+       }
+      }
+     },
+     {
+      "nome": "$7F",
+      "visivel": false,
+      "dica": "falhou com 7Fh (sete bits)",
+      "setup": {
+       "valor": 127,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 7
+       }
+      }
+     },
+     {
+      "nome": "$B6",
+      "visivel": false,
+      "dica": "falhou com B6h",
+      "setup": {
+       "valor": 182,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 5
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 18,
+     "ciclos": 271,
+     "exigir": [
+      "DJNZ"
+     ]
+    }
+   },
+   {
+    "id": "z80-014-maximo-de-dois",
+    "linguagem": "z80",
+    "titulo": "Máximo de dois",
+    "dificuldade": "facil",
+    "trilha": "decisoes",
+    "tags": [
+     "cp",
+     "jr",
+     "carry",
+     "máximo"
+    ],
+    "prerequisitos": [
+     "z80-005-somar-dois-bytes"
+    ],
+    "aula": null,
+    "enunciado": "Guarde em `res` o **maior** entre `x` e `y`. Os dois são bytes **sem sinal** (0 a 255).\n\n## Exemplos\n\n| x | y | res |\n|---|---|---|\n| 3 | 9 | 9 |\n| 9 | 3 | 9 |\n| 5 | 5 | 5 |\n| 0 | 255 | 255 |\n\n## Restrições\n\n- Sem sinal: 255 é maior que 127.",
+    "contrato": "Memória: `x` ($8000), `y` ($8001) e `res` ($8002). Os testes preenchem `x` e `y` e conferem `res`.",
+    "editorial": "O `CP` é o coração das decisões do Z80: um `SUB` que descarta o resultado e só deixa os flags. O carry diz \"menor sem sinal\"; o Z diz \"igual\"; e o par S/PV diz \"menor com sinal\". Com `JR C`, `JR NC`, `JR Z` e `JR NZ` se faz qualquer comparação sem sinal.\n\n`JR` (desvio relativo, 2 bytes, 12/7 ciclos) é preferível a `JP` (3 bytes, 10 ciclos) quando o alvo está perto: ocupa menos espaço. O `JR` só aceita as condições `Z`, `NZ`, `C`, `NC`; para as demais (`PO`, `PE`, `P`, `M`) é preciso usar `JP`.",
+    "codigoInicial": "; res = maior de x e y\nx   EQU 8000h\ny   EQU 8001h\nres EQU 8002h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "x   EQU 8000h\ny   EQU 8001h\nres EQU 8002h\n\n    LD A,(x)\n    LD HL,y\n    CP (HL)        ; A - b, sem guardar\n    JR NC,grava    ; sem carry: a >= b\n    LD A,(HL)      ; senão o maior é b\ngrava:\n    LD (res),A\n    HALT",
+    "dicas": [
+     "`CP x` compara A com x (faz `A - x` e só atualiza os flags). Se `A < x`, o **carry** fica ligado; se `A >= x`, desligado.",
+     "`JR NC,rotulo` desvia quando o carry está desligado, ou seja, quando `A >= y`. Nesse caso A já é o maior.",
+     "Caso contrário, carregue `y` em A com `LD A,(HL)` (HL aponta para y depois do `LD HL,y`). Os dois caminhos terminam em `LD (res),A`."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "máximo de 3 e 9",
+      "visivel": true,
+      "setup": {
+       "x": 3,
+       "y": 9,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 9
+       }
+      }
+     },
+     {
+      "nome": "máximo de 9 e 3",
+      "visivel": true,
+      "setup": {
+       "x": 9,
+       "y": 3,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 9
+       }
+      }
+     },
+     {
+      "nome": "máximo de 5 e 5",
+      "visivel": false,
+      "dica": "falhou com valores iguais",
+      "setup": {
+       "x": 5,
+       "y": 5,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 5
+       }
+      }
+     },
+     {
+      "nome": "máximo de 0 e 255",
+      "visivel": false,
+      "dica": "falhou com 0 e 255 (a comparação é sem sinal)",
+      "setup": {
+       "x": 0,
+       "y": 255,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "máximo de 255 e 0",
+      "visivel": false,
+      "dica": "falhou com 255 e 0",
+      "setup": {
+       "x": 255,
+       "y": 0,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "máximo de 128 e 127",
+      "visivel": false,
+      "dica": "falhou com 128 e 127: 128 é maior sem sinal",
+      "setup": {
+       "x": 128,
+       "y": 127,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 128
+       }
+      }
+     },
+     {
+      "nome": "máximo de 127 e 128",
+      "visivel": false,
+      "dica": "falhou com 127 e 128",
+      "setup": {
+       "x": 127,
+       "y": 128,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 128
+       }
+      }
+     },
+     {
+      "nome": "máximo de 200 e 201",
+      "visivel": false,
+      "dica": "falhou com 200 e 201",
+      "setup": {
+       "x": 200,
+       "y": 201,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 201
+       }
+      }
+     },
+     {
+      "nome": "máximo de 1 e 0",
+      "visivel": false,
+      "dica": "falhou com 1 e 0",
+      "setup": {
+       "x": 1,
+       "y": 0,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 14,
+     "ciclos": 57,
+     "exigir": [
+      "CP"
+     ]
+    }
+   },
+   {
+    "id": "z80-015-sinal-do-numero",
+    "linguagem": "z80",
+    "titulo": "Sinal do número",
+    "dificuldade": "facil",
+    "trilha": "decisoes",
+    "tags": [
+     "or a",
+     "jp m",
+     "flag s",
+     "complemento de dois"
+    ],
+    "prerequisitos": [
+     "z80-014-maximo-de-dois"
+    ],
+    "aula": null,
+    "enunciado": "`valor` é um byte **com sinal** (complemento de dois, de -128 a 127). Grave em `res`:\n\n- **0** se `valor` for zero;\n- **1** se for positivo;\n- **255** (que é -1) se for negativo.\n\n## Exemplos\n\n| valor | res |\n|---|---|\n| 5 | 1 |\n| 0 | 0 |\n| 255 (-1) | 255 |\n| 128 (-128) | 255 |\n\n## Restrições\n\n- O bit 7 é o sinal.",
+    "contrato": "Memória: `valor` ($8000) e `res` ($8001). Os testes preenchem `valor` e conferem `res`.",
+    "editorial": "O Z80 tem oito condições de desvio: `NZ`, `Z`, `NC`, `C`, `PO`, `PE`, `P` e `M`. As quatro primeiras testam Z e C e funcionam em `JR` e `JP`; as quatro últimas testam P/V (paridade/overflow) e S (sinal) e só existem em `JP`, `CALL` e `RET`. É por isso que `JP M` e `JP P` aparecem sempre que se testa sinal.\n\n`OR A` é o idioma para \"atualiza os flags com o valor de A\" (também `AND A` e `CP 0`, mas `OR A` é o mais difundido): 1 byte, 4 ciclos, e ainda zera o carry. O `LD` não mexe em flag nenhum no Z80.",
+    "codigoInicial": "; res = sinal de valor (0, 1 ou 255)\nvalor EQU 8000h\nres   EQU 8001h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "valor EQU 8000h\nres   EQU 8001h\n\n    LD A,(valor)\n    OR A           ; atualiza S e Z sem alterar A\n    JR Z,grava     ; zero: A já é 0\n    JP M,negativo  ; S ligado: negativo\n    LD A,1\n    JR grava\nnegativo:\n    LD A,0FFh\ngrava:\n    LD (res),A\n    HALT",
+    "dicas": [
+     "Os flags **S** (sinal) e **Z** (zero) dizem tudo, mas o `LD` não os atualiza no Z80. Um truque barato: `OR A` (A ou A = A) deixa A igual e atualiza os flags.",
+     "`JR Z,grava` trata o zero (A já vale 0). `JP M,negativo` desvia se S está ligado (**M**inus). O `JR` não tem a condição `M`: tem de ser `JP`.",
+     "No caminho do positivo, `LD A,1` e `JR grava`. No `negativo`, `LD A,0FFh`. Todos terminam em `LD (res),A`."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "valor 5",
+      "visivel": true,
+      "setup": {
+       "valor": 5,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "valor 0",
+      "visivel": true,
+      "setup": {
+       "valor": 0,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "valor 255",
+      "visivel": false,
+      "dica": "falhou com 255 (-1 em complemento de dois): o sinal é negativo",
+      "setup": {
+       "valor": 255,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "valor 127",
+      "visivel": false,
+      "dica": "falhou com 127: o maior positivo",
+      "setup": {
+       "valor": 127,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "valor 128",
+      "visivel": false,
+      "dica": "falhou com 128 (-128): o menor negativo",
+      "setup": {
+       "valor": 128,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "valor 1",
+      "visivel": false,
+      "dica": "falhou com 1",
+      "setup": {
+       "valor": 1,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "valor 200",
+      "visivel": false,
+      "dica": "falhou com 200 (negativo)",
+      "setup": {
+       "valor": 200,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "valor 100",
+      "visivel": false,
+      "dica": "falhou com 100",
+      "setup": {
+       "valor": 100,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 19,
+     "ciclos": 66,
+     "exigir": [
+      "OR"
+     ]
+    }
+   },
+   {
+    "id": "z80-016-dentro-do-intervalo",
+    "linguagem": "z80",
+    "titulo": "Dentro do intervalo",
+    "dificuldade": "facil",
+    "trilha": "decisoes",
+    "tags": [
+     "cp",
+     "intervalo",
+     "jr c",
+     "sem sinal"
+    ],
+    "prerequisitos": [
+     "z80-014-maximo-de-dois"
+    ],
+    "aula": null,
+    "enunciado": "Grave em `res` **1** se `lo <= valor <= hi` (os limites são **inclusivos**) e **0** caso contrário. Todos os bytes são sem sinal.\n\n## Exemplos\n\n| lo | hi | valor | res |\n|---|---|---|---|\n| 5 | 10 | 7 | 1 |\n| 5 | 10 | 10 | 1 |\n| 5 | 10 | 11 | 0 |\n| 5 | 10 | 4 | 0 |\n\n## Restrições\n\n- `lo <= hi` sempre.",
+    "contrato": "Memória: `lo` ($8000), `hi` ($8001), `valor` ($8002) e `res` ($8003). Os testes preenchem `lo`, `hi` e `valor` e conferem `res`.",
+    "editorial": "Testar uma faixa é duas comparações com o mesmo \"pulo para fora\". O `CP` deixa o carry ligado quando o primeiro operando é menor, e basta virar a ordem dos operandos para testar `<` ou `>` com o mesmo `JR C`. Um truque clássico elimina uma comparação: `valor - lo` (sem sinal) é menor que `hi - lo + 1` exatamente quando está na faixa (a subtração \"dá a volta\" para valores abaixo de `lo`).\n\nOs limites inclusivos são o pegadinha dos testes: os testes ocultos incluem o valor **igual** aos limites, onde um `JR NC` no lugar de `JR C` (erro de uma casa) falha.",
+    "codigoInicial": "; res = 1 se lo <= valor <= hi, senão 0\nlo    EQU 8000h\nhi    EQU 8001h\nvalor EQU 8002h\nres   EQU 8003h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "lo    EQU 8000h\nhi    EQU 8001h\nvalor EQU 8002h\nres   EQU 8003h\n\n    LD A,(valor)\n    LD HL,lo\n    CP (HL)        ; valor - lo\n    JR C,fora      ; valor < lo\n    LD A,(hi)\n    LD HL,valor\n    CP (HL)        ; hi - valor\n    JR C,fora      ; hi < valor\n    LD A,1\n    JR grava\nfora:\n    XOR A\ngrava:\n    LD (res),A\n    HALT",
+    "dicas": [
+     "São duas comparações, e basta falhar uma para estar fora: `valor < lo` ou `valor > hi`.",
+     "Para o primeiro limite, compare `valor` com `lo` (`CP (HL)` com HL em `lo`): se o carry ligar, `valor < lo`. Para o segundo, compare `hi` com `valor` (`hi - valor`): se o carry ligar, `hi < valor`.",
+     "Se passou nas duas, `LD A,1`; senão, `XOR A` (zero). Os dois caminhos terminam no mesmo `LD (res),A`."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "5 <= 7 <= 10",
+      "visivel": true,
+      "setup": {
+       "lo": 5,
+       "hi": 10,
+       "valor": 7,
+       "res": 9
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "5 <= 5 <= 10",
+      "visivel": true,
+      "setup": {
+       "lo": 5,
+       "hi": 10,
+       "valor": 5,
+       "res": 9
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "5 <= 10 <= 10",
+      "visivel": false,
+      "dica": "falhou com o valor igual ao limite superior (inclusivo)",
+      "setup": {
+       "lo": 5,
+       "hi": 10,
+       "valor": 10,
+       "res": 9
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "5 <= 4 <= 10",
+      "visivel": false,
+      "dica": "falhou com o valor logo abaixo do limite inferior",
+      "setup": {
+       "lo": 5,
+       "hi": 10,
+       "valor": 4,
+       "res": 9
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "5 <= 11 <= 10",
+      "visivel": false,
+      "dica": "falhou com o valor logo acima do limite superior",
+      "setup": {
+       "lo": 5,
+       "hi": 10,
+       "valor": 11,
+       "res": 9
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "0 <= 0 <= 255",
+      "visivel": false,
+      "dica": "falhou com limites 0 e 255 e valor 0",
+      "setup": {
+       "lo": 0,
+       "hi": 255,
+       "valor": 0,
+       "res": 9
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "0 <= 255 <= 255",
+      "visivel": false,
+      "dica": "falhou com limites 0 e 255 e valor 255",
+      "setup": {
+       "lo": 0,
+       "hi": 255,
+       "valor": 255,
+       "res": 9
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "100 <= 100 <= 100",
+      "visivel": false,
+      "dica": "falhou com limites iguais e valor igual",
+      "setup": {
+       "lo": 100,
+       "hi": 100,
+       "valor": 100,
+       "res": 9
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "100 <= 99 <= 100",
+      "visivel": false,
+      "dica": "falhou com limites iguais e valor abaixo",
+      "setup": {
+       "lo": 100,
+       "hi": 100,
+       "valor": 99,
+       "res": 9
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "50 <= 200 <= 60",
+      "visivel": false,
+      "dica": "falhou com valor muito acima (comparação sem sinal)",
+      "setup": {
+       "lo": 50,
+       "hi": 60,
+       "valor": 200,
+       "res": 9
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 27,
+     "ciclos": 106,
+     "exigir": [
+      "CP"
+     ]
+    }
+   },
+   {
+    "id": "z80-017-soma-do-vetor",
+    "linguagem": "z80",
+    "titulo": "Soma do vetor",
+    "dificuldade": "facil",
+    "trilha": "vetores",
+    "tags": [
+     "laço",
+     "djnz",
+     "add",
+     "ponteiro"
+    ],
+    "prerequisitos": [
+     "z80-014-maximo-de-dois"
+    ],
+    "aula": null,
+    "enunciado": "Some os `n` bytes de `vetor` e guarde o resultado de **8 bits** (módulo 256) em `res`.\n\n## Exemplos\n\n| vetor | n | res |\n|---|---|---|\n| 1, 2, 3, 4 | 4 | 10 |\n| (vazio) | 0 | 0 |\n| 200, 100 | 2 | 44 |\n| 255, 1 | 2 | 0 |\n\n## Restrições\n\n- `n` vai de 0 a 20.\n- A soma é módulo 256: o que passar de 255 é descartado.",
+    "contrato": "Memória: `n` ($8000), `res` ($8001) e `vetor` ($8100, 20 bytes). Os testes preenchem `vetor` e `n` e conferem `res`.",
+    "editorial": "O laço \"ponteiro em HL, contador em B\" é o esqueleto de quase todo o código Z80 sobre vetores: `(HL)` lê o elemento, `INC HL` avança, `DJNZ` conta. Cada volta gasta 7 + 6 + 13 = 26 ciclos para somar um elemento.\n\nO `DJNZ` tem uma armadilha: ele decrementa **antes** de testar, então `B = 0` na entrada significa 256 voltas. Por isso o caso do vetor vazio exige tratamento à parte. Em 8086, o `LOOP` com `CX = 0` tem a mesma armadilha (65536 voltas).",
+    "codigoInicial": "; res = soma dos n bytes de vetor\nn      EQU 8000h\nres    EQU 8001h\nvetor  EQU 8100h   ; até 20 bytes\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n      EQU 8000h\nres    EQU 8001h\nvetor  EQU 8100h\n\n    LD A,(n)\n    OR A\n    JR Z,grava     ; vetor vazio: A já é 0\n    LD B,A         ; B conta os elementos\n    LD HL,vetor\n    XOR A\nlaco:\n    ADD A,(HL)\n    INC HL\n    DJNZ laco\ngrava:\n    LD (res),A\n    HALT",
+    "dicas": [
+     "HL é o par ponteiro: aponte para o início do vetor (`LD HL,vetor`), leia o elemento com `ADD A,(HL)` e avance com `INC HL`.",
+     "`DJNZ` decrementa B e repete enquanto B ≠ 0: use B como contador de elementos. Cuidado: se B começa em 0, o `DJNZ` dá **256 voltas**. Trate `n = 0` antes do laço.",
+     "`LD A,(n)`, `OR A` (liga Z se for 0) e `JR Z,grava` (A já vale 0). Senão, `LD B,A`, `LD HL,vetor`, `XOR A` e o laço de `ADD A,(HL)` / `INC HL` / `DJNZ`."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "1, 2, 3, 4",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        1,
+        2,
+        3,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 4,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 10
+       }
+      }
+     },
+     {
+      "nome": "(vazio)",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 0,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "200, 100",
+      "visivel": false,
+      "dica": "falhou com 200 + 100: a soma passa de 255 (módulo 256)",
+      "setup": {
+       "vetor": [
+        200,
+        100,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 2,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 44
+       }
+      }
+     },
+     {
+      "nome": "255, 1",
+      "visivel": false,
+      "dica": "falhou com 255 + 1",
+      "setup": {
+       "vetor": [
+        255,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 2,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "20 elementos",
+      "visivel": false,
+      "dica": "falhou com 20 elementos",
+      "setup": {
+       "vetor": [
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10
+       ],
+       "n": 20,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 200
+       }
+      }
+     },
+     {
+      "nome": "5",
+      "visivel": false,
+      "dica": "falhou com um elemento",
+      "setup": {
+       "vetor": [
+        5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 1,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 5
+       }
+      }
+     },
+     {
+      "nome": "0, 0, 0",
+      "visivel": false,
+      "dica": "falhou com zeros",
+      "setup": {
+       "vetor": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 3,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "128, 128",
+      "visivel": false,
+      "dica": "falhou com 128 + 128",
+      "setup": {
+       "vetor": [
+        128,
+        128,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 2,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10",
+      "visivel": false,
+      "dica": "falhou com 1..10",
+      "setup": {
+       "vetor": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 10,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 55
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 19,
+     "ciclos": 570,
+     "exigir": [
+      "DJNZ"
+     ]
+    }
+   },
+   {
+    "id": "z80-018-maior-elemento",
+    "linguagem": "z80",
+    "titulo": "Maior elemento",
+    "dificuldade": "facil",
+    "trilha": "vetores",
+    "tags": [
+     "laço",
+     "cp",
+     "máximo",
+     "ponteiro"
+    ],
+    "prerequisitos": [
+     "z80-017-soma-do-vetor"
+    ],
+    "aula": null,
+    "enunciado": "Guarde em `res` o **maior** elemento de `vetor`. Os `n` elementos são bytes **sem sinal** e `n` vai de **1** a 20 (o vetor nunca é vazio).\n\n## Exemplos\n\n| vetor | res |\n|---|---|\n| 3, 9, 2 | 9 |\n| 7 | 7 |\n| 5, 4, 3, 2, 1 | 5 |\n| 255, 0, 128 | 255 |\n\n## Restrições\n\n- A comparação é sem sinal.",
+    "contrato": "Memória: `n` ($8000), `res` ($8001) e `vetor` ($8100, 20 bytes). Os testes preenchem `vetor` e `n` e conferem `res`.",
+    "editorial": "Procurar o máximo é percorrer o vetor mantendo o \"melhor até agora\". No Z80 o acumulador A faz esse papel, e `CP (HL)` compara sem destruir nada, de modo que o único `LD` condicional é para o novo máximo. Para o mínimo, inverta a condição (`JR C` no lugar de `JR NC`).\n\nNote o `DEC B` seguido de `JR Z`: o `DEC` atualiza o flag Z, então o desvio vem de graça, sem `OR`/`CP` extra. No Z80, `INC r` e `DEC r` (de 8 bits) atualizam Z, mas `INC rr` e `DEC rr` (de 16 bits) **não** atualizam nenhum flag.",
+    "codigoInicial": "; res = maior elemento de vetor\nn     EQU 8000h\nres   EQU 8001h\nvetor EQU 8100h   ; até 20 bytes\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n     EQU 8000h\nres   EQU 8001h\nvetor EQU 8100h\n\n    LD A,(n)\n    LD B,A\n    LD HL,vetor\n    LD A,(HL)      ; começa com o primeiro\n    DEC B\n    JR Z,grava     ; só havia um\n    INC HL\nlaco:\n    CP (HL)\n    JR NC,pula     ; A >= elemento: fica\n    LD A,(HL)      ; elemento maior: novo máximo\npula:\n    INC HL\n    DJNZ laco\ngrava:\n    LD (res),A\n    HALT",
+    "dicas": [
+     "Guarde o maior visto até agora em **A**: comece com o primeiro elemento e compare com cada um dos outros.",
+     "`CP (HL)` compara A com o elemento. Se o carry **não** ligou (`JR NC`), A é maior ou igual: nada a fazer. Se ligou, o elemento é maior: `LD A,(HL)`.",
+     "Como o primeiro já foi lido, faltam `n - 1` elementos: `DEC B` depois de carregar o primeiro e `JR Z,grava` se não sobrou nenhum. Não esqueça o `INC HL` para pular o primeiro."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "3, 9, 2",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        3,
+        9,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 3,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 9
+       }
+      }
+     },
+     {
+      "nome": "7",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        7,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 1,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 7
+       }
+      }
+     },
+     {
+      "nome": "5, 4, 3, 2, 1",
+      "visivel": false,
+      "dica": "falhou com um único elemento",
+      "setup": {
+       "vetor": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 5,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 5
+       }
+      }
+     },
+     {
+      "nome": "255, 0, 128",
+      "visivel": false,
+      "dica": "falhou com o maior no início",
+      "setup": {
+       "vetor": [
+        255,
+        0,
+        128,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 3,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "1, 1, 1",
+      "visivel": false,
+      "dica": "falhou com 255 no meio (sem sinal)",
+      "setup": {
+       "vetor": [
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 3,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "0",
+      "visivel": false,
+      "dica": "falhou com elementos iguais",
+      "setup": {
+       "vetor": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 1,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "100, 200, 150, 250, 50",
+      "visivel": false,
+      "dica": "falhou com um único zero",
+      "setup": {
+       "vetor": [
+        100,
+        200,
+        150,
+        250,
+        50,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 5,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 250
+       }
+      }
+     },
+     {
+      "nome": "128, 127",
+      "visivel": false,
+      "dica": "falhou com 128 e 127 (128 é maior sem sinal)",
+      "setup": {
+       "vetor": [
+        128,
+        127,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 2,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 128
+       }
+      }
+     },
+     {
+      "nome": "20 elementos",
+      "visivel": false,
+      "dica": "falhou com 20 elementos aleatórios",
+      "setup": {
+       "vetor": [
+        113,
+        203,
+        253,
+        66,
+        117,
+        179,
+        185,
+        230,
+        67,
+        96,
+        158,
+        138,
+        21,
+        26,
+        29,
+        96,
+        50,
+        104,
+        186,
+        252
+       ],
+       "n": 20,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 253
+       }
+      }
+     },
+     {
+      "nome": "0, 255",
+      "visivel": false,
+      "dica": "falhou com 255 no último elemento",
+      "setup": {
+       "vetor": [
+        0,
+        255,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 2,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 23,
+     "ciclos": 785,
+     "exigir": [
+      "CP"
+     ]
+    }
+   },
+   {
+    "id": "z80-019-preencher-o-vetor",
+    "linguagem": "z80",
+    "titulo": "Preencher o vetor",
+    "dificuldade": "facil",
+    "trilha": "vetores",
+    "tags": [
+     "preencher",
+     "laço",
+     "ld (hl)",
+     "ponteiro"
+    ],
+    "prerequisitos": [
+     "z80-017-soma-do-vetor"
+    ],
+    "aula": null,
+    "enunciado": "Preencha os `n` primeiros bytes de `vetor` com o valor `val` (`n` de 0 a 20). Os bytes depois dos `n` primeiros **não podem mudar**.\n\n## Exemplos\n\n| n | val | vetor depois |\n|---|---|---|\n| 5 | 7 | 7, 7, 7, 7, 7, ... |\n| 0 | 1 | (nada muda) |\n\n## Restrições\n\n- `vetor` chega com lixo (`$EE`).",
+    "contrato": "Memória: `n` ($8000), `val` ($8001) e `vetor` ($8100, 20 bytes). Os testes conferem `vetor`, inclusive que o resto não foi tocado.",
+    "editorial": "Existe um jeito mais curto no Z80: gravar o primeiro byte e usar `LDIR` para copiar o vetor **sobre si mesmo**, deslocado de um byte: com HL = `vetor`, DE = `vetor+1` e BC = `n-1`, cada byte copiado é o que acabou de ser escrito, e o valor se propaga por todo o bloco. O truque aparece em rotinas de limpar a tela de computadores de 8 bits.\n\nO laço simples ocupa 8 bytes e gasta 26 ciclos por elemento; o `LDIR` gasta 21 por elemento, mas exige montar BC, DE e HL antes, e só compensa em blocos grandes.",
+    "codigoInicial": "; preenche os n primeiros bytes de vetor com val\nn     EQU 8000h\nval   EQU 8001h\nvetor EQU 8100h   ; até 20 bytes\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n     EQU 8000h\nval   EQU 8001h\nvetor EQU 8100h\n\n    LD A,(n)\n    OR A\n    JR Z,fim\n    LD B,A\n    LD A,(val)\n    LD HL,vetor\nlaco:\n    LD (HL),A\n    INC HL\n    DJNZ laco\nfim:\n    HALT",
+    "dicas": [
+     "Um laço de `n` voltas que grava `val` em `(HL)` e avança o ponteiro. `LD (HL),A` grava A no endereço apontado por HL.",
+     "Trate `n = 0` primeiro (`LD A,(n)`, `OR A`, `JR Z,fim`), senão o `DJNZ` daria 256 voltas e estragaria memória fora do vetor.",
+     "Depois: `LD B,A` (contador), `LD A,(val)`, `LD HL,vetor` e o laço `LD (HL),A` / `INC HL` / `DJNZ laco`."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "5 vezes o valor 7",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 5,
+       "val": 7
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         7,
+         7,
+         7,
+         7,
+         7,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "0 vezes o valor 1",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 0,
+       "val": 1
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "1 vezes o valor 255",
+      "visivel": false,
+      "dica": "falhou com n = 1 e valor 255",
+      "setup": {
+       "vetor": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 1,
+       "val": 255
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         255,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "20 vezes o valor 0",
+      "visivel": false,
+      "dica": "falhou com n = 20 e valor 0 (o vetor inteiro)",
+      "setup": {
+       "vetor": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 20,
+       "val": 0
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "10 vezes o valor 128",
+      "visivel": false,
+      "dica": "falhou com n = 10 e valor 128",
+      "setup": {
+       "vetor": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 10,
+       "val": 128
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         128,
+         128,
+         128,
+         128,
+         128,
+         128,
+         128,
+         128,
+         128,
+         128,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "3 vezes o valor 42",
+      "visivel": false,
+      "dica": "falhou com n = 3",
+      "setup": {
+       "vetor": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 3,
+       "val": 42
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         42,
+         42,
+         42,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "7 vezes o valor 99",
+      "visivel": false,
+      "dica": "falhou com n = 7",
+      "setup": {
+       "vetor": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 7,
+       "val": 99
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "15 vezes o valor 200",
+      "visivel": false,
+      "dica": "falhou com n = 15",
+      "setup": {
+       "vetor": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 15,
+       "val": 200
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         200,
+         200,
+         200,
+         200,
+         200,
+         200,
+         200,
+         200,
+         200,
+         200,
+         200,
+         200,
+         200,
+         200,
+         200,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 18,
+     "ciclos": 566,
+     "exigir": [
+      "DJNZ"
+     ]
+    }
+   },
+   {
+    "id": "z80-020-copiar-bloco",
+    "linguagem": "z80",
+    "titulo": "Copiar bloco",
+    "dificuldade": "facil",
+    "trilha": "vetores",
+    "tags": [
+     "ldir",
+     "cópia",
+     "bloco",
+     "bc"
+    ],
+    "prerequisitos": [
+     "z80-017-soma-do-vetor"
+    ],
+    "aula": null,
+    "enunciado": "Copie os `n` primeiros bytes de `origem` para `destino` (`n` de 0 a 20). Os bytes depois dos `n` primeiros de `destino` **não podem mudar**. Os blocos não se sobrepõem.\n\n## Exemplos\n\n| n | efeito |\n|---|---|\n| 5 | copia 5 bytes |\n| 0 | nada muda |\n\n## Restrições\n\n- Use `LDIR`, a instrução de cópia de blocos do Z80.",
+    "contrato": "Memória: `n` ($8000), `origem` ($8100, 20 bytes) e `destino` ($8200, 20 bytes). Os testes preenchem `origem` e conferem `destino`.",
+    "editorial": "`LDIR` é a instrução mais característica do Z80: copia um bloco inteiro com uma instrução, a 21 ciclos por byte. É a base de rotinas de rolagem de tela, de cópia de sprites e de limpeza de memória nos computadores de 8 bits da era (ZX Spectrum, MSX, Amstrad). O 6502 não tem nada parecido e precisa de um laço de `LDA`/`STA` (13 ciclos por byte nas páginas pequenas, mas sem ponteiros de 16 bits).\n\nA armadilha do `BC = 0` é famosa: o teste de fim é \"BC chegou a zero **depois** de decrementar\", então começar em zero equivale a 65536. Em 8086, `REP MOVSB` com CX = 0 não faz nada, e a armadilha não existe lá.",
+    "codigoInicial": "; copia n bytes de origem para destino\nn       EQU 8000h\norigem  EQU 8100h   ; até 20 bytes\ndestino EQU 8200h   ; até 20 bytes\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n       EQU 8000h\norigem  EQU 8100h\ndestino EQU 8200h\n\n    LD A,(n)\n    OR A\n    JR Z,fim       ; BC = 0 faria o LDIR copiar 65536 bytes\n    LD C,A\n    LD B,0\n    LD HL,origem\n    LD DE,destino\n    LDIR\nfim:\n    HALT",
+    "dicas": [
+     "`LDIR` copia o byte de `(HL)` para `(DE)`, avança os dois ponteiros, decrementa BC e **repete até BC = 0**. Prepare HL (origem), DE (destino) e BC (quantidade).",
+     "`LD A,(n)`, `LD C,A` e `LD B,0` montam BC com o número de bytes. `LD HL,origem` e `LD DE,destino` montam os ponteiros. Depois, `LDIR`.",
+     "Cuidado com `n = 0`: com `BC = 0` o `LDIR` copia **65536 bytes** (BC chega a zero só depois de dar a volta). Teste antes: `OR A` / `JR Z,fim`."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "copiar 5 bytes",
+      "visivel": true,
+      "setup": {
+       "origem": [
+        175,
+        252,
+        72,
+        173,
+        108,
+        193,
+        113,
+        60,
+        69,
+        84,
+        62,
+        195,
+        219,
+        57,
+        179,
+        196,
+        106,
+        243,
+        176,
+        206
+       ],
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 5
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         175,
+         252,
+         72,
+         173,
+         108,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "copiar 1 bytes",
+      "visivel": true,
+      "setup": {
+       "origem": [
+        183,
+        48,
+        220,
+        3,
+        159,
+        90,
+        103,
+        151,
+        237,
+        231,
+        206,
+        146,
+        69,
+        129,
+        14,
+        14,
+        27,
+        58,
+        1,
+        223
+       ],
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 1
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         183,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "copiar 20 bytes",
+      "visivel": false,
+      "dica": "falhou com 20 bytes (o bloco inteiro)",
+      "setup": {
+       "origem": [
+        113,
+        137,
+        71,
+        224,
+        116,
+        19,
+        224,
+        34,
+        183,
+        124,
+        227,
+        149,
+        2,
+        227,
+        19,
+        76,
+        20,
+        112,
+        28,
+        128
+       ],
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 20
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         113,
+         137,
+         71,
+         224,
+         116,
+         19,
+         224,
+         34,
+         183,
+         124,
+         227,
+         149,
+         2,
+         227,
+         19,
+         76,
+         20,
+         112,
+         28,
+         128
+        ]
+       }
+      }
+     },
+     {
+      "nome": "copiar 0 bytes",
+      "visivel": false,
+      "dica": "falhou com n = 0: nada deve ser copiado (cuidado com LDIR e BC = 0)",
+      "setup": {
+       "origem": [
+        80,
+        93,
+        50,
+        185,
+        255,
+        192,
+        100,
+        244,
+        81,
+        50,
+        206,
+        31,
+        156,
+        138,
+        34,
+        200,
+        208,
+        162,
+        186,
+        180
+       ],
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 0
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "copiar 10 bytes",
+      "visivel": false,
+      "dica": "falhou com 10 bytes",
+      "setup": {
+       "origem": [
+        74,
+        111,
+        202,
+        141,
+        10,
+        161,
+        209,
+        58,
+        218,
+        126,
+        227,
+        181,
+        197,
+        149,
+        239,
+        54,
+        46,
+        143,
+        226,
+        82
+       ],
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 10
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         74,
+         111,
+         202,
+         141,
+         10,
+         161,
+         209,
+         58,
+         218,
+         126,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "copiar 3 bytes",
+      "visivel": false,
+      "dica": "falhou com 3 bytes",
+      "setup": {
+       "origem": [
+        149,
+        78,
+        245,
+        189,
+        0,
+        94,
+        102,
+        114,
+        254,
+        247,
+        59,
+        120,
+        106,
+        124,
+        77,
+        55,
+        55,
+        135,
+        39,
+        236
+       ],
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 3
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         149,
+         78,
+         245,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "copiar 17 bytes",
+      "visivel": false,
+      "dica": "falhou com 17 bytes",
+      "setup": {
+       "origem": [
+        60,
+        152,
+        169,
+        138,
+        167,
+        28,
+        247,
+        28,
+        227,
+        229,
+        123,
+        60,
+        92,
+        177,
+        173,
+        195,
+        123,
+        238,
+        166,
+        123
+       ],
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 17
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         60,
+         152,
+         169,
+         138,
+         167,
+         28,
+         247,
+         28,
+         227,
+         229,
+         123,
+         60,
+         92,
+         177,
+         173,
+         195,
+         123,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "copiar 2 bytes",
+      "visivel": false,
+      "dica": "falhou com 2 bytes",
+      "setup": {
+       "origem": [
+        63,
+        71,
+        48,
+        255,
+        86,
+        163,
+        220,
+        76,
+        251,
+        183,
+        81,
+        142,
+        60,
+        223,
+        193,
+        141,
+        182,
+        106,
+        212,
+        150
+       ],
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 2
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         63,
+         71,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 18,
+     "ciclos": 470,
+     "exigir": [
+      "LDIR"
+     ]
+    }
+   },
+   {
+    "id": "z80-021-inverter-o-vetor",
+    "linguagem": "z80",
+    "titulo": "Inverter o vetor",
+    "dificuldade": "facil",
+    "trilha": "vetores",
+    "tags": [
+     "reverso",
+     "dois ponteiros",
+     "troca",
+     "de"
+    ],
+    "prerequisitos": [
+     "z80-017-soma-do-vetor",
+     "z80-019-preencher-o-vetor"
+    ],
+    "aula": null,
+    "enunciado": "Inverta a ordem dos `n` primeiros elementos de `vetor` (`n` de 0 a 20), **no próprio lugar**: o primeiro troca com o último, o segundo com o penúltimo, e assim por diante.\n\n## Exemplos\n\n| antes | depois |\n|---|---|\n| 1, 2, 3, 4, 5 | 5, 4, 3, 2, 1 |\n| 1, 2, 3, 4 | 4, 3, 2, 1 |\n| 7 | 7 |\n\n## Restrições\n\n- Não use um segundo vetor. Os bytes depois de `n` não podem mudar.",
+    "contrato": "Memória: `n` ($8000) e `vetor` ($8100, 20 bytes). Os testes conferem o vetor (e que o resto não mudou).",
+    "editorial": "Inverter no lugar é o exemplo mais simples da técnica de **dois ponteiros** que se aproximam, usada também em palíndromos e na partição do quicksort. O Z80 ajuda com `DE` como ponteiro: `LD A,(DE)` e `LD (DE),A` existem, e `DEC DE` anda para trás sem tocar nos flags.\n\nO `EX DE,HL` é o jeito de calcular um endereço em HL (onde o `ADD` de 16 bits funciona) e entregá-lo a DE em 4 ciclos. Quando n é ímpar, o elemento do meio não troca: com `n / 2` trocas ele nunca é visitado.",
+    "codigoInicial": "; inverte os n primeiros elementos de vetor\nn     EQU 8000h\nvetor EQU 8100h   ; até 20 bytes\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n     EQU 8000h\nvetor EQU 8100h\n\n    LD A,(n)\n    CP 2\n    JR C,fim       ; 0 ou 1 elemento: nada a fazer\n    LD B,A\n    SRL B          ; B = número de trocas (n / 2)\n    LD HL,vetor-1\n    LD E,A\n    LD D,0\n    ADD HL,DE\n    EX DE,HL       ; DE aponta para o último elemento\n    LD HL,vetor    ; HL aponta para o primeiro\nlaco:\n    LD C,(HL)\n    LD A,(DE)\n    LD (HL),A\n    LD A,C\n    LD (DE),A\n    INC HL\n    DEC DE\n    DJNZ laco\nfim:\n    HALT",
+    "dicas": [
+     "A técnica dos **dois ponteiros**: HL no primeiro elemento e DE no último; troca-se o par e as pontas andam uma casa para o centro. São `n / 2` trocas.",
+     "O endereço do último elemento é `vetor + n - 1`: `LD HL,vetor-1`, `LD E,A`, `LD D,0`, `ADD HL,DE` e `EX DE,HL` (agora DE tem o último e HL fica livre para o primeiro). `SRL B` divide por 2.",
+     "Cada troca: `LD C,(HL)`, `LD A,(DE)`, `LD (HL),A`, `LD A,C`, `LD (DE),A`; depois `INC HL`, `DEC DE` e `DJNZ`. Com `n < 2` não há o que fazer: `CP 2` / `JR C,fim`."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "1, 2, 3, 4, 5",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 5
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         5,
+         4,
+         3,
+         2,
+         1,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "1, 2, 3, 4",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        1,
+        2,
+        3,
+        4,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 4
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         4,
+         3,
+         2,
+         1,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "7",
+      "visivel": false,
+      "dica": "falhou com um elemento (nada muda)",
+      "setup": {
+       "vetor": [
+        7,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 1
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         7,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "(vazio)",
+      "visivel": false,
+      "dica": "falhou com vetor vazio",
+      "setup": {
+       "vetor": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 0
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "9, 8",
+      "visivel": false,
+      "dica": "falhou com dois elementos",
+      "setup": {
+       "vetor": [
+        9,
+        8,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 2
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         8,
+         9,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "255, 0, 128",
+      "visivel": false,
+      "dica": "falhou com 255, 0, 128",
+      "setup": {
+       "vetor": [
+        255,
+        0,
+        128,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 3
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         128,
+         0,
+         255,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "5, 5, 5",
+      "visivel": false,
+      "dica": "falhou com elementos iguais",
+      "setup": {
+       "vetor": [
+        5,
+        5,
+        5,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 3
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         5,
+         5,
+         5,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "20 elementos",
+      "visivel": false,
+      "dica": "falhou com 20 elementos (par)",
+      "setup": {
+       "vetor": [
+        97,
+        87,
+        35,
+        191,
+        194,
+        76,
+        14,
+        148,
+        20,
+        9,
+        225,
+        158,
+        228,
+        235,
+        89,
+        22,
+        192,
+        216,
+        75,
+        161
+       ],
+       "n": 20
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         161,
+         75,
+         216,
+         192,
+         22,
+         89,
+         235,
+         228,
+         158,
+         225,
+         9,
+         20,
+         148,
+         14,
+         76,
+         194,
+         191,
+         35,
+         87,
+         97
+        ]
+       }
+      }
+     },
+     {
+      "nome": "18, 20, 205, 161, 105, 92, 41, 236, 217, 98, 84",
+      "visivel": false,
+      "dica": "falhou com 11 elementos (ímpar: o do meio fica)",
+      "setup": {
+       "vetor": [
+        18,
+        20,
+        205,
+        161,
+        105,
+        92,
+        41,
+        236,
+        217,
+        98,
+        84,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 11
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         84,
+         98,
+         217,
+         236,
+         41,
+         92,
+         105,
+         161,
+         205,
+         20,
+         18,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "1, 2, 3",
+      "visivel": false,
+      "dica": "falhou com 3 elementos",
+      "setup": {
+       "vetor": [
+        1,
+        2,
+        3,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 3
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         3,
+         2,
+         1,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 31,
+     "ciclos": 650,
+     "exigir": [
+      "DJNZ"
+     ]
+    }
+   },
+   {
+    "id": "z80-022-procedimento-que-dobra",
+    "linguagem": "z80",
+    "titulo": "Procedimento que dobra",
+    "dificuldade": "facil",
+    "trilha": "procedimentos",
+    "tags": [
+     "call",
+     "ret",
+     "sub-rotina",
+     "pilha"
+    ],
+    "prerequisitos": [
+     "z80-005-somar-dois-bytes"
+    ],
+    "aula": null,
+    "enunciado": "Escreva uma **sub-rotina** `dobra` que multiplica `A` por 2 (módulo 256) e retorna com `RET`. O programa principal chama a sub-rotina com `CALL dobra` e depois termina em `HALT`.\n\n## Exemplos\n\n| A antes | A depois |\n|---|---|\n| 5 | 10 |\n| 100 | 200 |\n| 128 | 0 |\n\n## Restrições\n\n- A sub-rotina vem **depois** do `HALT` do programa principal.\n- A pilha deve terminar equilibrada.",
+    "contrato": "Registradores: `A` chega com o valor do teste. Os testes conferem `A` e a pilha equilibrada.",
+    "editorial": "`CALL` gasta 17 ciclos e empilha 2 bytes (o endereço seguinte); `RET` gasta 10 e desempilha. Isso ensina o contrato de uma sub-rotina: entradas e saídas em **registradores** (aqui, A entra e A sai), sem variáveis globais. É a convenção que as bibliotecas do Z80 usam: registradores são rápidos, memória é lenta.\n\nA pilha do Z80 é de 16 bits: `PUSH` e `POP` movem pares de registradores, e `CALL`/`RET` movem o contador de programa. O ponteiro `SP` cresce para baixo (começa no topo da memória e vai diminuindo a cada `PUSH`/`CALL`).",
+    "codigoInicial": "; A = A * 2 usando uma sub-rotina\n\n    ; programa principal: chame a sub-rotina e termine em HALT\n    HALT\n\ndobra:\n    ; seu código aqui\n    RET",
+    "solucao": "    CALL dobra\n    HALT\n\ndobra:\n    ADD A,A\n    RET",
+    "dicas": [
+     "`CALL rotulo` salta para a sub-rotina e **empilha o endereço de retorno**; `RET` desempilha esse endereço e volta para a instrução depois do `CALL`.",
+     "A sub-rotina é só `ADD A,A` (dobrar é somar com ele mesmo) seguida de `RET`. O programa principal faz `CALL dobra` e `HALT`.",
+     "Cada `CALL` precisa do seu `RET`. Se o `HALT` do principal não vier antes do rótulo `dobra`, a CPU cairia dentro da sub-rotina sem ter chamado."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "A = 0",
+      "visivel": true,
+      "setup": {
+       "A": 0
+      },
+      "espera": {
+       "A": 0,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 1",
+      "visivel": true,
+      "setup": {
+       "A": 1
+      },
+      "espera": {
+       "A": 2,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 5",
+      "visivel": false,
+      "dica": "falhou com A = 5",
+      "setup": {
+       "A": 5
+      },
+      "espera": {
+       "A": 10,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 10",
+      "visivel": false,
+      "dica": "falhou com A = 100",
+      "setup": {
+       "A": 10
+      },
+      "espera": {
+       "A": 20,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 100",
+      "visivel": false,
+      "dica": "falhou com A = 127",
+      "setup": {
+       "A": 100
+      },
+      "espera": {
+       "A": 200,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 127",
+      "visivel": false,
+      "dica": "falhou com A = 128 (passa de 255 ao dobrar: dá a volta)",
+      "setup": {
+       "A": 127
+      },
+      "espera": {
+       "A": 254,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 128",
+      "visivel": false,
+      "dica": "falhou com A = 255",
+      "setup": {
+       "A": 128
+      },
+      "espera": {
+       "A": 0,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 255",
+      "visivel": false,
+      "dica": "falhou com A = 10",
+      "setup": {
+       "A": 255
+      },
+      "espera": {
+       "A": 254,
+       "pilhaEquilibrada": true
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 6,
+     "ciclos": 31,
+     "exigir": [
+      "CALL",
+      "RET"
+     ]
+    }
+   },
+   {
+    "id": "z80-023-preservar-os-registradores",
+    "linguagem": "z80",
+    "titulo": "Preservar os registradores",
+    "dificuldade": "facil",
+    "trilha": "procedimentos",
+    "tags": [
+     "push",
+     "pop",
+     "call",
+     "preservar"
+    ],
+    "prerequisitos": [
+     "z80-022-procedimento-que-dobra"
+    ],
+    "aula": null,
+    "enunciado": "Escreva uma sub-rotina `quadrado` que recebe `A` (de 0 a 15) e devolve em `A` o seu quadrado, **sem alterar nenhum outro registrador** (em especial `BC`, que o programa principal está usando). Para isso a sub-rotina pode usar BC internamente, mas precisa **restaurá-lo** antes de voltar.\n\n## Exemplos\n\n| A | A depois |\n|---|---|\n| 3 | 9 |\n| 15 | 225 |\n| 0 | 0 |\n\n## Restrições\n\n- Sem multiplicação: use somas repetidas.\n- `BC` deve voltar como estava, e a pilha, equilibrada.",
+    "contrato": "Registradores: `A` (0 a 15) e `BC` chegam com valores do teste. Os testes conferem `A`, `BC` e a pilha equilibrada.",
+    "editorial": "Preservar registradores é o contrato que permite a uma sub-rotina ser chamada de qualquer lugar. A regra no Z80 é simples: tudo que a sub-rotina usa e não devolve, ela empilha na entrada e desempilha na saída, na ordem inversa. `PUSH BC` / `POP BC` custa 21 ciclos, que é o \"preço\" da preservação.\n\nO Z80 tem uma alternativa exclusiva: o conjunto **alternativo** de registradores. `EXX` troca BC, DE e HL pelos gêmeos BC', DE' e HL' em 4 ciclos, e `EX AF,AF'` troca AF. Uma sub-rotina que começa e termina com `EXX` ganha seis registradores de trabalho por 8 ciclos, bem menos que PUSH/POP de três pares (63 ciclos).",
+    "codigoInicial": "; A = A * A, preservando BC\n\n    CALL quadrado\n    HALT\n\nquadrado:\n    ; seu código aqui\n    RET",
+    "solucao": "    CALL quadrado\n    HALT\n\nquadrado:\n    OR A\n    RET Z          ; 0 x 0 = 0\n    PUSH BC        ; guarda o BC do chamador\n    LD B,A         ; B conta as somas\n    LD C,A         ; C é o que se soma\n    XOR A\nsoma:\n    ADD A,C\n    DJNZ soma\n    POP BC         ; restaura o BC\n    RET",
+    "dicas": [
+     "O quadrado de `k` é `k` somado `k` vezes. Use B como contador do `DJNZ` e C como a parcela. Isso destrói BC: o chamador contava com ele!",
+     "`PUSH BC` no início da sub-rotina guarda BC na pilha e `POP BC` antes do `RET` o devolve. Cada `PUSH` precisa de um `POP`, na ordem inversa.",
+     "Cuidado com `A = 0`: `DJNZ` com B = 0 daria 256 voltas. Trate o zero antes de empilhar: `OR A` e `RET Z` (o resultado já é 0)."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "A = 0, BC = $1234",
+      "visivel": true,
+      "setup": {
+       "A": 0,
+       "BC": 4660
+      },
+      "espera": {
+       "A": 0,
+       "BC": 4660,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 1, BC = $0000",
+      "visivel": true,
+      "setup": {
+       "A": 1,
+       "BC": 0
+      },
+      "espera": {
+       "A": 1,
+       "BC": 0,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 2, BC = $FFFF",
+      "visivel": false,
+      "dica": "falhou com A = 2: BC deve voltar como estava",
+      "setup": {
+       "A": 2,
+       "BC": 65535
+      },
+      "espera": {
+       "A": 4,
+       "BC": 65535,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 3, BC = $ABCD",
+      "visivel": false,
+      "dica": "falhou com A = 3",
+      "setup": {
+       "A": 3,
+       "BC": 43981
+      },
+      "espera": {
+       "A": 9,
+       "BC": 43981,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 5, BC = $00FF",
+      "visivel": false,
+      "dica": "falhou com A = 5",
+      "setup": {
+       "A": 5,
+       "BC": 255
+      },
+      "espera": {
+       "A": 25,
+       "BC": 255,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 9, BC = $7F7F",
+      "visivel": false,
+      "dica": "falhou com A = 9",
+      "setup": {
+       "A": 9,
+       "BC": 32639
+      },
+      "espera": {
+       "A": 81,
+       "BC": 32639,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 12, BC = $8080",
+      "visivel": false,
+      "dica": "falhou com A = 12",
+      "setup": {
+       "A": 12,
+       "BC": 32896
+      },
+      "espera": {
+       "A": 144,
+       "BC": 32896,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 15, BC = $5555",
+      "visivel": false,
+      "dica": "falhou com A = 15 (225, o maior que cabe)",
+      "setup": {
+       "A": 15,
+       "BC": 21845
+      },
+      "espera": {
+       "A": 225,
+       "BC": 21845,
+       "pilhaEquilibrada": true
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 15,
+     "ciclos": 319,
+     "exigir": [
+      "PUSH",
+      "POP"
+     ]
+    }
+   },
+   {
+    "id": "z80-024-inverter-com-a-pilha",
+    "linguagem": "z80",
+    "titulo": "Inverter com a pilha",
+    "dificuldade": "facil",
+    "trilha": "pilha",
+    "tags": [
+     "push",
+     "pop",
+     "pilha",
+     "lifo"
+    ],
+    "prerequisitos": [
+     "z80-021-inverter-o-vetor",
+     "z80-022-procedimento-que-dobra"
+    ],
+    "aula": null,
+    "enunciado": "Inverta os `n` primeiros bytes de `vetor` (`n` de 1 a 10) usando a **pilha**: empilhe todos os elementos, na ordem, e depois desempilhe de volta no vetor. A pilha é LIFO (o último a entrar é o primeiro a sair), o que inverte a ordem de graça.\n\n## Exemplos\n\n| antes | depois |\n|---|---|\n| 1, 2, 3 | 3, 2, 1 |\n| 9 | 9 |\n\n## Restrições\n\n- A pilha deve terminar equilibrada.\n- Os bytes depois de `n` não podem mudar.",
+    "contrato": "Memória: `n` ($8000) e `vetor` ($8100, 10 bytes). Os testes conferem o vetor invertido, o resto intacto e a pilha equilibrada.",
+    "editorial": "A pilha é uma estrutura LIFO, e inverter uma sequência é a demonstração mais simples disso. O Z80 só empilha pares, então cada elemento ocupa 2 bytes (o outro byte vai de carona) e o uso total é `2n` bytes. Para n = 10, são 20 bytes de pilha.\n\nQuem programa Z80 aprende que PUSH e POP também são a forma barata de **copiar pares**: `PUSH HL` / `POP DE` copia HL para DE em 21 ciclos (ou 8 com dois `LD`). E que `EX (SP),HL` troca HL com o topo da pilha, base de rotinas de passagem de argumentos.",
+    "codigoInicial": "; inverte vetor usando a pilha\nn     EQU 8000h\nvetor EQU 8100h   ; até 10 bytes\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n     EQU 8000h\nvetor EQU 8100h\n\n    LD A,(n)\n    LD B,A\n    LD HL,vetor\nempilha:\n    LD C,(HL)\n    PUSH BC        ; empilha 16 bits; o byte baixo é o elemento\n    INC HL\n    DJNZ empilha\n    LD A,(n)\n    LD B,A\n    LD HL,vetor\ndesempilha:\n    POP DE\n    LD (HL),E      ; E é o byte baixo que entrou\n    INC HL\n    DJNZ desempilha\n    HALT",
+    "dicas": [
+     "A pilha do Z80 guarda **16 bits** por vez (`PUSH rr` / `POP rr`). Para guardar um byte, empilhe um par e use só a metade baixa.",
+     "Primeira fase: percorra o vetor com HL e, para cada elemento, `LD C,(HL)` e `PUSH BC`. Segunda fase: volte ao início do vetor e, para cada posição, `POP DE` e `LD (HL),E`.",
+     "Use B como contador nas duas fases (`LD A,(n)` / `LD B,A`; o `DJNZ` consome B, por isso precisa recarregá-lo). O `DJNZ` empilha `n` vezes e desempilha `n` vezes: a pilha fecha equilibrada."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "1, 2, 3",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        1,
+        2,
+        3,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 3
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         3,
+         2,
+         1,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "9",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        9,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 1
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         9,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "5, 4, 3, 2, 1",
+      "visivel": false,
+      "dica": "falhou com 5 elementos",
+      "setup": {
+       "vetor": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 5
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         3,
+         4,
+         5,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "255, 0, 128, 1",
+      "visivel": false,
+      "dica": "falhou com 255, 0, 128, 1",
+      "setup": {
+       "vetor": [
+        255,
+        0,
+        128,
+        1,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 4
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         128,
+         0,
+         255,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "7, 7",
+      "visivel": false,
+      "dica": "falhou com dois iguais",
+      "setup": {
+       "vetor": [
+        7,
+        7,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 2
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         7,
+         7,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "10, 20, 30, 40, 50, 60, 70, 80, 90, 100",
+      "visivel": false,
+      "dica": "falhou com 10 elementos",
+      "setup": {
+       "vetor": [
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        70,
+        80,
+        90,
+        100
+       ],
+       "n": 10
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         100,
+         90,
+         80,
+         70,
+         60,
+         50,
+         40,
+         30,
+         20,
+         10
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "1, 2",
+      "visivel": false,
+      "dica": "falhou com dois elementos",
+      "setup": {
+       "vetor": [
+        1,
+        2,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 2
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         2,
+         1,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "3, 1, 2",
+      "visivel": false,
+      "dica": "falhou com 3, 1, 2",
+      "setup": {
+       "vetor": [
+        3,
+        1,
+        2,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 3
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         2,
+         1,
+         3,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 25,
+     "ciclos": 774,
+     "exigir": [
+      "PUSH",
+      "POP"
+     ]
+    }
+   },
+   {
+    "id": "z80-025-ler-pelo-ponteiro",
+    "linguagem": "z80",
+    "titulo": "Ler pelo ponteiro",
+    "dificuldade": "facil",
+    "trilha": "enderecamento",
+    "tags": [
+     "ponteiro",
+     "ld hl",
+     "indireto"
+    ],
+    "prerequisitos": [
+     "z80-001-guardar-o-valor"
+    ],
+    "aula": null,
+    "enunciado": "`ptr` guarda um **endereço** de 16 bits (*little-endian*). Leia o byte que está nesse endereço e grave em `res`.\n\n## Exemplos\n\n| ptr | byte no endereço | res |\n|---|---|---|\n| `$8100` | 42 | 42 |\n| `$9000` | 255 | 255 |\n\n## Restrições\n\n- Os endereços variam: não dá para escrever o endereço fixo no código.",
+    "contrato": "Memória: `ptr` ($8000-$8001, um endereço) e `res` ($8002). Os testes põem um byte no endereço indicado por `ptr` e conferem `res`.",
+    "editorial": "Ponteiros são o que dá flexibilidade a um programa: o mesmo código lê de endereços diferentes. No Z80, HL é o par ponteiro por excelência: `(HL)` aparece em dezenas de instruções (`LD r,(HL)`, `ADD A,(HL)`, `INC (HL)`, `BIT n,(HL)`...), e BC e DE só aceitam `LD A,(BC)`/`LD A,(DE)` e os blocos.\n\nCompare com o 6502, em que o ponteiro precisa viver na zero page e ser usado com `(zp),Y`: o Z80 não tem essa restrição, qualquer par de registradores é ponteiro e o endereço pode apontar para qualquer lugar.",
+    "codigoInicial": "; res = byte no endereço guardado em ptr\nptr EQU 8000h   ; contém um endereço de 16 bits\nres EQU 8002h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "ptr EQU 8000h\nres EQU 8002h\n\n    LD HL,(ptr)    ; HL = o endereço guardado em ptr\n    LD A,(HL)      ; A = o byte nesse endereço\n    LD (res),A\n    HALT",
+    "dicas": [
+     "Dois níveis de indireção: `ptr` é uma variável que **contém um endereço**, e o dado está no endereço que ela contém.",
+     "`LD HL,(ptr)` carrega os dois bytes de `ptr` em HL (agora HL **é** o ponteiro). `LD A,(HL)` lê o byte para o qual HL aponta.",
+     "Grave com `LD (res),A`. Em C, seria `*ptr`."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "ponteiro $8100",
+      "visivel": true,
+      "setup": {
+       "ptr": {
+        "w": 33024
+       },
+       "$8100": 42,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 42
+       }
+      }
+     },
+     {
+      "nome": "ponteiro $8105",
+      "visivel": true,
+      "setup": {
+       "ptr": {
+        "w": 33029
+       },
+       "$8105": 7,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 7
+       }
+      }
+     },
+     {
+      "nome": "ponteiro $9000",
+      "visivel": false,
+      "dica": "falhou com o byte 255",
+      "setup": {
+       "ptr": {
+        "w": 36864
+       },
+       "$9000": 255,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "ponteiro $8200",
+      "visivel": false,
+      "dica": "falhou lendo um byte zero",
+      "setup": {
+       "ptr": {
+        "w": 33280
+       },
+       "$8200": 0,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "ponteiro $A000",
+      "visivel": false,
+      "dica": "falhou com ponteiro em A000h",
+      "setup": {
+       "ptr": {
+        "w": 40960
+       },
+       "$A000": 128,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 128
+       }
+      }
+     },
+     {
+      "nome": "ponteiro $8FFF",
+      "visivel": false,
+      "dica": "falhou com ponteiro em 8FFFh",
+      "setup": {
+       "ptr": {
+        "w": 36863
+       },
+       "$8FFF": 99,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 99
+       }
+      }
+     },
+     {
+      "nome": "ponteiro $8300",
+      "visivel": false,
+      "dica": "falhou com ponteiro em 8300h",
+      "setup": {
+       "ptr": {
+        "w": 33536
+       },
+       "$8300": 1,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "ponteiro $B123",
+      "visivel": false,
+      "dica": "falhou com ponteiro em B123h",
+      "setup": {
+       "ptr": {
+        "w": 45347
+       },
+       "$B123": 200,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 200
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 8,
+     "ciclos": 36,
+     "exigir": [
+      "LD"
+     ]
+    }
+   },
+   {
+    "id": "z80-026-tabela-de-quadrados",
+    "linguagem": "z80",
+    "titulo": "Tabela de quadrados",
+    "dificuldade": "facil",
+    "trilha": "enderecamento",
+    "tags": [
+     "tabela",
+     "indexado",
+     "add hl",
+     "db"
+    ],
+    "prerequisitos": [
+     "z80-007-soma-de-16-bits",
+     "z80-025-ler-pelo-ponteiro"
+    ],
+    "aula": null,
+    "enunciado": "Dado `indice` (de 0 a 15), grave em `res` o quadrado dele, **lendo de uma tabela** de 16 bytes que você coloca no código com `DB`: `0, 1, 4, 9, ..., 225`. A consulta a uma tabela troca um cálculo por uma leitura.\n\n## Exemplos\n\n| indice | res |\n|---|---|\n| 0 | 0 |\n| 5 | 25 |\n| 15 | 225 |\n\n## Restrições\n\n- A tabela vem **depois** do `HALT`.",
+    "contrato": "Memória: `indice` ($8000) e `res` ($8001). Os testes preenchem `indice` e conferem `res`.",
+    "editorial": "A consulta a tabelas é a técnica mais antiga de acelerar código: troca um cálculo por uma leitura. No Z80 o padrão é `HL = tabela + índice`, e como `ADD HL,DE` soma 16 bits, o índice de 8 bits precisa ser estendido para 16 (`LD D,0`). Este padrão aparece em seno/cosseno de jogos, conversões de caracteres, mapas de tiles.\n\nSe a tabela estiver alinhada a uma página (endereço múltiplo de 256), dá para dispensar o `ADD HL,DE`: coloque a parte alta do endereço em H e o índice em L, com `LD H,high(tabela)` e `LD L,A`. Rotinas de jogos Z80 usam esse alinhamento para ganhar 11 ciclos por consulta.",
+    "codigoInicial": "; res = indice ao quadrado, por consulta a uma tabela\nindice EQU 8000h\nres    EQU 8001h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "indice EQU 8000h\nres    EQU 8001h\n\n    LD A,(indice)\n    LD E,A\n    LD D,0\n    LD HL,tabela\n    ADD HL,DE      ; HL = tabela + indice\n    LD A,(HL)\n    LD (res),A\n    HALT\n\ntabela:\n    DB 0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225",
+    "dicas": [
+     "O endereço do elemento `i` de uma tabela é `tabela + i`. Em Z80, some o índice ao **endereço** da tabela com aritmética de 16 bits.",
+     "`LD HL,tabela` (o endereço), `LD E,A` e `LD D,0` (o índice em 16 bits, em DE) e `ADD HL,DE`. Agora `(HL)` é o elemento.",
+     "A tabela vai depois do `HALT`, com um rótulo e `DB` listando os 16 quadrados. Sem o `HALT` antes, a CPU executaria os números como se fossem instruções."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "índice 0",
+      "visivel": true,
+      "setup": {
+       "indice": 0,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "índice 1",
+      "visivel": true,
+      "setup": {
+       "indice": 1,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "índice 5",
+      "visivel": false,
+      "dica": "falhou com o índice 5",
+      "setup": {
+       "indice": 5,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 25
+       }
+      }
+     },
+     {
+      "nome": "índice 10",
+      "visivel": false,
+      "dica": "falhou com o índice 10",
+      "setup": {
+       "indice": 10,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 100
+       }
+      }
+     },
+     {
+      "nome": "índice 15",
+      "visivel": false,
+      "dica": "falhou com o índice 15 (225, o último)",
+      "setup": {
+       "indice": 15,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 225
+       }
+      }
+     },
+     {
+      "nome": "índice 3",
+      "visivel": false,
+      "dica": "falhou com o índice 3",
+      "setup": {
+       "indice": 3,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 9
+       }
+      }
+     },
+     {
+      "nome": "índice 7",
+      "visivel": false,
+      "dica": "falhou com o índice 7",
+      "setup": {
+       "indice": 7,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 49
+       }
+      }
+     },
+     {
+      "nome": "índice 12",
+      "visivel": false,
+      "dica": "falhou com o índice 12",
+      "setup": {
+       "indice": 12,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 144
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 31,
+     "ciclos": 65,
+     "exigir": [
+      "ADD"
+     ]
+    }
+   },
+   {
+    "id": "z80-027-soma-pelo-registro-ix",
+    "linguagem": "z80",
+    "titulo": "Soma pelo registro IX",
+    "dificuldade": "facil",
+    "trilha": "enderecamento",
+    "tags": [
+     "ix",
+     "deslocamento",
+     "registro",
+     "indexado"
+    ],
+    "prerequisitos": [
+     "z80-005-somar-dois-bytes"
+    ],
+    "aula": null,
+    "enunciado": "`IX` aponta para um **registro** de 3 bytes (três campos seguidos na memória). Some os três campos e grave o total (módulo 256) em `res`. O endereço do registro varia de teste para teste.\n\n## Exemplos\n\n| campos | res |\n|---|---|\n| 1, 2, 3 | 6 |\n| 100, 100, 55 | 255 |\n| 255, 1, 0 | 0 |\n\n## Restrições\n\n- Use o endereçamento `(IX+d)`: o campo é o byte `d` posições depois de `IX`.",
+    "contrato": "Registradores: `IX` aponta para o início do registro de 3 bytes. Memória: `res` ($8000). Os testes põem os 3 campos no endereço de `IX` e conferem `res`.",
+    "editorial": "`(IX+d)` é o diferencial do Z80 para dados estruturados: o ponteiro fica parado no início do registro e cada campo é lido pelo seu deslocamento fixo, como `struct.campo` em C. Custa mais ciclos que `(HL)` (19 contra 7 em `LD r,(IX+d)`), mas poupa as instruções `INC HL` e deixa o código legível.\n\nJogos usam IX para apontar para o \"objeto\" corrente (jogador, inimigo, projétil) e acessam posição, velocidade e vida por deslocamento. Uma desvantagem: o prefixo `DD` torna cada instrução 1 byte maior e 4 ciclos mais lenta.",
+    "codigoInicial": "; res = soma dos 3 campos do registro apontado por IX\nres EQU 8000h   ; IX aponta para o registro de 3 bytes\n\n    ; seu código aqui\n    HALT",
+    "solucao": "res EQU 8000h\n\n    LD A,(IX+0)\n    ADD A,(IX+1)\n    ADD A,(IX+2)\n    LD (res),A\n    HALT",
+    "dicas": [
+     "`IX` e `IY` são registradores de índice: `(IX+d)` é o byte no endereço `IX + d`, com `d` fixo no código, de -128 a 127. É perfeito para campos de um registro (uma \"struct\").",
+     "`LD A,(IX+0)` lê o primeiro campo. `ADD A,(IX+1)` e `ADD A,(IX+2)` somam os outros dois. O endereço de IX não muda.",
+     "Grave com `LD (res),A`. Sem `IX`, seriam `INC HL` entre as leituras; o `(IX+d)` dispensa o ponteiro andar."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "registro em $8100: 1, 2, 3",
+      "visivel": true,
+      "setup": {
+       "IX": 33024,
+       "res": 99,
+       "$8100": [
+        1,
+        2,
+        3
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 6
+       }
+      }
+     },
+     {
+      "nome": "registro em $8200: 0, 0, 0",
+      "visivel": true,
+      "setup": {
+       "IX": 33280,
+       "res": 99,
+       "$8200": [
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "registro em $9000: 100, 100, 55",
+      "visivel": false,
+      "dica": "falhou com a soma passando de 255 (módulo 256)",
+      "setup": {
+       "IX": 36864,
+       "res": 99,
+       "$9000": [
+        100,
+        100,
+        55
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "registro em $8105: 255, 0, 0",
+      "visivel": false,
+      "dica": "falhou com 255 + 0 + 0",
+      "setup": {
+       "IX": 33029,
+       "res": 99,
+       "$8105": [
+        255,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "registro em $A000: 10, 20, 30",
+      "visivel": false,
+      "dica": "falhou com 10, 20, 30",
+      "setup": {
+       "IX": 40960,
+       "res": 99,
+       "$A000": [
+        10,
+        20,
+        30
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 60
+       }
+      }
+     },
+     {
+      "nome": "registro em $8300: 128, 64, 32",
+      "visivel": false,
+      "dica": "falhou com 128, 64, 32",
+      "setup": {
+       "IX": 33536,
+       "res": 99,
+       "$8300": [
+        128,
+        64,
+        32
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 224
+       }
+      }
+     },
+     {
+      "nome": "registro em $8FF0: 1, 1, 1",
+      "visivel": false,
+      "dica": "falhou com 1, 1, 1",
+      "setup": {
+       "IX": 36848,
+       "res": 99,
+       "$8FF0": [
+        1,
+        1,
+        1
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 3
+       }
+      }
+     },
+     {
+      "nome": "registro em $B000: 50, 60, 70",
+      "visivel": false,
+      "dica": "falhou com 50, 60, 70 em outro endereço",
+      "setup": {
+       "IX": 45056,
+       "res": 99,
+       "$B000": [
+        50,
+        60,
+        70
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 180
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 13,
+     "ciclos": 70,
+     "exigir": [
+      "ADD"
+     ]
+    }
+   },
+   {
+    "id": "z80-028-somar-em-bcd",
+    "linguagem": "z80",
+    "titulo": "Somar em BCD",
+    "dificuldade": "medio",
+    "trilha": "aritmetica",
+    "tags": [
+     "bcd",
+     "daa",
+     "decimal",
+     "carry"
+    ],
+    "prerequisitos": [
+     "z80-005-somar-dois-bytes"
+    ],
+    "aula": null,
+    "enunciado": "`x` e `y` são números de dois dígitos decimais em **BCD empacotado** (um dígito por nibble: `$47` é o número 47). Grave a soma, também em BCD, em `res`, e deixe o **carry** ligado se a soma passar de 99.\n\n## Exemplos\n\n| x | y | res | CY |\n|---|---|---|---|\n| $12 | $34 | $46 | 0 |\n| $19 | $01 | $20 | 0 |\n| $99 | $01 | $00 | 1 |\n\n## Restrições\n\n- Use `DAA`, a instrução de ajuste decimal do Z80.",
+    "contrato": "Memória: `x` ($8000), `y` ($8001) e `res` ($8002). Os testes conferem `res` e o flag `CY`.",
+    "editorial": "BCD guarda um dígito decimal por nibble e evita a conversão binário↔decimal em relógios, calculadoras e placares. O Z80 faz a correção com `DAA`, que olha o flag de meio-carry **H** e o carry **C** deixados pela soma ou subtração (o flag **N** diz qual das duas foi). O 6502 resolve o mesmo problema de outro jeito: um flag **D** coloca a própria ALU em modo decimal.\n\n`DAA` vale para `ADD`, `ADC`, `SUB`, `SBC` e `NEG`; não vale para `INC` e `DEC`, que não atualizam H do jeito esperado.",
+    "codigoInicial": "; res = x + y em BCD; CY = 1 se passar de 99\nx   EQU 8000h\ny   EQU 8001h\nres EQU 8002h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "x   EQU 8000h\ny   EQU 8001h\nres EQU 8002h\n\n    LD A,(x)\n    LD HL,y\n    ADD A,(HL)\n    DAA            ; corrige o resultado para BCD\n    LD (res),A\n    HALT",
+    "dicas": [
+     "Some os dois bytes com `ADD A,(HL)` (HL apontando para `y`): a soma binária de dois BCD quase nunca é BCD válido, por exemplo `$19 + $01 = $1A`.",
+     "`DAA` (*Decimal Adjust Accumulator*) logo depois do `ADD` corrige A: soma 6 em cada nibble que passou de 9 e acerta o carry. Ele usa os flags **H** e **C** que a soma deixou.",
+     "`LD (res),A` não altera flags, então o carry do `DAA` continua valendo no fim do programa. Não coloque instruções que mudem flags entre o `DAA` e o `HALT`."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "12 + 34",
+      "visivel": true,
+      "setup": {
+       "x": 18,
+       "y": 52,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 70
+       },
+       "CY": 0
+      }
+     },
+     {
+      "nome": "45 + 55",
+      "visivel": true,
+      "setup": {
+       "x": 69,
+       "y": 85,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       },
+       "CY": 1
+      }
+     },
+     {
+      "nome": "19 + 01",
+      "visivel": false,
+      "dica": "falhou com 19 + 1: o nibble baixo passa de 9 e o DAA precisa corrigi-lo",
+      "setup": {
+       "x": 25,
+       "y": 1,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 32
+       },
+       "CY": 0
+      }
+     },
+     {
+      "nome": "00 + 00",
+      "visivel": false,
+      "dica": "falhou com 00 + 00",
+      "setup": {
+       "x": 0,
+       "y": 0,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       },
+       "CY": 0
+      }
+     },
+     {
+      "nome": "99 + 99",
+      "visivel": false,
+      "dica": "falhou com 99 + 99",
+      "setup": {
+       "x": 153,
+       "y": 153,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 152
+       },
+       "CY": 1
+      }
+     },
+     {
+      "nome": "58 + 67",
+      "visivel": false,
+      "dica": "falhou com 58 + 67",
+      "setup": {
+       "x": 88,
+       "y": 103,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 37
+       },
+       "CY": 1
+      }
+     },
+     {
+      "nome": "09 + 09",
+      "visivel": false,
+      "dica": "falhou com 09 + 09",
+      "setup": {
+       "x": 9,
+       "y": 9,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 24
+       },
+       "CY": 0
+      }
+     },
+     {
+      "nome": "99 + 01",
+      "visivel": false,
+      "dica": "falhou com 99 + 1: o resultado é 00 com carry",
+      "setup": {
+       "x": 153,
+       "y": 1,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       },
+       "CY": 1
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 12,
+     "ciclos": 47,
+     "exigir": [
+      "DAA"
+     ]
+    }
+   },
+   {
+    "id": "z80-029-multiplicar-8x8",
+    "linguagem": "z80",
+    "titulo": "Multiplicar 8x8",
+    "dificuldade": "medio",
+    "trilha": "aritmetica",
+    "tags": [
+     "multiplicação",
+     "deslocar e somar",
+     "add hl",
+     "rlca"
+    ],
+    "prerequisitos": [
+     "z80-007-soma-de-16-bits",
+     "z80-008-multiplicar-por-10"
+    ],
+    "aula": null,
+    "enunciado": "Multiplique os bytes `x` e `y` (sem sinal) e deixe o produto de **16 bits** em `HL`. O Z80 não tem instrução de multiplicar: use o método de deslocar e somar.\n\n## Exemplos\n\n| x | y | HL |\n|---|---|---|\n| 3 | 4 | 12 |\n| 255 | 255 | 65025 |\n| 16 | 16 | 256 |\n\n## Restrições\n\n- Sem somar `x` repetidamente `y` vezes: o laço tem de ter no máximo 8 voltas.",
+    "contrato": "Memória: `x` ($8000) e `y` ($8001). Os testes conferem o par `HL`.",
+    "editorial": "O Z80 não multiplica nem divide por hardware, então todo jogo que precisa disso usa deslocar-e-somar: 8 voltas, no máximo 8 somas de 16 bits. O custo aqui é de uns 200 ciclos no pior caso. Uma alternativa quando um dos fatores é pequeno e fixo é decompô-lo em potências de dois (ver o desafio de multiplicar por 7).\n\nObserve que `ADD HL,HL` é o deslocamento à esquerda de 16 bits em 11 ciclos: o Z80 não tem `SLA HL`, e somar um par com ele mesmo é o idioma.",
+    "codigoInicial": "; HL = x * y (16 bits)\nx EQU 8000h\ny EQU 8001h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "x EQU 8000h\ny EQU 8001h\n\n    LD A,(x)\n    LD E,A\n    LD D,0         ; DE = multiplicando de 16 bits\n    LD A,(y)       ; A = multiplicador\n    LD HL,0\n    LD B,8\nlaco:\n    ADD HL,HL      ; produto parcial * 2\n    RLCA           ; próximo bit do multiplicador vai para o carry\n    JR NC,pula\n    ADD HL,DE\npula:\n    DJNZ laco\n    HALT",
+    "dicas": [
+     "Multiplicar em binário é o método da escola: para cada bit do multiplicador, desloca-se o produto parcial e, se o bit vale 1, soma-se o multiplicando. São 8 bits, logo 8 voltas.",
+     "Mantenha o multiplicando em `DE` (com `D = 0`), o produto em `HL` (comece em 0) e o multiplicador em A. `ADD HL,HL` dobra o produto; `RLCA` empurra o bit 7 de A para o carry; se ligou, `ADD HL,DE`.",
+     "Percorra os bits do mais significativo para o menos: dobrar **antes** de somar. A ordem `ADD HL,HL` e depois `RLCA` importa, porque o `ADD HL,HL` também mexe no carry."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "3 x 4",
+      "visivel": true,
+      "setup": {
+       "x": 3,
+       "y": 4
+      },
+      "espera": {
+       "HL": 12
+      }
+     },
+     {
+      "nome": "0 x 9",
+      "visivel": true,
+      "setup": {
+       "x": 0,
+       "y": 9
+      },
+      "espera": {
+       "HL": 0
+      }
+     },
+     {
+      "nome": "255 x 255",
+      "visivel": false,
+      "dica": "falhou com 255 x 255 = 65025: o produto usa os 16 bits",
+      "setup": {
+       "x": 255,
+       "y": 255
+      },
+      "espera": {
+       "HL": 65025
+      }
+     },
+     {
+      "nome": "100 x 2",
+      "visivel": false,
+      "dica": "falhou com 100 x 2",
+      "setup": {
+       "x": 100,
+       "y": 2
+      },
+      "espera": {
+       "HL": 200
+      }
+     },
+     {
+      "nome": "16 x 16",
+      "visivel": false,
+      "dica": "falhou com 16 x 16 = 256: passa de um byte",
+      "setup": {
+       "x": 16,
+       "y": 16
+      },
+      "espera": {
+       "HL": 256
+      }
+     },
+     {
+      "nome": "1 x 255",
+      "visivel": false,
+      "dica": "falhou com 1 x 255",
+      "setup": {
+       "x": 1,
+       "y": 255
+      },
+      "espera": {
+       "HL": 255
+      }
+     },
+     {
+      "nome": "200 x 3",
+      "visivel": false,
+      "dica": "falhou com 200 x 3",
+      "setup": {
+       "x": 200,
+       "y": 3
+      },
+      "espera": {
+       "HL": 600
+      }
+     },
+     {
+      "nome": "37 x 41",
+      "visivel": false,
+      "dica": "falhou com 37 x 41",
+      "setup": {
+       "x": 37,
+       "y": 41
+      },
+      "espera": {
+       "HL": 1517
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 22,
+     "ciclos": 417,
+     "proibir": [
+      "MUL"
+     ]
+    }
+   },
+   {
+    "id": "z80-030-dividir-8-bits",
+    "linguagem": "z80",
+    "titulo": "Dividir 8 bits",
+    "dificuldade": "medio",
+    "trilha": "aritmetica",
+    "tags": [
+     "divisão",
+     "resto",
+     "subtração",
+     "cp"
+    ],
+    "prerequisitos": [
+     "z80-007-soma-de-16-bits",
+     "z80-014-maximo-de-dois"
+    ],
+    "aula": null,
+    "enunciado": "Divida `x` por `y` (bytes sem sinal, `y` de 1 a 255) e grave o **quociente** em `quoc` e o **resto** em `resto`.\n\n## Exemplos\n\n| x | y | quoc | resto |\n|---|---|---|---|\n| 17 | 5 | 3 | 2 |\n| 9 | 10 | 0 | 9 |\n| 255 | 1 | 255 | 0 |\n\n## Restrições\n\n- `y` nunca é zero.",
+    "contrato": "Memória: `x` ($8000), `y` ($8001), `quoc` ($8002) e `resto` ($8003). Os testes conferem `quoc` e `resto`.",
+    "editorial": "A divisão por subtrações sucessivas é lenta no pior caso (255 / 1 gasta 255 voltas), mas é simples e correta. A versão rápida, de 8 voltas fixas, desloca o dividendo bit a bit para dentro de um acumulador e subtrai o divisor quando cabe: é a divisão longa da escola, em binário, e aparece no desafio avançado de dividir 16 por 16.\n\nOs dois resultados saem do mesmo laço, o que é o motivo pelo qual as arquiteturas com divisão em hardware (o 8086 com `DIV`) devolvem quociente e resto juntos.",
+    "codigoInicial": "; quoc = x / y; resto = x mod y\nx     EQU 8000h\ny     EQU 8001h\nquoc  EQU 8002h\nresto EQU 8003h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "x     EQU 8000h\ny     EQU 8001h\nquoc  EQU 8002h\nresto EQU 8003h\n\n    LD A,(x)\n    LD HL,y\n    LD B,0         ; B conta as subtrações\nlaco:\n    CP (HL)\n    JR C,fim       ; sobrou menos que o divisor\n    SUB (HL)\n    INC B\n    JR laco\nfim:\n    LD (resto),A\n    LD A,B\n    LD (quoc),A\n    HALT",
+    "dicas": [
+     "Dividir é contar quantas vezes o divisor cabe no dividendo: subtraia `y` de `x` enquanto sobrar pelo menos `y`. O número de subtrações é o quociente e o que sobra é o resto.",
+     "`CP (HL)` (HL apontando para `y`) compara sem destruir A: se o carry ligar, A < y e a divisão acabou. Senão, `SUB (HL)` e `INC B`.",
+     "No fim, A guarda o resto e B o quociente. Grave os dois (`LD (resto),A`, `LD A,B`, `LD (quoc),A`). Se o dividendo for menor que o divisor, o laço sai na primeira volta com B = 0."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "17 / 5",
+      "visivel": true,
+      "setup": {
+       "x": 17,
+       "y": 5,
+       "quoc": 99,
+       "resto": 99
+      },
+      "espera": {
+       "mem": {
+        "quoc": 3,
+        "resto": 2
+       }
+      }
+     },
+     {
+      "nome": "255 / 1",
+      "visivel": true,
+      "setup": {
+       "x": 255,
+       "y": 1,
+       "quoc": 99,
+       "resto": 99
+      },
+      "espera": {
+       "mem": {
+        "quoc": 255,
+        "resto": 0
+       }
+      }
+     },
+     {
+      "nome": "0 / 7",
+      "visivel": false,
+      "dica": "falhou com 0 / 7: quociente e resto zerados",
+      "setup": {
+       "x": 0,
+       "y": 7,
+       "quoc": 99,
+       "resto": 99
+      },
+      "espera": {
+       "mem": {
+        "quoc": 0,
+        "resto": 0
+       }
+      }
+     },
+     {
+      "nome": "100 / 100",
+      "visivel": false,
+      "dica": "falhou com divisor igual ao dividendo",
+      "setup": {
+       "x": 100,
+       "y": 100,
+       "quoc": 99,
+       "resto": 99
+      },
+      "espera": {
+       "mem": {
+        "quoc": 1,
+        "resto": 0
+       }
+      }
+     },
+     {
+      "nome": "9 / 10",
+      "visivel": false,
+      "dica": "falhou com dividendo menor que o divisor: quociente 0 e resto 9",
+      "setup": {
+       "x": 9,
+       "y": 10,
+       "quoc": 99,
+       "resto": 99
+      },
+      "espera": {
+       "mem": {
+        "quoc": 0,
+        "resto": 9
+       }
+      }
+     },
+     {
+      "nome": "200 / 3",
+      "visivel": false,
+      "dica": "falhou com 200 / 3",
+      "setup": {
+       "x": 200,
+       "y": 3,
+       "quoc": 99,
+       "resto": 99
+      },
+      "espera": {
+       "mem": {
+        "quoc": 66,
+        "resto": 2
+       }
+      }
+     },
+     {
+      "nome": "1 / 1",
+      "visivel": false,
+      "dica": "falhou com 1 / 1",
+      "setup": {
+       "x": 1,
+       "y": 1,
+       "quoc": 99,
+       "resto": 99
+      },
+      "espera": {
+       "mem": {
+        "quoc": 1,
+        "resto": 0
+       }
+      }
+     },
+     {
+      "nome": "250 / 251",
+      "visivel": false,
+      "dica": "falhou com 250 / 251",
+      "setup": {
+       "x": 250,
+       "y": 251,
+       "quoc": 99,
+       "resto": 99
+      },
+      "espera": {
+       "mem": {
+        "quoc": 0,
+        "resto": 250
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 23,
+     "ciclos": 9514,
+     "proibir": [
+      "DIV"
+     ]
+    }
+   },
+   {
+    "id": "z80-031-negar-16-bits",
+    "linguagem": "z80",
+    "titulo": "Negar 16 bits",
+    "dificuldade": "medio",
+    "trilha": "aritmetica",
+    "tags": [
+     "complemento de dois",
+     "cpl",
+     "inc hl",
+     "16 bits"
+    ],
+    "prerequisitos": [
+     "z80-007-soma-de-16-bits"
+    ],
+    "aula": null,
+    "enunciado": "`HL` contém um número de 16 bits com sinal. Troque o sinal dele: deixe em `HL` o **complemento de dois** (`-HL`).\n\n## Exemplos\n\n| HL antes | HL depois |\n|---|---|\n| $0001 | $FFFF |\n| $0000 | $0000 |\n| $1234 | $EDCC |\n| $8000 | $8000 |\n\n## Restrições\n\n- Não existe `NEG HL` no Z80: faça com o que existe.",
+    "contrato": "Registradores: `HL` chega com o valor do teste. Os testes conferem `HL`.",
+    "editorial": "O Z80 tem `NEG` só para o acumulador. Para 16 bits, o caminho é o da definição: `CPL` em cada metade e `INC HL`. Outra receita, de mesmo tamanho, subtrai de zero com empréstimo: `XOR A / SUB L / LD L,A / SBC A,A / SUB H / LD H,A`.\n\nO caso `$8000` é a pegadinha do complemento de dois: é o único número cujo oposto não existe (+32768 não cabe), e a negação devolve ele mesmo. O 8086 tem `NEG` para 8 e 16 bits e deixa o flag de overflow ligado nesse caso.",
+    "codigoInicial": "; HL = -HL (complemento de dois de 16 bits)\n\n    HALT",
+    "solucao": "    LD A,L\n    CPL\n    LD L,A\n    LD A,H\n    CPL\n    LD H,A\n    INC HL\n    HALT",
+    "dicas": [
+     "O complemento de dois é \"inverter todos os bits e somar 1\". Com 16 bits, são dois bytes a inverter e um `INC` de 16 bits.",
+     "`CPL` inverte o acumulador, então passe cada metade por A: `LD A,L`, `CPL`, `LD L,A`, e o mesmo com H. O `INC HL` final soma o 1.",
+     "`INC HL` de 16 bits **propaga o vai-um sozinho** entre L e H e não mexe em flags. Não é preciso se preocupar com o caso `L = $FF`."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "HL = $0001",
+      "visivel": true,
+      "setup": {
+       "HL": 1
+      },
+      "espera": {
+       "HL": 65535
+      }
+     },
+     {
+      "nome": "HL = $0000",
+      "visivel": true,
+      "setup": {
+       "HL": 0
+      },
+      "espera": {
+       "HL": 0
+      }
+     },
+     {
+      "nome": "HL = $8000",
+      "visivel": false,
+      "dica": "falhou com $8000: o negativo dele é ele mesmo",
+      "setup": {
+       "HL": 32768
+      },
+      "espera": {
+       "HL": 32768
+      }
+     },
+     {
+      "nome": "HL = $FFFF",
+      "visivel": false,
+      "dica": "falhou com $FFFF (-1): o oposto é 1",
+      "setup": {
+       "HL": 65535
+      },
+      "espera": {
+       "HL": 1
+      }
+     },
+     {
+      "nome": "HL = $1234",
+      "visivel": false,
+      "dica": "falhou com HL = $1234",
+      "setup": {
+       "HL": 4660
+      },
+      "espera": {
+       "HL": 60876
+      }
+     },
+     {
+      "nome": "HL = $00FF",
+      "visivel": false,
+      "dica": "falhou com $00FF: o byte alto deve receber o empréstimo",
+      "setup": {
+       "HL": 255
+      },
+      "espera": {
+       "HL": 65281
+      }
+     },
+     {
+      "nome": "HL = $0100",
+      "visivel": false,
+      "dica": "falhou com $0100: byte baixo zero, o vai-um passa para o alto",
+      "setup": {
+       "HL": 256
+      },
+      "espera": {
+       "HL": 65280
+      }
+     },
+     {
+      "nome": "HL = $7FFF",
+      "visivel": false,
+      "dica": "falhou com HL = $7FFF",
+      "setup": {
+       "HL": 32767
+      },
+      "espera": {
+       "HL": 32769
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 8,
+     "ciclos": 30,
+     "proibir": [
+      "NEG"
+     ]
+    }
+   },
+   {
+    "id": "z80-032-comparar-16-bits",
+    "linguagem": "z80",
+    "titulo": "Comparar 16 bits",
+    "dificuldade": "medio",
+    "trilha": "numeros",
+    "tags": [
+     "sbc hl",
+     "16 bits",
+     "comparação",
+     "carry"
+    ],
+    "prerequisitos": [
+     "z80-014-maximo-de-dois"
+    ],
+    "aula": null,
+    "enunciado": "Compare `HL` e `DE` como números de 16 bits **sem sinal** e grave em `res`: **0** se forem iguais, **1** se `HL > DE`, **255** se `HL < DE`.\n\n## Exemplos\n\n| HL | DE | res |\n|---|---|---|\n| $0005 | $0005 | 0 |\n| $000A | $0003 | 1 |\n| $0003 | $000A | 255 |\n\n## Restrições\n\n- Não existe `CP HL,DE`. Use a subtração de 16 bits.",
+    "contrato": "Registradores: `HL` e `DE` chegam com os valores do teste. Memória: `res` ($8000). Os testes conferem `res`.",
+    "editorial": "No Z80 a comparação de 16 bits é `OR A` seguido de `SBC HL,DE`: 4 + 15 = 19 ciclos, e HL é destruído (guarde uma cópia se ainda precisar dele, ou desfaça com `ADD HL,DE`). O `ADD HL,DE` não serve para comparar: ele só afeta C, H e N, nunca Z.\n\nCompare com o 6502, que compara 16 bits em duas etapas (`CMP` no byte alto e, se igual, no baixo), e com o 8086, que tem `CMP AX,BX` direto.",
+    "codigoInicial": "; res = 0 (iguais), 1 (HL > DE) ou 255 (HL < DE)\nres EQU 8000h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "res EQU 8000h\n\n    OR A           ; zera o carry\n    SBC HL,DE      ; HL - DE - carry\n    JR Z,igual\n    JR C,menor\n    LD A,1\n    JR grava\nigual:\n    XOR A\n    JR grava\nmenor:\n    LD A,0FFh\ngrava:\n    LD (res),A\n    HALT",
+    "dicas": [
+     "A comparação de 16 bits é uma subtração cujo resultado se joga fora, olhando só os flags. O Z80 subtrai 16 bits com `SBC HL,DE`.",
+     "`SBC` subtrai **com o carry**, então o carry precisa estar zerado antes: `OR A` (zera C sem mudar nada). Depois do `SBC HL,DE`, Z ligado significa iguais e C ligado significa `HL < DE`.",
+     "O `SBC HL,DE` atualiza o Z de verdade para 16 bits (ao contrário do `ADD HL,rr`, que não toca em Z). Teste `JR Z` antes de `JR C` e trate o resto como \"maior\"."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "$0005 vs $0005",
+      "visivel": true,
+      "setup": {
+       "HL": 5,
+       "DE": 5,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "$000A vs $0003",
+      "visivel": true,
+      "setup": {
+       "HL": 10,
+       "DE": 3,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "$0003 vs $000A",
+      "visivel": false,
+      "dica": "falhou com HL menor que DE",
+      "setup": {
+       "HL": 3,
+       "DE": 10,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "$FFFF vs $0000",
+      "visivel": false,
+      "dica": "falhou com $FFFF e $0000 (comparação sem sinal)",
+      "setup": {
+       "HL": 65535,
+       "DE": 0,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "$0000 vs $FFFF",
+      "visivel": false,
+      "dica": "falhou com $0000 e $FFFF",
+      "setup": {
+       "HL": 0,
+       "DE": 65535,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "$1234 vs $1233",
+      "visivel": false,
+      "dica": "falhou com diferença só no byte baixo",
+      "setup": {
+       "HL": 4660,
+       "DE": 4659,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "$0100 vs $00FF",
+      "visivel": false,
+      "dica": "falhou com diferença no byte alto: $0100 é maior que $00FF",
+      "setup": {
+       "HL": 256,
+       "DE": 255,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "$8000 vs $7FFF",
+      "visivel": false,
+      "dica": "falhou com $8000 e $7FFF: sem sinal, $8000 é maior",
+      "setup": {
+       "HL": 32768,
+       "DE": 32767,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 20,
+     "ciclos": 65,
+     "exigir": [
+      "SBC"
+     ]
+    }
+   },
+   {
+    "id": "z80-033-raiz-quadrada-inteira",
+    "linguagem": "z80",
+    "titulo": "Raiz quadrada inteira",
+    "dificuldade": "medio",
+    "trilha": "numeros",
+    "tags": [
+     "raiz",
+     "ímpares",
+     "laço",
+     "sub"
+    ],
+    "prerequisitos": [
+     "z80-007-soma-de-16-bits",
+     "z80-014-maximo-de-dois"
+    ],
+    "aula": null,
+    "enunciado": "Grave em `res` a parte inteira da raiz quadrada de `n` (0 a 255): o maior `r` tal que `r * r <= n`.\n\n## Exemplos\n\n| n | res |\n|---|---|\n| 16 | 4 |\n| 10 | 3 |\n| 255 | 15 |\n| 0 | 0 |\n\n## Restrições\n\n- Sem multiplicação.",
+    "contrato": "Memória: `n` ($8000) e `res` ($8001). Os testes conferem `res`.",
+    "editorial": "A identidade \"1 + 3 + 5 + ... + (2r-1) = r²\" dispensa multiplicação: o método custa uma subtração e dois incrementos por passo e termina em, no máximo, 16 passos para um byte. É a alternativa clássica ao método de Newton em CPUs sem divisão.\n\nPara 16 bits (raiz até 255), o mesmo método dá 255 passos, e o método dos bits (testar cada bit da raiz do mais alto para o mais baixo) faz 8. O desafio avançado de raiz de 16 bits usa esse segundo.",
+    "codigoInicial": "; res = floor(raiz de n)\nn   EQU 8000h\nres EQU 8001h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n   EQU 8000h\nres EQU 8001h\n\n    LD A,(n)\n    LD B,0         ; B = raiz\n    LD D,1         ; próximo ímpar a subtrair\nlaco:\n    SUB D\n    JR C,fim\n    INC B\n    INC D\n    INC D\n    JR laco\nfim:\n    LD A,B\n    LD (res),A\n    HALT",
+    "dicas": [
+     "Há um fato bonito: a soma dos primeiros `r` números ímpares é `r²` (1 + 3 + 5 = 9 = 3²). Então a raiz inteira é quantos ímpares consecutivos cabem em `n`.",
+     "Subtraia 1, 3, 5, 7... de `n` enquanto não der empréstimo. Cada subtração que couber vale +1 na raiz (use B). O ímpar seguinte é o atual mais 2 (`INC D` duas vezes).",
+     "`SUB D` liga o carry quando A < D, e aí o laço acaba sem contar essa tentativa. Com `n = 0`, a primeira subtração já dá carry e a raiz fica 0."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "n = 16",
+      "visivel": true,
+      "setup": {
+       "n": 16,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 4
+       }
+      }
+     },
+     {
+      "nome": "n = 10",
+      "visivel": true,
+      "setup": {
+       "n": 10,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 3
+       }
+      }
+     },
+     {
+      "nome": "n = 0",
+      "visivel": false,
+      "dica": "falhou com 0",
+      "setup": {
+       "n": 0,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "n = 1",
+      "visivel": false,
+      "dica": "falhou com 1",
+      "setup": {
+       "n": 1,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "n = 2",
+      "visivel": false,
+      "dica": "falhou com n = 2",
+      "setup": {
+       "n": 2,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "n = 15",
+      "visivel": false,
+      "dica": "falhou com 15: a raiz inteira é 3",
+      "setup": {
+       "n": 15,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 3
+       }
+      }
+     },
+     {
+      "nome": "n = 99",
+      "visivel": false,
+      "dica": "falhou com 99 (logo antes de 100)",
+      "setup": {
+       "n": 99,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 9
+       }
+      }
+     },
+     {
+      "nome": "n = 100",
+      "visivel": false,
+      "dica": "falhou com n = 100",
+      "setup": {
+       "n": 100,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 10
+       }
+      }
+     },
+     {
+      "nome": "n = 224",
+      "visivel": false,
+      "dica": "falhou com 224 (logo antes de 225)",
+      "setup": {
+       "n": 224,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 14
+       }
+      }
+     },
+     {
+      "nome": "n = 255",
+      "visivel": false,
+      "dica": "falhou com 255 (a raiz é 15)",
+      "setup": {
+       "n": 255,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 15
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 20,
+     "ciclos": 585,
+     "proibir": [
+      "MUL"
+     ]
+    }
+   },
+   {
+    "id": "z80-034-espelhar-os-bits",
+    "linguagem": "z80",
+    "titulo": "Espelhar os bits",
+    "dificuldade": "medio",
+    "trilha": "bits",
+    "tags": [
+     "rra",
+     "rl",
+     "reverso",
+     "laço"
+    ],
+    "prerequisitos": [
+     "z80-010-separar-os-nibbles",
+     "z80-012-trocar-os-nibbles"
+    ],
+    "aula": null,
+    "enunciado": "Grave em `res` o byte `valor` com a ordem dos bits **espelhada**: o bit 0 vai para o bit 7, o bit 1 para o bit 6, e assim por diante.\n\n## Exemplos\n\n| valor | res |\n|---|---|\n| %00000001 ($01) | %10000000 ($80) |\n| %00001111 ($0F) | %11110000 ($F0) |\n| %00010010 ($12) | %01001000 ($48) |\n\n## Restrições\n\n- O laço deve ter no máximo 8 voltas.",
+    "contrato": "Memória: `valor` ($8000) e `res` ($8001). Os testes conferem `res`.",
+    "editorial": "Espelhar bits aparece em transformadas rápidas de Fourier (a permutação de bits invertidos) e em gráficos (espelhar um sprite horizontalmente). A versão por laço custa 8 × 23 ciclos. A rápida usa uma tabela de 256 bytes, indexada pelo próprio valor.\n\n`RRA` e `RL C` são rotações **através do carry**: o carry é um nono bit. Já `RRCA` e `RLC` rodam um bit pela ponta e também o copiam no carry. A diferença importa neste problema: a ponte de um registrador para o outro é o carry.",
+    "codigoInicial": "; res = valor com os bits espelhados\nvalor EQU 8000h\nres   EQU 8001h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "valor EQU 8000h\nres   EQU 8001h\n\n    LD A,(valor)\n    LD B,8\n    LD C,0\nlaco:\n    RRA            ; bit 0 de A vai para o carry\n    RL C           ; o carry entra pela direita de C\n    DJNZ laco\n    LD A,C\n    LD (res),A\n    HALT",
+    "dicas": [
+     "Tire os bits de A pela direita e empurre-os para C pela direita: o primeiro bit que sai (o bit 0) fica sendo o último a entrar, e termina no bit 7.",
+     "`RRA` roda A para a direita e põe o bit 0 no carry. `RL C` roda C para a esquerda e traz o carry para o bit 0 de C. Repita 8 vezes com `DJNZ`.",
+     "Prepare `B = 8` (contador) e `C = 0` (acumulador do resultado). No fim, `LD A,C` e grave."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "$01",
+      "visivel": true,
+      "setup": {
+       "valor": 1,
+       "res": 119
+      },
+      "espera": {
+       "mem": {
+        "res": 128
+       }
+      }
+     },
+     {
+      "nome": "$0F",
+      "visivel": true,
+      "setup": {
+       "valor": 15,
+       "res": 119
+      },
+      "espera": {
+       "mem": {
+        "res": 240
+       }
+      }
+     },
+     {
+      "nome": "$80",
+      "visivel": false,
+      "dica": "falhou com $80: o bit 7 deve ir para o bit 0",
+      "setup": {
+       "valor": 128,
+       "res": 119
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "$FF",
+      "visivel": false,
+      "dica": "falhou com $FF",
+      "setup": {
+       "valor": 255,
+       "res": 119
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "$00",
+      "visivel": false,
+      "dica": "falhou com $00",
+      "setup": {
+       "valor": 0,
+       "res": 119
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "$A5",
+      "visivel": false,
+      "dica": "falhou com $A5, que é palíndromo de bits",
+      "setup": {
+       "valor": 165,
+       "res": 119
+      },
+      "espera": {
+       "mem": {
+        "res": 165
+       }
+      }
+     },
+     {
+      "nome": "$3C",
+      "visivel": false,
+      "dica": "falhou com $3C",
+      "setup": {
+       "valor": 60,
+       "res": 119
+      },
+      "espera": {
+       "mem": {
+        "res": 60
+       }
+      }
+     },
+     {
+      "nome": "$12",
+      "visivel": false,
+      "dica": "falhou com $12",
+      "setup": {
+       "valor": 18,
+       "res": 119
+      },
+      "espera": {
+       "mem": {
+        "res": 72
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 17,
+     "ciclos": 239,
+     "exigir": [
+      "DJNZ"
+     ]
+    }
+   },
+   {
+    "id": "z80-035-paridade-dos-bits",
+    "linguagem": "z80",
+    "titulo": "Paridade dos bits",
+    "dificuldade": "medio",
+    "trilha": "bits",
+    "tags": [
+     "paridade",
+     "jp pe",
+     "flag pv",
+     "or a"
+    ],
+    "prerequisitos": [
+     "z80-010-separar-os-nibbles",
+     "z80-015-sinal-do-numero"
+    ],
+    "aula": null,
+    "enunciado": "Grave em `res` **1** se `valor` tem uma quantidade **par** de bits ligados e **0** se for ímpar. O zero tem zero bits: é par.\n\n## Exemplos\n\n| valor | bits ligados | res |\n|---|---|---|\n| %00000011 | 2 | 1 |\n| %00000111 | 3 | 0 |\n| %00000000 | 0 | 1 |\n| %11111111 | 8 | 1 |\n\n## Restrições\n\n- Sem contar bit por bit: o Z80 calcula a paridade sozinho.",
+    "contrato": "Memória: `valor` ($8000) e `res` ($8001). Os testes conferem `res`.",
+    "editorial": "O flag P/V é dois flags em um: depois de aritmética, é **overflow** (V); depois de lógica, é **paridade** (P). É a mesma coluna do registrador F, lida de dois jeitos conforme a última instrução. É um detalhe clássico para quem migra do 6502 (que não tem paridade) ou do 8086 (que tem os flags separados: PF e OF).\n\nA paridade nasceu de transmissões em linhas seriais, onde um bit extra garante que a quantidade de uns do byte seja par e permite detectar um bit trocado.",
+    "codigoInicial": "; res = 1 se a quantidade de bits ligados for par\nvalor EQU 8000h\nres   EQU 8001h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "valor EQU 8000h\nres   EQU 8001h\n\n    LD A,(valor)\n    OR A           ; atualiza o flag de paridade\n    JP PE,par\n    XOR A\n    JR grava\npar:\n    LD A,1\ngrava:\n    LD (res),A\n    HALT",
+    "dicas": [
+     "Nas operações lógicas (`AND`, `OR`, `XOR`) o Z80 usa o flag **P/V** como **paridade**: ele liga quando o resultado tem uma quantidade par de bits em 1.",
+     "`OR A` não muda A e atualiza o flag. Para testá-lo existem as condições `PE` (paridade par, *parity even*) e `PO` (ímpar), que só funcionam em `JP`, `CALL` e `RET`, não em `JR`.",
+     "Fique atento a `LD A,1` e `XOR A` para formar 0 e 1: as duas instruções vêm depois do teste, então podem mexer em flags à vontade."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "$03",
+      "visivel": true,
+      "setup": {
+       "valor": 3,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "$07",
+      "visivel": true,
+      "setup": {
+       "valor": 7,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "$00",
+      "visivel": false,
+      "dica": "falhou com 0: zero bits ligados é quantidade par",
+      "setup": {
+       "valor": 0,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "$FF",
+      "visivel": false,
+      "dica": "falhou com $FF: oito bits (par)",
+      "setup": {
+       "valor": 255,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "$80",
+      "visivel": false,
+      "dica": "falhou com $80: um bit (ímpar)",
+      "setup": {
+       "valor": 128,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "$55",
+      "visivel": false,
+      "dica": "falhou com $55",
+      "setup": {
+       "valor": 85,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "$FE",
+      "visivel": false,
+      "dica": "falhou com $FE",
+      "setup": {
+       "valor": 254,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "$01",
+      "visivel": false,
+      "dica": "falhou com $01: um bit (ímpar)",
+      "setup": {
+       "valor": 1,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 16,
+     "ciclos": 56,
+     "exigir": [
+      "JP"
+     ]
+    }
+   },
+   {
+    "id": "z80-036-girar-16-bits",
+    "linguagem": "z80",
+    "titulo": "Girar 16 bits",
+    "dificuldade": "medio",
+    "trilha": "bits",
+    "tags": [
+     "rotação",
+     "add hl",
+     "16 bits",
+     "djnz"
+    ],
+    "prerequisitos": [
+     "z80-012-trocar-os-nibbles",
+     "z80-017-soma-do-vetor"
+    ],
+    "aula": null,
+    "enunciado": "Gire `HL` para a **esquerda** `B` posições (`B` de 0 a 15). É uma rotação **circular**: o bit que sai pela esquerda volta pela direita.\n\n## Exemplos\n\n| HL | B | HL depois |\n|---|---|---|\n| $8001 | 1 | $0003 |\n| $1234 | 4 | $2341 |\n| $0001 | 15 | $8000 |\n\n## Restrições\n\n- O Z80 não tem rotação de 16 bits: componha uma com `ADD HL,HL`.",
+    "contrato": "Registradores: `HL` e `B` chegam com os valores do teste. Os testes conferem `HL`.",
+    "editorial": "O Z80 tem rotações de 8 bits (`RLC`, `RL`, `RRC`, `RR`, ...) e nenhuma de 16, mas o `ADD HL,HL` faz o deslocamento e deixa o bit de saída no carry, de modo que a rotação sai em 3 instruções. Para girar `HL` à direita é mais caro: `SRL H / RR L` desloca, e a ponta que volta exige mais um passo.\n\nRotações de 16 bits aparecem em geradores de números pseudoaleatórios (xorshift) e em hashes. O 8086 gira 16 bits com `ROL AX,CL` em uma instrução.",
+    "codigoInicial": "; gira HL à esquerda B posições\n\n    HALT",
+    "solucao": "    LD A,B\n    OR A\n    JR Z,fim       ; B = 0: DJNZ daria 256 voltas\nlaco:\n    ADD HL,HL      ; bit 15 vai para o carry\n    JR NC,sem\n    INC L          ; o bit que saiu volta pela direita\nsem:\n    DJNZ laco\nfim:\n    HALT",
+    "dicas": [
+     "Uma rotação de N posições é N rotações de 1 posição. Para girar 16 bits uma casa à esquerda, o bit 15 sai e vira o bit 0.",
+     "`ADD HL,HL` desloca HL uma casa para a esquerda e liga o **carry** com o bit que saiu. O bit 0 novo é 0, então `INC L` é um jeito curto de ligá-lo, e só quando o carry estiver ligado (`JR NC` pula).",
+     "`DJNZ` repete B vezes. Trate `B = 0` antes, porque `DJNZ` com B = 0 dá 256 voltas (que, por coincidência, voltam ao mesmo valor, mas desperdiçam ciclos)."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "$8001 girado 1",
+      "visivel": true,
+      "setup": {
+       "HL": 32769,
+       "B": 1
+      },
+      "espera": {
+       "HL": 3
+      }
+     },
+     {
+      "nome": "$1234 girado 4",
+      "visivel": true,
+      "setup": {
+       "HL": 4660,
+       "B": 4
+      },
+      "espera": {
+       "HL": 9025
+      }
+     },
+     {
+      "nome": "$0001 girado 0",
+      "visivel": false,
+      "dica": "falhou com B = 0: nada deve mudar",
+      "setup": {
+       "HL": 1,
+       "B": 0
+      },
+      "espera": {
+       "HL": 1
+      }
+     },
+     {
+      "nome": "$FFFF girado 7",
+      "visivel": false,
+      "dica": "falhou com $FFFF",
+      "setup": {
+       "HL": 65535,
+       "B": 7
+      },
+      "espera": {
+       "HL": 65535
+      }
+     },
+     {
+      "nome": "$8000 girado 15",
+      "visivel": false,
+      "dica": "falhou com $8000 girado 15: o bit sai pela esquerda e volta pela direita",
+      "setup": {
+       "HL": 32768,
+       "B": 15
+      },
+      "espera": {
+       "HL": 16384
+      }
+     },
+     {
+      "nome": "$A5A5 girado 8",
+      "visivel": false,
+      "dica": "falhou com giro de 8 (troca os bytes)",
+      "setup": {
+       "HL": 42405,
+       "B": 8
+      },
+      "espera": {
+       "HL": 42405
+      }
+     },
+     {
+      "nome": "$0001 girado 15",
+      "visivel": false,
+      "dica": "falhou com $0001 girado 15",
+      "setup": {
+       "HL": 1,
+       "B": 15
+      },
+      "espera": {
+       "HL": 32768
+      }
+     },
+     {
+      "nome": "$4000 girado 2",
+      "visivel": false,
+      "dica": "falhou com $4000 girado 2",
+      "setup": {
+       "HL": 16384,
+       "B": 2
+      },
+      "espera": {
+       "HL": 1
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 11,
+     "ciclos": 550,
+     "exigir": [
+      "DJNZ"
+     ]
+    }
+   },
+   {
+    "id": "z80-037-mediana-de-tres",
+    "linguagem": "z80",
+    "titulo": "Mediana de três",
+    "dificuldade": "medio",
+    "trilha": "decisoes",
+    "tags": [
+     "ordenar",
+     "mediana",
+     "cp",
+     "troca"
+    ],
+    "prerequisitos": [
+     "z80-015-sinal-do-numero",
+     "z80-016-dentro-do-intervalo"
+    ],
+    "aula": null,
+    "enunciado": "Grave em `res` a **mediana** de `n1`, `n2` e `n3` (bytes sem sinal): o valor que ficaria no meio se os três fossem ordenados.\n\n## Exemplos\n\n| n1 | n2 | n3 | res |\n|---|---|---|---|\n| 3 | 1 | 2 | 2 |\n| 9 | 1 | 5 | 5 |\n| 5 | 5 | 5 | 5 |\n\n## Restrições\n\n- Valores repetidos são possíveis.",
+    "contrato": "Memória: `n1` ($8000), `n2` ($8001), `n3` ($8002) e `res` ($8003). Os testes conferem `res`.",
+    "editorial": "Três elementos são ordenados por uma **rede de comparação** fixa: três compara-e-troca bastam, sem laço e sem desvios para trás. Redes de ordenação são usadas em hardware e em código sem ramificação porque o custo é o mesmo para qualquer entrada.\n\nA alternativa direta é testar as seis permutações possíveis com `CP` e `JR`, mais longa. Outra boa saída é a fórmula `mediana = max(min(a,b), min(max(a,b), c))`.",
+    "codigoInicial": "; res = mediana de n1, n2 e n3\nn1  EQU 8000h\nn2  EQU 8001h\nn3  EQU 8002h\nres EQU 8003h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n1  EQU 8000h\nn2  EQU 8001h\nn3  EQU 8002h\nres EQU 8003h\n\n    LD A,(n1)\n    LD B,A\n    LD A,(n2)\n    LD C,A\n    LD A,(n3)\n    LD D,A\n    ; rede de ordenação de 3 elementos: (B,C) (C,D) (B,C)\n    LD A,C\n    CP B\n    JR NC,o1\n    LD A,B\n    LD B,C\n    LD C,A\no1:\n    LD A,D\n    CP C\n    JR NC,o2\n    LD A,C\n    LD C,D\n    LD D,A\no2:\n    LD A,C\n    CP B\n    JR NC,o3\n    LD A,B\n    LD B,C\n    LD C,A\no3:\n    LD A,C\n    LD (res),A\n    HALT",
+    "dicas": [
+     "Com três valores em B, C e D, ordenar é fazer três \"compara e troca\" entre pares vizinhos: (B,C), depois (C,D), depois (B,C) de novo. No fim a mediana está em C.",
+     "Compara-e-troca de (B,C): `LD A,C`, `CP B`; se `C >= B` (`JR NC`) já está em ordem. Senão, troque usando A como apoio: `LD A,B`, `LD B,C`, `LD C,A`.",
+     "Leia os três valores da memória para B, C e D (via A). O mesmo bloco de 5 instruções serve aos outros dois pares, trocando só os registradores. No fim, `LD A,C` e grave."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "3, 1, 2",
+      "visivel": true,
+      "setup": {
+       "n1": 3,
+       "n2": 1,
+       "n3": 2,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 2
+       }
+      }
+     },
+     {
+      "nome": "5, 5, 5",
+      "visivel": true,
+      "setup": {
+       "n1": 5,
+       "n2": 5,
+       "n3": 5,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 5
+       }
+      }
+     },
+     {
+      "nome": "1, 2, 3",
+      "visivel": false,
+      "dica": "falhou com valores já em ordem crescente",
+      "setup": {
+       "n1": 1,
+       "n2": 2,
+       "n3": 3,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 2
+       }
+      }
+     },
+     {
+      "nome": "3, 2, 1",
+      "visivel": false,
+      "dica": "falhou com valores em ordem decrescente",
+      "setup": {
+       "n1": 3,
+       "n2": 2,
+       "n3": 1,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 2
+       }
+      }
+     },
+     {
+      "nome": "9, 1, 5",
+      "visivel": false,
+      "dica": "falhou com o maior no meio da lista",
+      "setup": {
+       "n1": 9,
+       "n2": 1,
+       "n3": 5,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 5
+       }
+      }
+     },
+     {
+      "nome": "255, 0, 128",
+      "visivel": false,
+      "dica": "falhou com 255, 0 e 128 (comparação sem sinal)",
+      "setup": {
+       "n1": 255,
+       "n2": 0,
+       "n3": 128,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 128
+       }
+      }
+     },
+     {
+      "nome": "7, 7, 1",
+      "visivel": false,
+      "dica": "falhou com dois iguais ao maior",
+      "setup": {
+       "n1": 7,
+       "n2": 7,
+       "n3": 1,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 7
+       }
+      }
+     },
+     {
+      "nome": "1, 200, 200",
+      "visivel": false,
+      "dica": "falhou com dois iguais ao maior no fim",
+      "setup": {
+       "n1": 1,
+       "n2": 200,
+       "n3": 200,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 200
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 38,
+     "ciclos": 149,
+     "exigir": [
+      "CP"
+     ]
+    }
+   },
+   {
+    "id": "z80-038-dias-do-mes",
+    "linguagem": "z80",
+    "titulo": "Dias do mês",
+    "dificuldade": "medio",
+    "trilha": "decisoes",
+    "tags": [
+     "tabela",
+     "calendário",
+     "bissexto",
+     "db"
+    ],
+    "prerequisitos": [
+     "z80-026-tabela-de-quadrados"
+    ],
+    "aula": null,
+    "enunciado": "Dados `mes` (1 a 12) e `bissexto` (0 ou 1), grave em `res` o número de dias do mês. Fevereiro tem 28 dias, mais `bissexto`.\n\n## Exemplos\n\n| mes | bissexto | res |\n|---|---|---|\n| 1 | 0 | 31 |\n| 2 | 0 | 28 |\n| 2 | 1 | 29 |\n| 7 | 1 | 31 |\n\n## Restrições\n\n- Use uma tabela de 12 bytes (`DB`) para os dias.",
+    "contrato": "Memória: `mes` ($8000), `bissexto` ($8001) e `res` ($8002). Os testes conferem `res`.",
+    "editorial": "Tabela mais exceção é a estrutura usual dos problemas de calendário. O ano bissexto também pode ser calculado (divisível por 4, exceto os divisíveis por 100 que não são por 400), mas esta versão recebe o resultado pronto para focar na consulta.\n\nO truque `tabela-1` compensa a numeração de meses que começa em 1; o Z80 avalia a expressão em tempo de montagem, sem custo de execução.",
+    "codigoInicial": "; res = dias do mês\nmes      EQU 8000h\nbissexto EQU 8001h\nres      EQU 8002h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "mes      EQU 8000h\nbissexto EQU 8001h\nres      EQU 8002h\n\n    LD A,(mes)\n    LD E,A\n    LD D,0\n    LD HL,tabela-1 ; mês 1 é o elemento 0\n    ADD HL,DE\n    LD B,(HL)      ; B = dias do mês\n    CP 2\n    JR NZ,grava\n    LD A,(bissexto)\n    ADD A,B\n    LD B,A\ngrava:\n    LD A,B\n    LD (res),A\n    HALT\n\ntabela:\n    DB 31,28,31,30,31,30,31,31,30,31,30,31",
+    "dicas": [
+     "A resposta é uma consulta a tabela de 12 bytes, mais uma exceção para fevereiro. O elemento do mês `m` fica em `tabela + m - 1`.",
+     "Use `LD HL,tabela-1`, `LD E,A`, `LD D,0` e `ADD HL,DE`, e depois `LD B,(HL)` (o assembler aceita expressões como `tabela-1`). Fica faltando só a exceção.",
+     "Depois de ler o mês em A, compare com `CP 2`: se for fevereiro, some `bissexto` ao valor lido. Coloque a tabela depois do `HALT`."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "mês 1, bissexto 0",
+      "visivel": true,
+      "setup": {
+       "mes": 1,
+       "bissexto": 0,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 31
+       }
+      }
+     },
+     {
+      "nome": "mês 2, bissexto 0",
+      "visivel": true,
+      "setup": {
+       "mes": 2,
+       "bissexto": 0,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 28
+       }
+      }
+     },
+     {
+      "nome": "mês 2, bissexto 1",
+      "visivel": false,
+      "dica": "falhou com fevereiro de ano bissexto: 29 dias",
+      "setup": {
+       "mes": 2,
+       "bissexto": 1,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 29
+       }
+      }
+     },
+     {
+      "nome": "mês 4, bissexto 0",
+      "visivel": false,
+      "dica": "falhou com abril: 30 dias",
+      "setup": {
+       "mes": 4,
+       "bissexto": 0,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 30
+       }
+      }
+     },
+     {
+      "nome": "mês 12, bissexto 0",
+      "visivel": false,
+      "dica": "falhou com mês 12, bissexto 0",
+      "setup": {
+       "mes": 12,
+       "bissexto": 0,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 31
+       }
+      }
+     },
+     {
+      "nome": "mês 7, bissexto 1",
+      "visivel": false,
+      "dica": "falhou com julho de ano bissexto: o bissexto só afeta fevereiro",
+      "setup": {
+       "mes": 7,
+       "bissexto": 1,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 31
+       }
+      }
+     },
+     {
+      "nome": "mês 9, bissexto 0",
+      "visivel": false,
+      "dica": "falhou com mês 9, bissexto 0",
+      "setup": {
+       "mes": 9,
+       "bissexto": 0,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 30
+       }
+      }
+     },
+     {
+      "nome": "mês 11, bissexto 1",
+      "visivel": false,
+      "dica": "falhou com novembro de ano bissexto: o bissexto só afeta fevereiro",
+      "setup": {
+       "mes": 11,
+       "bissexto": 1,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 30
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 37,
+     "ciclos": 104,
+     "exigir": [
+      "ADD"
+     ]
+    }
+   },
+   {
+    "id": "z80-039-ordenar-por-bolhas",
+    "linguagem": "z80",
+    "titulo": "Ordenar por bolhas",
+    "dificuldade": "medio",
+    "trilha": "vetores",
+    "tags": [
+     "ordenação",
+     "bubble sort",
+     "troca",
+     "laço duplo"
+    ],
+    "prerequisitos": [
+     "z80-018-maior-elemento",
+     "z80-021-inverter-o-vetor"
+    ],
+    "aula": null,
+    "enunciado": "Ordene em ordem **crescente** os `n` primeiros bytes de `vetor` (`n` de 0 a 10), sem sinal, **no próprio lugar**. Os bytes depois dos `n` primeiros não podem mudar.\n\n## Exemplos\n\n| antes | depois |\n|---|---|\n| 5, 2, 9, 1, 7 | 1, 2, 5, 7, 9 |\n| 3, 2, 1 | 1, 2, 3 |\n| 7 | 7 |\n\n## Restrições\n\n- Use o método das bolhas: compare vizinhos e troque os que estão fora de ordem.",
+    "contrato": "Memória: `n` ($8000) e `vetor` ($8100, 10 bytes). Os testes conferem o vetor ordenado e o resto intacto.",
+    "editorial": "O método das bolhas faz `n(n-1)/2` comparações no pior caso, O(n²), e por isso não serve para vetores grandes, mas é o mais curto de escrever e de entender. A cada passada, o maior elemento ainda solto \"sobe\" até o fim, o que permite encurtar o laço interno (`LD B,C` e `DEC C`).\n\nA comparação `CP` com `JR C` / `JR Z` garante que valores iguais **não** trocam, o que torna a ordenação *estável* (iguais mantêm a ordem relativa).",
+    "codigoInicial": "; ordena os n primeiros bytes de vetor, crescente\nn     EQU 8000h\nvetor EQU 8100h   ; até 10 bytes\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n     EQU 8000h\nvetor EQU 8100h\n\n    LD A,(n)\n    CP 2\n    JR C,fim       ; 0 ou 1 elemento\n    LD C,A\n    DEC C          ; C = passadas = n - 1\nexterno:\n    LD B,C         ; B = comparações desta passada\n    LD HL,vetor\ninterno:\n    LD A,(HL)\n    INC HL\n    CP (HL)        ; A - próximo\n    JR C,certo     ; A < próximo\n    JR Z,certo     ; iguais: não troca\n    LD D,(HL)      ; troca os vizinhos\n    LD (HL),A\n    DEC HL\n    LD (HL),D\n    INC HL\ncerto:\n    DJNZ interno\n    DEC C\n    JR NZ,externo\nfim:\n    HALT",
+    "dicas": [
+     "O método das bolhas faz passadas sobre o vetor comparando vizinhos e trocando os que estão fora de ordem; cada passada leva o maior ainda solto até a sua posição final. São `n - 1` passadas.",
+     "Dois laços aninhados: o externo conta passadas (use C), o interno percorre pares (use B, recarregado de C a cada passada, e HL de volta ao início). Dentro: `LD A,(HL)`, `INC HL`, `CP (HL)` e, se `A > (HL)`, troque.",
+     "Para trocar com HL no segundo elemento: `LD D,(HL)`, `LD (HL),A`, `DEC HL`, `LD (HL),D` e `INC HL` (volta a apontar para o segundo). Trate `n < 2` antes de tudo, porque `n - 1 = 0` daria 256 voltas no `DJNZ`."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "5, 2, 9, 1, 7",
+      "visivel": true,
+      "setup": {
+       "n": 5,
+       "vetor": [
+        5,
+        2,
+        9,
+        1,
+        7,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         5,
+         7,
+         9,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "1, 2, 3",
+      "visivel": true,
+      "setup": {
+       "n": 3,
+       "vetor": [
+        1,
+        2,
+        3,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         3,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "3, 2, 1",
+      "visivel": false,
+      "dica": "falhou com um vetor em ordem decrescente (pior caso)",
+      "setup": {
+       "n": 3,
+       "vetor": [
+        3,
+        2,
+        1,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         3,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "7",
+      "visivel": false,
+      "dica": "falhou com um elemento",
+      "setup": {
+       "n": 1,
+       "vetor": [
+        7,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         7,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "(vazio)",
+      "visivel": false,
+      "dica": "falhou com vetor vazio (n = 0)",
+      "setup": {
+       "n": 0,
+       "vetor": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "4, 4, 2, 2, 9, 9, 1",
+      "visivel": false,
+      "dica": "falhou com valores repetidos: nunca troque iguais à toa",
+      "setup": {
+       "n": 7,
+       "vetor": [
+        4,
+        4,
+        2,
+        2,
+        9,
+        9,
+        1,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         2,
+         4,
+         4,
+         9,
+         9,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "255, 0, 128, 64",
+      "visivel": false,
+      "dica": "falhou com 255, 0, 128, 64 (ordem sem sinal)",
+      "setup": {
+       "n": 4,
+       "vetor": [
+        255,
+        0,
+        128,
+        64,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         0,
+         64,
+         128,
+         255,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "10 elementos",
+      "visivel": false,
+      "dica": "falhou com 10 elementos decrescentes",
+      "setup": {
+       "n": 10,
+       "vetor": [
+        10,
+        9,
+        8,
+        7,
+        6,
+        5,
+        4,
+        3,
+        2,
+        1
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         3,
+         4,
+         5,
+         6,
+         7,
+         8,
+         9,
+         10
+        ]
+       }
+      }
+     },
+     {
+      "nome": "10 elementos",
+      "visivel": false,
+      "dica": "falhou com 10 elementos aleatórios",
+      "setup": {
+       "n": 10,
+       "vetor": [
+        121,
+        248,
+        207,
+        133,
+        65,
+        136,
+        181,
+        53,
+        17,
+        149
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         17,
+         53,
+         65,
+         121,
+         133,
+         136,
+         149,
+         181,
+         207,
+         248
+        ]
+       }
+      }
+     },
+     {
+      "nome": "2, 1",
+      "visivel": false,
+      "dica": "falhou com dois elementos",
+      "setup": {
+       "n": 2,
+       "vetor": [
+        2,
+        1,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 31,
+     "ciclos": 3855,
+     "exigir": [
+      "CP"
+     ]
+    }
+   },
+   {
+    "id": "z80-040-buscar-com-cpir",
+    "linguagem": "z80",
+    "titulo": "Buscar com CPIR",
+    "dificuldade": "medio",
+    "trilha": "vetores",
+    "tags": [
+     "cpir",
+     "busca",
+     "bloco",
+     "índice"
+    ],
+    "prerequisitos": [
+     "z80-020-copiar-bloco",
+     "z80-025-ler-pelo-ponteiro"
+    ],
+    "aula": null,
+    "enunciado": "Procure `valor` entre os `n` primeiros bytes de `vetor` (`n` de 0 a 10). Grave em `res` o **índice** da primeira ocorrência (o primeiro elemento tem índice 0) ou **255** se não existir. Só os `n` primeiros elementos contam.\n\n## Exemplos\n\n| vetor | n | valor | res |\n|---|---|---|---|\n| 5, 8, 3, 9 | 4 | 3 | 2 |\n| 5, 8, 3 | 3 | 5 | 0 |\n| 1, 2, 3 | 3 | 7 | 255 |\n\n## Restrições\n\n- Use `CPIR`, a instrução de busca em bloco do Z80.",
+    "contrato": "Memória: `n` ($8000), `valor` ($8001), `res` ($8002) e `vetor` ($8100, 10 bytes). Os testes conferem `res`.",
+    "editorial": "`CPIR` está para busca como `LDIR` está para cópia: uma instrução que faz um laço inteiro de varredura a 21 ciclos por elemento. É o equivalente Z80 do `REPNE SCASB` do 8086.\n\nO detalhe sutil é a saída dupla: o laço termina por achar ou por esgotar BC, e só o flag Z distingue as duas. Quando o achado é justamente o último elemento, as duas condições acontecem juntas, e Z manda.",
+    "codigoInicial": "; res = índice de valor em vetor, ou 255\nn     EQU 8000h\nvalor EQU 8001h\nres   EQU 8002h\nvetor EQU 8100h   ; até 10 bytes\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n     EQU 8000h\nvalor EQU 8001h\nres   EQU 8002h\nvetor EQU 8100h\n\n    LD A,(n)\n    OR A\n    JR Z,nao       ; BC = 0 faria o CPIR varrer 65536 bytes\n    LD C,A\n    LD B,0\n    LD A,(valor)\n    LD HL,vetor\n    CPIR           ; compara A com (HL), avança, repete\n    JR NZ,nao      ; esgotou BC sem achar\n    DEC HL         ; HL parou uma posição depois do achado\n    LD DE,vetor\n    OR A\n    SBC HL,DE\n    LD A,L\n    JR grava\nnao:\n    LD A,0FFh\ngrava:\n    LD (res),A\n    HALT",
+    "dicas": [
+     "`CPIR` compara A com `(HL)`, avança HL, decrementa BC e repete **até achar** (Z ligado) **ou BC chegar a zero**. Prepare A (o valor), HL (início) e BC (quantidade).",
+     "Depois do `CPIR`, o flag Z diz se achou. Se achou, HL já passou do elemento (aponta para o seguinte), então o índice é `HL - 1 - vetor`: `DEC HL`, `LD DE,vetor`, `OR A`, `SBC HL,DE`, e o índice fica em L.",
+     "Trate `n = 0` antes (com BC = 0 o `CPIR` varre 65536 bytes). Quando o valor está no último elemento, o `CPIR` acaba com BC = 0 **e** Z ligado: teste Z, e não BC."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "procurar 3 em 5, 8, 3, 9",
+      "visivel": true,
+      "setup": {
+       "n": 4,
+       "valor": 3,
+       "vetor": [
+        5,
+        8,
+        3,
+        9,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 2
+       }
+      }
+     },
+     {
+      "nome": "procurar 5 em 5, 8, 3",
+      "visivel": true,
+      "setup": {
+       "n": 3,
+       "valor": 5,
+       "vetor": [
+        5,
+        8,
+        3,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "procurar 9 em 5, 8, 3, 9",
+      "visivel": false,
+      "dica": "falhou quando o valor está no último elemento (CPIR termina com BC = 0)",
+      "setup": {
+       "n": 4,
+       "valor": 9,
+       "vetor": [
+        5,
+        8,
+        3,
+        9,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 3
+       }
+      }
+     },
+     {
+      "nome": "procurar 7 em 1, 2, 3",
+      "visivel": false,
+      "dica": "falhou quando o valor não existe: res deve ser 255",
+      "setup": {
+       "n": 3,
+       "valor": 7,
+       "vetor": [
+        1,
+        2,
+        3,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "procurar 1 em (vazio)",
+      "visivel": false,
+      "dica": "falhou com vetor vazio",
+      "setup": {
+       "n": 0,
+       "valor": 1,
+       "vetor": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "procurar 4 em 4, 4, 4",
+      "visivel": false,
+      "dica": "falhou com repetidos: deve achar o primeiro",
+      "setup": {
+       "n": 3,
+       "valor": 4,
+       "vetor": [
+        4,
+        4,
+        4,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "valor logo após o fim (n = 3)",
+      "visivel": false,
+      "dica": "falhou: o valor existe depois do fim do vetor, mas fora dos n elementos",
+      "setup": {
+       "n": 3,
+       "valor": 5,
+       "vetor": [
+        1,
+        2,
+        3,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "procurar 0 em 0, 7",
+      "visivel": false,
+      "dica": "falhou com valor zero no primeiro elemento",
+      "setup": {
+       "n": 2,
+       "valor": 0,
+       "vetor": [
+        0,
+        7,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 35,
+     "ciclos": 208,
+     "exigir": [
+      "CPIR"
+     ]
+    }
+   },
+   {
+    "id": "z80-041-contar-ocorrencias",
+    "linguagem": "z80",
+    "titulo": "Contar ocorrências",
+    "dificuldade": "medio",
+    "trilha": "vetores",
+    "tags": [
+     "contagem",
+     "laço",
+     "cp",
+     "djnz"
+    ],
+    "prerequisitos": [
+     "z80-018-maior-elemento",
+     "z80-020-copiar-bloco"
+    ],
+    "aula": null,
+    "enunciado": "Conte quantas vezes `valor` aparece nos `n` primeiros bytes de `vetor` (`n` de 0 a 20) e grave a contagem em `res`. Só os `n` primeiros elementos contam.\n\n## Exemplos\n\n| vetor | n | valor | res |\n|---|---|---|---|\n| 1, 2, 1, 3, 1 | 5 | 1 | 3 |\n| 5, 6 | 2 | 7 | 0 |\n| (vazio) | 0 | 3 | 0 |\n\n## Restrições\n\n- Os bytes depois dos `n` primeiros podem conter o mesmo valor: não os conte.",
+    "contrato": "Memória: `n` ($8000), `valor` ($8001), `res` ($8002) e `vetor` ($8100, 20 bytes). Os testes conferem `res`.",
+    "editorial": "Contar é a versão \"sem parar no primeiro\" da busca. O `CPI` (uma volta do `CPIR`, sem repetir) permite uma versão compacta: `CPI` compara, avança HL e decrementa BC, e o flag P/V avisa se BC ainda não chegou a zero. Com `JP PE` no fim de cada volta, o laço inteiro cabe em poucas instruções.\n\nO laço por `CP`/`INC` é mais longo mas mais legível, e a diferença de ciclos é pequena. Escolha a clareza quando o desempenho não for o gargalo.",
+    "codigoInicial": "; res = quantas vezes valor aparece em vetor\nn     EQU 8000h\nvalor EQU 8001h\nres   EQU 8002h\nvetor EQU 8100h   ; até 20 bytes\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n     EQU 8000h\nvalor EQU 8001h\nres   EQU 8002h\nvetor EQU 8100h\n\n    LD A,(n)\n    OR A\n    JR Z,grava     ; vazio: A já é 0\n    LD B,A\n    LD A,(valor)\n    LD C,A\n    LD D,0         ; D = contagem\n    LD HL,vetor\nlaco:\n    LD A,(HL)\n    CP C\n    JR NZ,pula\n    INC D\npula:\n    INC HL\n    DJNZ laco\n    LD A,D\ngrava:\n    LD (res),A\n    HALT",
+    "dicas": [
+     "Percorra os `n` elementos (HL como ponteiro, B como contador) e some 1 a um contador sempre que o elemento for igual ao valor procurado.",
+     "Guarde o valor em C e a contagem em D. A cada volta: `LD A,(HL)`, `CP C` e, se for igual (`JR NZ,pula` salta quando diferente), `INC D`.",
+     "Trate `n = 0` antes do laço, para o `DJNZ` não dar 256 voltas. No fim, `LD A,D` e grave."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "contar 1 em 1, 2, 1, 3, 1",
+      "visivel": true,
+      "setup": {
+       "n": 5,
+       "valor": 1,
+       "res": 77,
+       "vetor": [
+        1,
+        2,
+        1,
+        3,
+        1,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 3
+       }
+      }
+     },
+     {
+      "nome": "contar 4 em 4, 4, 4",
+      "visivel": true,
+      "setup": {
+       "n": 3,
+       "valor": 4,
+       "res": 77,
+       "vetor": [
+        4,
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 3
+       }
+      }
+     },
+     {
+      "nome": "contar 7 em 5, 6",
+      "visivel": false,
+      "dica": "falhou sem nenhuma ocorrência: res deve ser 0",
+      "setup": {
+       "n": 2,
+       "valor": 7,
+       "res": 77,
+       "vetor": [
+        5,
+        6,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "contar 7 em 7",
+      "visivel": false,
+      "dica": "falhou com um elemento igual",
+      "setup": {
+       "n": 1,
+       "valor": 7,
+       "res": 77,
+       "vetor": [
+        7,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "contar 0 em 0, 0, 0, 0",
+      "visivel": false,
+      "dica": "falhou com todos iguais a zero",
+      "setup": {
+       "n": 4,
+       "valor": 0,
+       "res": 77,
+       "vetor": [
+        0,
+        0,
+        0,
+        0,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 4
+       }
+      }
+     },
+     {
+      "nome": "contar 5 em 1, 2, 3",
+      "visivel": false,
+      "dica": "falhou: só contam os n primeiros (há mais 5 depois do fim)",
+      "setup": {
+       "n": 3,
+       "valor": 5,
+       "res": 77,
+       "vetor": [
+        1,
+        2,
+        3,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "contar 3 em (vazio)",
+      "visivel": false,
+      "dica": "falhou com vetor vazio",
+      "setup": {
+       "n": 0,
+       "valor": 3,
+       "res": 77,
+       "vetor": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "contar 9 em 20 elementos",
+      "visivel": false,
+      "dica": "falhou com 20 elementos",
+      "setup": {
+       "n": 20,
+       "valor": 9,
+       "res": 77,
+       "vetor": [
+        2,
+        9,
+        17,
+        17,
+        17,
+        17,
+        9,
+        2,
+        17,
+        17,
+        17,
+        17,
+        17,
+        9,
+        9,
+        2,
+        9,
+        9,
+        9,
+        9
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 8
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 29,
+     "ciclos": 906,
+     "exigir": [
+      "CP"
+     ]
+    }
+   },
+   {
+    "id": "z80-042-busca-binaria",
+    "linguagem": "z80",
+    "titulo": "Busca binária",
+    "dificuldade": "medio",
+    "trilha": "vetores",
+    "tags": [
+     "busca binária",
+     "ordenado",
+     "divisão ao meio",
+     "índice"
+    ],
+    "prerequisitos": [
+     "z80-039-ordenar-por-bolhas",
+     "z80-040-buscar-com-cpir"
+    ],
+    "aula": null,
+    "enunciado": "`vetor` está em ordem **crescente** (valores distintos, sem sinal), com `n` elementos (`n` de 0 a 16). Procure `valor` por **busca binária** e grave em `res` o índice (o primeiro elemento tem índice 0) ou **255** se não existir. Só os `n` primeiros elementos contam.\n\n## Exemplos\n\n| vetor | valor | res |\n|---|---|---|\n| 2, 4, 6, 8, 10, 12, 14 | 8 | 3 |\n| 2, 4, 6, 8, 10, 12, 14 | 5 | 255 |\n| (vazio) | 3 | 255 |\n\n## Restrições\n\n- Sem `CPIR` e sem varrer elemento por elemento: a busca precisa descartar metade do vetor a cada passo.",
+    "contrato": "Memória: `n` ($8000), `valor` ($8001), `res` ($8002) e `vetor` ($8100, 16 bytes). Os testes conferem `res`.",
+    "editorial": "A busca binária descarta metade das possibilidades a cada passo, então encontra qualquer valor em `log2(n)` comparações: 4 para 16 elementos, 8 para 256. A busca linear leva em média `n/2`. A condição é o vetor estar ordenado, e por isso ordenar (desafio das bolhas) e buscar andam juntos.\n\nUsar o intervalo semiaberto `[B, C)` com `C` exclusivo evita as duas armadilhas clássicas: o *off-by-one* na atualização dos limites e o laço infinito. Com `B = meio + 1` ou `C = meio`, o intervalo sempre encolhe.",
+    "codigoInicial": "; res = índice de valor em vetor, ou 255\nn     EQU 8000h\nvalor EQU 8001h\nres   EQU 8002h\nvetor EQU 8100h   ; até 16 bytes, crescente\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n     EQU 8000h\nvalor EQU 8001h\nres   EQU 8002h\nvetor EQU 8100h\n\n    LD A,(n)\n    OR A\n    JR Z,nao\n    LD B,0         ; B = limite inferior\n    LD C,A         ; C = limite superior (exclusivo)\nlaco:\n    LD A,B\n    CP C\n    JR NC,nao      ; intervalo vazio\n    ADD A,C\n    SRL A          ; A = meio\n    LD E,A\n    LD D,0\n    LD HL,vetor\n    ADD HL,DE\n    LD A,(valor)\n    CP (HL)\n    JR Z,achou\n    JR C,esq       ; valor < meio: fica a metade de baixo\n    LD B,E\n    INC B          ; senão: metade de cima\n    JR laco\nesq:\n    LD C,E\n    JR laco\nachou:\n    LD A,E\n    JR grava\nnao:\n    LD A,0FFh\ngrava:\n    LD (res),A\n    HALT",
+    "dicas": [
+     "Mantenha um intervalo `[B, C)` onde o valor ainda pode estar. A cada passo, olhe o elemento do meio: se for o procurado, acabou; se o procurado for menor, descarte a metade de cima; se for maior, a de baixo.",
+     "O meio é `(B + C) / 2`: `LD A,B`, `ADD A,C`, `SRL A`. Para ler `vetor[meio]`, monte `HL = vetor + meio` (`LD E,A`, `LD D,0`, `ADD HL,DE`). Compare com `CP (HL)`: Z achou; C ligado significa que o valor procurado é menor.",
+     "Se menor, `C = meio`. Se maior, `B = meio + 1`. O laço acaba quando o intervalo fica vazio (`B >= C`), e aí o valor não existe: res = 255. Trate `n = 0` antes de entrar."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "procurar 8 em 2, 4, 6, 8, 10, 12, 14",
+      "visivel": true,
+      "setup": {
+       "n": 7,
+       "valor": 8,
+       "res": 77,
+       "vetor": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 3
+       }
+      }
+     },
+     {
+      "nome": "procurar 14 em 2, 4, 6, 8, 10, 12, 14",
+      "visivel": true,
+      "setup": {
+       "n": 7,
+       "valor": 14,
+       "res": 77,
+       "vetor": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 6
+       }
+      }
+     },
+     {
+      "nome": "procurar 2 em 2, 4, 6, 8, 10, 12, 14",
+      "visivel": false,
+      "dica": "falhou com o primeiro elemento",
+      "setup": {
+       "n": 7,
+       "valor": 2,
+       "res": 77,
+       "vetor": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "procurar 5 em 2, 4, 6, 8, 10, 12, 14",
+      "visivel": false,
+      "dica": "falhou com um valor ausente entre dois elementos: res deve ser 255",
+      "setup": {
+       "n": 7,
+       "valor": 5,
+       "res": 77,
+       "vetor": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "procurar 1 em 2, 4, 6, 8, 10, 12, 14",
+      "visivel": false,
+      "dica": "falhou com valor menor que todos",
+      "setup": {
+       "n": 7,
+       "valor": 1,
+       "res": 77,
+       "vetor": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "procurar 20 em 2, 4, 6, 8, 10, 12, 14",
+      "visivel": false,
+      "dica": "falhou com valor maior que todos",
+      "setup": {
+       "n": 7,
+       "valor": 20,
+       "res": 77,
+       "vetor": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "procurar 9 em 9",
+      "visivel": false,
+      "dica": "falhou com um único elemento igual",
+      "setup": {
+       "n": 1,
+       "valor": 9,
+       "res": 77,
+       "vetor": [
+        9,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "procurar 8 em 9",
+      "visivel": false,
+      "dica": "falhou com um único elemento diferente",
+      "setup": {
+       "n": 1,
+       "valor": 8,
+       "res": 77,
+       "vetor": [
+        9,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "procurar 3 em (vazio)",
+      "visivel": false,
+      "dica": "falhou com vetor vazio",
+      "setup": {
+       "n": 0,
+       "valor": 3,
+       "res": 77,
+       "vetor": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "procurar 34 em 16 elementos",
+      "visivel": false,
+      "dica": "falhou com 16 elementos",
+      "setup": {
+       "n": 16,
+       "valor": 34,
+       "res": 77,
+       "vetor": [
+        1,
+        4,
+        7,
+        10,
+        13,
+        16,
+        19,
+        22,
+        25,
+        28,
+        31,
+        34,
+        37,
+        40,
+        43,
+        46
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 11
+       }
+      }
+     },
+     {
+      "nome": "procurar 11 em 1, 3, 5, 7, 9",
+      "visivel": false,
+      "dica": "falhou: o valor existe depois do fim do vetor, mas fora dos n elementos",
+      "setup": {
+       "n": 5,
+       "valor": 11,
+       "res": 77,
+       "vetor": [
+        1,
+        3,
+        5,
+        7,
+        9,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 47,
+     "ciclos": 495,
+     "proibir": [
+      "CPIR",
+      "CPI",
+      "CPDR",
+      "CPD"
+     ]
+    }
+   },
+   {
+    "id": "z80-043-somar-palavras",
+    "linguagem": "z80",
+    "titulo": "Somar palavras",
+    "dificuldade": "medio",
+    "trilha": "vetores",
+    "tags": [
+     "16 bits",
+     "ix",
+     "word",
+     "little-endian"
+    ],
+    "prerequisitos": [
+     "z80-007-soma-de-16-bits",
+     "z80-017-soma-do-vetor"
+    ],
+    "aula": null,
+    "enunciado": "`vetor` contém `n` **palavras** de 16 bits (`n` de 0 a 10), cada uma gravada em *little-endian* (byte baixo primeiro). Grave a soma delas, em 16 bits (módulo 65536), na palavra `total`.\n\n## Exemplos\n\n| palavras | total |\n|---|---|\n| $0001, $0002, $0003 | $0006 |\n| $FFFF, $0001 | $0000 |\n| (nenhuma) | $0000 |\n\n## Restrições\n\n- Cada palavra ocupa 2 bytes consecutivos.",
+    "contrato": "Memória: `n` ($8000), `total` ($8002-$8003, palavra) e `vetor` ($8100, 20 bytes = 10 palavras). Os testes conferem `total`.",
+    "editorial": "*Little-endian* significa que o byte menos significativo vem primeiro, e é por isso que `LD HL,(total)` e `LD (total),HL` leem e gravam L no endereço dado e H no seguinte. O 6502 e o 8086 também são little-endian; o 68000, que virá depois neste curso, é *big-endian*.\n\nSomar palavras byte a byte exigiria `ADC` para propagar o vai-um; com `ADD HL,DE` o Z80 faz isso sozinho. Esse é um dos maiores ganhos do Z80 sobre o 6502 em aritmética de 16 bits.",
+    "codigoInicial": "; total = soma das n palavras de vetor\nn      EQU 8000h\ntotal  EQU 8002h   ; palavra (2 bytes)\nvetor  EQU 8100h   ; até 10 palavras\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n      EQU 8000h\ntotal  EQU 8002h\nvetor  EQU 8100h\n\n    LD HL,0        ; HL = acumulador\n    LD A,(n)\n    OR A\n    JR Z,grava\n    LD B,A\n    LD IX,vetor\nlaco:\n    LD E,(IX+0)    ; byte baixo\n    LD D,(IX+1)    ; byte alto\n    ADD HL,DE\n    INC IX\n    INC IX\n    DJNZ laco\ngrava:\n    LD (total),HL\n    HALT",
+    "dicas": [
+     "Some em 16 bits: o acumulador é `HL` e cada palavra do vetor é montada em `DE` (byte baixo primeiro, porque a memória é *little-endian*) antes de um `ADD HL,DE`.",
+     "Com `IX` apontando para a palavra atual, `LD E,(IX+0)` lê o byte baixo e `LD D,(IX+1)` o alto. Avance duas posições a cada volta: `INC IX` duas vezes.",
+     "Zere `HL` antes de tudo e trate `n = 0` (o `DJNZ` com B = 0 daria 256 voltas). Grave com `LD (total),HL`, que escreve L e depois H no endereço seguinte."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "$0001, $0002, $0003",
+      "visivel": true,
+      "setup": {
+       "n": 3,
+       "total": {
+        "w": 30583
+       },
+       "vetor": [
+        1,
+        0,
+        2,
+        0,
+        3,
+        0,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "total": {
+         "w": 6
+        }
+       }
+      }
+     },
+     {
+      "nome": "$1234, $0001",
+      "visivel": true,
+      "setup": {
+       "n": 2,
+       "total": {
+        "w": 30583
+       },
+       "vetor": [
+        52,
+        18,
+        1,
+        0,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "total": {
+         "w": 4661
+        }
+       }
+      }
+     },
+     {
+      "nome": "$FFFF, $0001",
+      "visivel": false,
+      "dica": "falhou com $FFFF + 1: o total dá a volta em 16 bits",
+      "setup": {
+       "n": 2,
+       "total": {
+        "w": 30583
+       },
+       "vetor": [
+        255,
+        255,
+        1,
+        0,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "total": {
+         "w": 0
+        }
+       }
+      }
+     },
+     {
+      "nome": "$8000, $8000",
+      "visivel": false,
+      "dica": "falhou com $8000 + $8000",
+      "setup": {
+       "n": 2,
+       "total": {
+        "w": 30583
+       },
+       "vetor": [
+        0,
+        128,
+        0,
+        128,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "total": {
+         "w": 0
+        }
+       }
+      }
+     },
+     {
+      "nome": "(vazio)",
+      "visivel": false,
+      "dica": "falhou com vetor vazio: total deve ser 0",
+      "setup": {
+       "n": 0,
+       "total": {
+        "w": 30583
+       },
+       "vetor": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "total": {
+         "w": 0
+        }
+       }
+      }
+     },
+     {
+      "nome": "$0064",
+      "visivel": false,
+      "dica": "falhou com uma palavra",
+      "setup": {
+       "n": 1,
+       "total": {
+        "w": 30583
+       },
+       "vetor": [
+        100,
+        0,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "total": {
+         "w": 100
+        }
+       }
+      }
+     },
+     {
+      "nome": "$00FF, $0001, $0100",
+      "visivel": false,
+      "dica": "falhou com vai-um entre os bytes (tem de usar ADD de 16 bits)",
+      "setup": {
+       "n": 3,
+       "total": {
+        "w": 30583
+       },
+       "vetor": [
+        255,
+        0,
+        1,
+        0,
+        0,
+        1,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "total": {
+         "w": 512
+        }
+       }
+      }
+     },
+     {
+      "nome": "10 palavras",
+      "visivel": false,
+      "dica": "falhou com 10 palavras",
+      "setup": {
+       "n": 10,
+       "total": {
+        "w": 30583
+       },
+       "vetor": [
+        232,
+        3,
+        208,
+        7,
+        184,
+        11,
+        160,
+        15,
+        136,
+        19,
+        112,
+        23,
+        88,
+        27,
+        64,
+        31,
+        40,
+        35,
+        16,
+        39
+       ]
+      },
+      "espera": {
+       "mem": {
+        "total": {
+         "w": 55000
+        }
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 31,
+     "ciclos": 883,
+     "exigir": [
+      "ADD"
+     ]
+    }
+   },
+   {
+    "id": "z80-044-comprimento-do-texto",
+    "linguagem": "z80",
+    "titulo": "Comprimento do texto",
+    "dificuldade": "medio",
+    "trilha": "strings",
+    "tags": [
+     "string",
+     "terminador",
+     "laço",
+     "ascii"
+    ],
+    "prerequisitos": [
+     "z80-017-soma-do-vetor"
+    ],
+    "aula": null,
+    "enunciado": "`texto` guarda uma string terminada em zero (cada caractere é um byte; o zero marca o fim e não conta). Grave em `res` o número de caracteres.\n\n## Exemplos\n\n| texto | res |\n|---|---|\n| \"abc\" | 3 |\n| \"Z80\" | 3 |\n| \"\" | 0 |\n\n## Restrições\n\n- O texto tem até 19 caracteres, mais o zero final.",
+    "contrato": "Memória: `res` ($8000) e `texto` ($8100, 24 bytes). Depois do zero final há lixo (`$41`). Os testes conferem `res`.",
+    "editorial": "Strings terminadas em zero (as *C strings*) tornaram-se o padrão porque não limitam o tamanho a 255. A contrapartida é que descobrir o tamanho custa uma varredura inteira, o que levou outros sistemas (Pascal, CP/M com `$`) a guardar o tamanho na frente ou usar outro terminador.\n\nNo Z80 há uma alternativa de uma instrução: `XOR A` / `LD B,A` / `LD C,A` / `CPIR` varre até achar o zero, e o tamanho é `-(BC) - 1`. É compacta, mas o código para extrair o tamanho de BC é menos legível.",
+    "codigoInicial": "; res = comprimento da string em texto\nres   EQU 8000h\ntexto EQU 8100h   ; até 19 caracteres + zero\n\n    ; seu código aqui\n    HALT",
+    "solucao": "res   EQU 8000h\ntexto EQU 8100h\n\n    LD HL,texto\n    LD B,0         ; B conta os caracteres\nlaco:\n    LD A,(HL)\n    OR A           ; zero marca o fim\n    JR Z,fim\n    INC B\n    INC HL\n    JR laco\nfim:\n    LD A,B\n    LD (res),A\n    HALT",
+    "dicas": [
+     "O tamanho de uma string de zero final é o número de bytes até o primeiro zero. Percorra com HL e conte em B.",
+     "`LD A,(HL)` seguido de `OR A` atualiza o flag Z sem alterar A: se ligou, chegou ao fim. Senão, `INC B` e `INC HL`.",
+     "Não deixe `B` começar com lixo: `LD B,0` antes do laço. No fim, `LD A,B` e grave com `LD (res),A`."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "\"abc\"",
+      "visivel": true,
+      "setup": {
+       "texto": [
+        97,
+        98,
+        99,
+        0,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 3
+       }
+      }
+     },
+     {
+      "nome": "\"Z80\"",
+      "visivel": true,
+      "setup": {
+       "texto": [
+        90,
+        56,
+        48,
+        0,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 3
+       }
+      }
+     },
+     {
+      "nome": "\"\"",
+      "visivel": false,
+      "dica": "falhou com texto vazio: comprimento 0",
+      "setup": {
+       "texto": [
+        0,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "\"a\"",
+      "visivel": false,
+      "dica": "falhou com um caractere",
+      "setup": {
+       "texto": [
+        97,
+        0,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "\"ABCDEFGHIJ\"",
+      "visivel": false,
+      "dica": "falhou com 10 caracteres",
+      "setup": {
+       "texto": [
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        0,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 10
+       }
+      }
+     },
+     {
+      "nome": "\"ola mundo\"",
+      "visivel": false,
+      "dica": "falhou com espaço no texto (o espaço conta)",
+      "setup": {
+       "texto": [
+        111,
+        108,
+        97,
+        32,
+        109,
+        117,
+        110,
+        100,
+        111,
+        0,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 9
+       }
+      }
+     },
+     {
+      "nome": "\"x\"",
+      "visivel": false,
+      "dica": "falhou com \"x\"",
+      "setup": {
+       "texto": [
+        120,
+        0,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "\"0123456789ABCDEFGHI\"",
+      "visivel": false,
+      "dica": "falhou com 19 caracteres",
+      "setup": {
+       "texto": [
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        0,
+        65,
+        65,
+        65,
+        65
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 19
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 18,
+     "ciclos": 817,
+     "exigir": [
+      "OR"
+     ]
+    }
+   },
+   {
+    "id": "z80-045-maiusculas",
+    "linguagem": "z80",
+    "titulo": "Maiúsculas",
+    "dificuldade": "medio",
+    "trilha": "strings",
+    "tags": [
+     "ascii",
+     "string",
+     "caracteres",
+     "sub"
+    ],
+    "prerequisitos": [
+     "z80-044-comprimento-do-texto"
+    ],
+    "aula": null,
+    "enunciado": "Converta `texto` (string terminada em zero) para **maiúsculas**, no próprio lugar. Só as letras de `a` a `z` mudam. Qualquer outro byte (maiúsculas, dígitos, espaços, pontuação) fica como está.\n\n## Exemplos\n\n| antes | depois |\n|---|---|\n| \"hello\" | \"HELLO\" |\n| \"Ola Mundo\" | \"OLA MUNDO\" |\n| \"z80!\" | \"Z80!\" |\n\n## Restrições\n\n- Em ASCII, `a` é $61 e `z` é $7A. A diferença para `A` é $20.",
+    "contrato": "Memória: `texto` ($8100, 24 bytes, zero final). Os testes conferem o texto inteiro, inclusive o lixo depois do zero.",
+    "editorial": "O ASCII foi desenhado para que a conversão de caixa seja um bit: `$61` é `%01100001` e `$41` é `%01000001`, e os dois diferem só no bit 5. Dá para converter com `AND 0DFh` (limpa o bit 5), mas ela precisa de uma checagem de faixa antes, senão estraga os símbolos (`{` viraria `[`).\n\nA checagem de faixa em dois `CP` é o idioma Z80 para \"A está entre dois valores\": o primeiro `CP` com `JR C` descarta os menores e o segundo, com `JR NC`, descarta os maiores.",
+    "codigoInicial": "; converte texto para maiúsculas\ntexto EQU 8100h   ; até 19 caracteres + zero\n\n    ; seu código aqui\n    HALT",
+    "solucao": "texto EQU 8100h\n\n    LD HL,texto\nlaco:\n    LD A,(HL)\n    OR A\n    JR Z,fim       ; fim da string\n    CP 61h         ; abaixo de \"a\"?\n    JR C,prox\n    CP 7Bh         ; acima de \"z\"?\n    JR NC,prox\n    SUB 20h        ; a letra minúscula vira maiúscula\n    LD (HL),A\nprox:\n    INC HL\n    JR laco\nfim:\n    HALT",
+    "dicas": [
+     "Em ASCII, as letras minúsculas ocupam $61 a $7A, e cada uma fica $20 acima da maiúscula correspondente. Só estes 26 bytes mudam.",
+     "Para cada caractere: se for zero, terminou. Senão, `CP 61h` e `JR C` (menor que \"a\": ignora); `CP 7Bh` e `JR NC` (maior que \"z\": ignora). Os outros são minúsculas: `SUB 20h` e grave de volta com `LD (HL),A`.",
+     "Cuidado com os vizinhos das letras: \"`\" ($60) e \"{\" ($7B) ficam fora do intervalo e **não** devem mudar. Teste o limite superior com `$7B`, não com `$7A`."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "\"hello\"",
+      "visivel": true,
+      "setup": {
+       "texto": [
+        104,
+        101,
+        108,
+        108,
+        111,
+        0,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         72,
+         69,
+         76,
+         76,
+         79,
+         0,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65
+        ]
+       }
+      }
+     },
+     {
+      "nome": "\"Ola Mundo\"",
+      "visivel": true,
+      "setup": {
+       "texto": [
+        79,
+        108,
+        97,
+        32,
+        77,
+        117,
+        110,
+        100,
+        111,
+        0,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         79,
+         76,
+         65,
+         32,
+         77,
+         85,
+         78,
+         68,
+         79,
+         0,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65
+        ]
+       }
+      }
+     },
+     {
+      "nome": "\"\"",
+      "visivel": false,
+      "dica": "falhou com texto vazio (nada a fazer)",
+      "setup": {
+       "texto": [
+        0,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         0,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65
+        ]
+       }
+      }
+     },
+     {
+      "nome": "\"ABC\"",
+      "visivel": false,
+      "dica": "falhou com texto que já está em maiúsculas",
+      "setup": {
+       "texto": [
+        65,
+        66,
+        67,
+        0,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         65,
+         66,
+         67,
+         0,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65
+        ]
+       }
+      }
+     },
+     {
+      "nome": "\"z80!\"",
+      "visivel": false,
+      "dica": "falhou com números e pontuação, que não mudam",
+      "setup": {
+       "texto": [
+        122,
+        56,
+        48,
+        33,
+        0,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         90,
+         56,
+         48,
+         33,
+         0,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65
+        ]
+       }
+      }
+     },
+     {
+      "nome": "\"a{z`\"",
+      "visivel": false,
+      "dica": "falhou com os vizinhos de \"a\" e \"z\" (\"`\" e \"{\" não são letras)",
+      "setup": {
+       "texto": [
+        97,
+        123,
+        122,
+        96,
+        0,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         65,
+         123,
+         90,
+         96,
+         0,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65
+        ]
+       }
+      }
+     },
+     {
+      "nome": "\"@AZ[\"",
+      "visivel": false,
+      "dica": "falhou com os vizinhos de \"A\" e \"Z\" (\"@\" e \"[\")",
+      "setup": {
+       "texto": [
+        64,
+        65,
+        90,
+        91,
+        0,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65,
+        65
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         64,
+         65,
+         90,
+         91,
+         0,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65,
+         65
+        ]
+       }
+      }
+     },
+     {
+      "nome": "\"tudo em minusculas\"",
+      "visivel": false,
+      "dica": "falhou com texto longo",
+      "setup": {
+       "texto": [
+        116,
+        117,
+        100,
+        111,
+        32,
+        101,
+        109,
+        32,
+        109,
+        105,
+        110,
+        117,
+        115,
+        99,
+        117,
+        108,
+        97,
+        115,
+        0,
+        65,
+        65,
+        65,
+        65,
+        65
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         84,
+         85,
+         68,
+         79,
+         32,
+         69,
+         77,
+         32,
+         77,
+         73,
+         78,
+         85,
+         83,
+         67,
+         85,
+         76,
+         65,
+         83,
+         0,
+         65,
+         65,
+         65,
+         65,
+         65
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 22,
+     "ciclos": 1391,
+     "exigir": [
+      "CP"
+     ]
+    }
+   },
+   {
+    "id": "z80-046-comparar-textos",
+    "linguagem": "z80",
+    "titulo": "Comparar textos",
+    "dificuldade": "medio",
+    "trilha": "strings",
+    "tags": [
+     "strcmp",
+     "string",
+     "ordem",
+     "ascii"
+    ],
+    "prerequisitos": [
+     "z80-044-comprimento-do-texto",
+     "z80-045-maiusculas"
+    ],
+    "aula": null,
+    "enunciado": "Compare as strings `txt1` e `txt2` (terminadas em zero, até 8 caracteres) e grave em `res`: **0** se forem iguais, **1** se `txt1` vier depois de `txt2` na ordem dos códigos ASCII, **255** se vier antes. A comparação é caractere a caractere, e uma string que é prefixo da outra vem antes.\n\n## Exemplos\n\n| txt1 | txt2 | res |\n|---|---|---|\n| \"abc\" | \"abc\" | 0 |\n| \"abd\" | \"abc\" | 1 |\n| \"ab\" | \"abc\" | 255 |\n\n## Restrições\n\n- Compare como bytes sem sinal.",
+    "contrato": "Memória: `res` ($8000), `txt1` ($8100) e `txt2` ($8200), de 10 bytes cada. Os testes conferem `res`.",
+    "editorial": "É o `strcmp` da biblioteca C. O zero terminador faz o serviço de graça: como é menor que qualquer caractere, \"ab\" vem antes de \"abc\" sem tratar o caso do prefixo. Isso só funciona porque a comparação é sem sinal; com bytes com sinal, os caracteres acima de `$7F` (acentos em páginas de código antigas) ficariam \"menores\" que o zero.\n\nNote que a ordem é a dos códigos ASCII, não a do alfabeto: \"Zebra\" vem antes de \"apple\", porque as maiúsculas ($41 a $5A) precedem as minúsculas ($61 a $7A).",
+    "codigoInicial": "; res = 0, 1 ou 255 conforme a ordem de txt1 e txt2\nres  EQU 8000h\ntxt1 EQU 8100h   ; até 8 caracteres + zero\ntxt2 EQU 8200h   ; até 8 caracteres + zero\n\n    ; seu código aqui\n    HALT",
+    "solucao": "res  EQU 8000h\ntxt1 EQU 8100h\ntxt2 EQU 8200h\n\n    LD HL,txt1\n    LD DE,txt2\nlaco:\n    LD C,(HL)      ; caractere de txt1\n    LD A,(DE)      ; caractere de txt2\n    CP C           ; txt2 - txt1\n    JR NZ,difere\n    OR A           ; iguais: era o zero final?\n    JR Z,igual\n    INC HL\n    INC DE\n    JR laco\ndifere:\n    JR C,maior     ; txt2 < txt1\n    LD A,0FFh\n    JR grava\nmaior:\n    LD A,1\n    JR grava\nigual:\n    XOR A\ngrava:\n    LD (res),A\n    HALT",
+    "dicas": [
+     "Percorra as duas strings juntas, com HL em `txt1` e DE em `txt2`. Na primeira posição em que os caracteres diferem, a ordem está decidida. Se forem iguais até o zero final, as strings são iguais.",
+     "Em cada passo, leia um caractere de cada lado e compare (`CP C` com um deles em A e o outro em C). Se forem diferentes, o carry diz quem é menor. Se forem iguais e o caractere for zero, terminou: iguais.",
+     "Como o zero final tem o menor código possível, a string mais curta (prefixo) perde sozinha: o zero dela é menor que o caractere da outra. Nenhum tratamento especial é preciso."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "\"abc\" e \"abc\"",
+      "visivel": true,
+      "setup": {
+       "txt1": [
+        97,
+        98,
+        99,
+        0,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ],
+       "txt2": [
+        97,
+        98,
+        99,
+        0,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "\"abc\" e \"abd\"",
+      "visivel": true,
+      "setup": {
+       "txt1": [
+        97,
+        98,
+        99,
+        0,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ],
+       "txt2": [
+        97,
+        98,
+        100,
+        0,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "\"abd\" e \"abc\"",
+      "visivel": false,
+      "dica": "falhou com a primeira string maior (diferem no último caractere)",
+      "setup": {
+       "txt1": [
+        97,
+        98,
+        100,
+        0,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ],
+       "txt2": [
+        97,
+        98,
+        99,
+        0,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "\"abc\" e \"ab\"",
+      "visivel": false,
+      "dica": "falhou quando uma é prefixo da outra: a mais longa é a maior",
+      "setup": {
+       "txt1": [
+        97,
+        98,
+        99,
+        0,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ],
+       "txt2": [
+        97,
+        98,
+        0,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "\"ab\" e \"abc\"",
+      "visivel": false,
+      "dica": "falhou quando a primeira é prefixo da segunda",
+      "setup": {
+       "txt1": [
+        97,
+        98,
+        0,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ],
+       "txt2": [
+        97,
+        98,
+        99,
+        0,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "\"\" e \"\"",
+      "visivel": false,
+      "dica": "falhou com duas strings vazias",
+      "setup": {
+       "txt1": [
+        0,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ],
+       "txt2": [
+        0,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "\"a\" e \"\"",
+      "visivel": false,
+      "dica": "falhou comparando \"a\" com a string vazia",
+      "setup": {
+       "txt1": [
+        97,
+        0,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ],
+       "txt2": [
+        0,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "\"Zebra\" e \"apple\"",
+      "visivel": false,
+      "dica": "falhou com maiúscula contra minúscula (Z é $5A, menor que a)",
+      "setup": {
+       "txt1": [
+        90,
+        101,
+        98,
+        114,
+        97,
+        0,
+        85,
+        85,
+        85,
+        85
+       ],
+       "txt2": [
+        97,
+        112,
+        112,
+        108,
+        101,
+        0,
+        85,
+        85,
+        85,
+        85
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 33,
+     "ciclos": 258,
+     "exigir": [
+      "CP"
+     ]
+    }
+   },
+   {
+    "id": "z80-047-numero-para-texto",
+    "linguagem": "z80",
+    "titulo": "Número para texto",
+    "dificuldade": "medio",
+    "trilha": "numeros",
+    "tags": [
+     "decimal",
+     "ascii",
+     "call",
+     "divisão"
+    ],
+    "prerequisitos": [
+     "z80-022-procedimento-que-dobra",
+     "z80-030-dividir-8-bits"
+    ],
+    "aula": null,
+    "enunciado": "Escreva em `texto` o valor de `n` (0 a 255) como **texto decimal**, sem zeros à esquerda, terminado em zero. O número 0 vira o texto \"0\".\n\n## Exemplos\n\n| n | texto |\n|---|---|\n| 123 | \"123\" |\n| 7 | \"7\" |\n| 0 | \"0\" |\n| 105 | \"105\" |\n\n## Restrições\n\n- Os bytes depois do zero final não podem mudar.\n- O dígito `d` em ASCII é `$30 + d`.",
+    "contrato": "Memória: `n` ($8000) e `texto` ($8100, 6 bytes, chega com `$55`). Os testes conferem `texto` inteiro.",
+    "editorial": "Converter binário para decimal é uma divisão por potências de 10. Como o Z80 não tem divisão, a sub-rotina `digito` conta quantas vezes cabe cada potência. O sinal de supressão de zeros à esquerda é o detalhe que a maioria esquece: \"007\" e \"7\" são o mesmo número, mas \"105\" não pode perder o zero do meio.\n\nO desafio avançado de 16 bits repete a ideia com divisores 10000, 1000, 100 e 10. Os computadores de 8 bits da época usavam exatamente esta rotina para imprimir pontuações e endereços na tela.",
+    "codigoInicial": "; texto = n em decimal ASCII, terminado em zero\nn     EQU 8000h\ntexto EQU 8100h   ; até 3 dígitos + zero\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n     EQU 8000h\ntexto EQU 8100h\n\n    LD A,(n)\n    LD HL,texto\n    LD C,0         ; C = 1 depois de escrever o primeiro dígito\n    LD D,100\n    CALL digito\n    LD D,10\n    CALL digito\n    ADD A,30h      ; unidades: sempre escreve\n    LD (HL),A\n    INC HL\n    LD (HL),0\n    HALT\n\n; escreve o dígito de A / D (sem zero à esquerda) e deixa o resto em A\ndigito:\n    LD B,0\ndloop:\n    CP D\n    JR C,dfim\n    SUB D\n    INC B\n    JR dloop\ndfim:\n    LD E,A         ; guarda o resto\n    LD A,B\n    OR C           ; escreve se o dígito ≠ 0 ou já escreveu algum\n    JR Z,dpula\n    LD A,B\n    ADD A,30h\n    LD (HL),A\n    INC HL\n    LD C,1\ndpula:\n    LD A,E\n    RET",
+    "dicas": [
+     "Os dígitos saem por divisões sucessivas: divide-se por 100 (centenas), o resto por 10 (dezenas), e o que sobra são as unidades. Escreva uma sub-rotina `digito` e chame-a duas vezes (com D = 100 e D = 10).",
+     "A sub-rotina divide A por D por subtrações, devolve o resto em A e escreve o quociente como caractere (`ADD A,30h`) em `(HL)`, avançando HL. As unidades são escritas fora dela, sempre, mesmo se forem 0.",
+     "Para suprimir zeros à esquerda, use C como sinal \"já escrevi algum dígito\". Só escreva se o dígito for diferente de zero **ou** C estiver ligado (`LD A,B / OR C / JR Z,pula`). Termine com um zero na posição seguinte."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "n = 123",
+      "visivel": true,
+      "setup": {
+       "n": 123,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         49,
+         50,
+         51,
+         0,
+         85,
+         85
+        ]
+       }
+      }
+     },
+     {
+      "nome": "n = 7",
+      "visivel": true,
+      "setup": {
+       "n": 7,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         55,
+         0,
+         85,
+         85,
+         85,
+         85
+        ]
+       }
+      }
+     },
+     {
+      "nome": "n = 0",
+      "visivel": false,
+      "dica": "falhou com 0: deve escrever o caractere \"0\", não um texto vazio",
+      "setup": {
+       "n": 0,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         48,
+         0,
+         85,
+         85,
+         85,
+         85
+        ]
+       }
+      }
+     },
+     {
+      "nome": "n = 10",
+      "visivel": false,
+      "dica": "falhou com 10: o zero das unidades tem de aparecer",
+      "setup": {
+       "n": 10,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         49,
+         48,
+         0,
+         85,
+         85,
+         85
+        ]
+       }
+      }
+     },
+     {
+      "nome": "n = 99",
+      "visivel": false,
+      "dica": "falhou com 99",
+      "setup": {
+       "n": 99,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         57,
+         57,
+         0,
+         85,
+         85,
+         85
+        ]
+       }
+      }
+     },
+     {
+      "nome": "n = 100",
+      "visivel": false,
+      "dica": "falhou com 100: dois zeros no fim",
+      "setup": {
+       "n": 100,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         49,
+         48,
+         48,
+         0,
+         85,
+         85
+        ]
+       }
+      }
+     },
+     {
+      "nome": "n = 105",
+      "visivel": false,
+      "dica": "falhou com 105: o zero do meio tem de aparecer",
+      "setup": {
+       "n": 105,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         49,
+         48,
+         53,
+         0,
+         85,
+         85
+        ]
+       }
+      }
+     },
+     {
+      "nome": "n = 200",
+      "visivel": false,
+      "dica": "falhou com 200",
+      "setup": {
+       "n": 200,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         50,
+         48,
+         48,
+         0,
+         85,
+         85
+        ]
+       }
+      }
+     },
+     {
+      "nome": "n = 255",
+      "visivel": false,
+      "dica": "falhou com 255",
+      "setup": {
+       "n": 255,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         50,
+         53,
+         53,
+         0,
+         85,
+         85
+        ]
+       }
+      }
+     },
+     {
+      "nome": "n = 9",
+      "visivel": false,
+      "dica": "falhou com um dígito",
+      "setup": {
+       "n": 9,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         57,
+         0,
+         85,
+         85,
+         85,
+         85
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 48,
+     "ciclos": 535,
+     "exigir": [
+      "CALL",
+      "RET"
+     ]
+    }
+   },
+   {
+    "id": "z80-048-texto-para-numero",
+    "linguagem": "z80",
+    "titulo": "Texto para número",
+    "dificuldade": "medio",
+    "trilha": "numeros",
+    "tags": [
+     "decimal",
+     "ascii",
+     "multiplicar por 10",
+     "string"
+    ],
+    "prerequisitos": [
+     "z80-047-numero-para-texto"
+    ],
+    "aula": null,
+    "enunciado": "`texto` guarda um número em decimal ASCII (1 a 3 dígitos, valor de 0 a 255), terminado em zero. Grave o valor em `res`.\n\n## Exemplos\n\n| texto | res |\n|---|---|\n| \"42\" | 42 |\n| \"255\" | 255 |\n| \"0\" | 0 |\n| \"100\" | 100 |\n\n## Restrições\n\n- O texto é sempre válido (só dígitos).",
+    "contrato": "Memória: `res` ($8000) e `texto` ($8100, 6 bytes). Os testes conferem `res`.",
+    "editorial": "É o `atoi` da biblioteca C. O método de Horner, que multiplica o acumulador por 10 a cada dígito, evita guardar potências de 10 e processa a string numa única passada.\n\nA multiplicação por 10 como `8x + 2x` é o idioma clássico de CPUs sem `MUL`: dois deslocamentos e uma soma. O Z80 faz em 4 instruções (16 ciclos) o que o 8086 faz em um `MUL` de uns 70 ciclos, ao custo de só valer para essa constante.",
+    "codigoInicial": "; res = valor de texto\nres   EQU 8000h\ntexto EQU 8100h   ; até 3 dígitos + zero\n\n    ; seu código aqui\n    HALT",
+    "solucao": "res   EQU 8000h\ntexto EQU 8100h\n\n    LD HL,texto\n    LD C,0         ; C = valor acumulado\nlaco:\n    LD A,(HL)\n    OR A\n    JR Z,fim\n    SUB 30h        ; ASCII para dígito\n    LD B,A\n    LD A,C\n    ADD A,A        ; x2\n    LD D,A\n    ADD A,A        ; x4\n    ADD A,A        ; x8\n    ADD A,D        ; x10\n    ADD A,B        ; + dígito\n    LD C,A\n    INC HL\n    JR laco\nfim:\n    LD A,C\n    LD (res),A\n    HALT",
+    "dicas": [
+     "Leia da esquerda para a direita: a cada dígito, o valor acumulado é multiplicado por 10 e o dígito é somado. \"42\" dá `(0 x 10 + 4) x 10 + 2`.",
+     "O código ASCII do dígito `d` é `$30 + d`, então `SUB 30h` devolve o dígito. Guarde-o em B antes de usar A para a multiplicação.",
+     "Multiplicar por 10 sem `MUL`: com `x` em A, `ADD A,A` dá 2x (guarde em D); mais dois `ADD A,A` dão 8x; `ADD A,D` soma e dá 10x. Depois `ADD A,B` soma o dígito."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "\"42\"",
+      "visivel": true,
+      "setup": {
+       "texto": [
+        52,
+        50,
+        0,
+        85,
+        85,
+        85
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 42
+       }
+      }
+     },
+     {
+      "nome": "\"7\"",
+      "visivel": true,
+      "setup": {
+       "texto": [
+        55,
+        0,
+        85,
+        85,
+        85,
+        85
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 7
+       }
+      }
+     },
+     {
+      "nome": "\"0\"",
+      "visivel": false,
+      "dica": "falhou com \"0\"",
+      "setup": {
+       "texto": [
+        48,
+        0,
+        85,
+        85,
+        85,
+        85
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "\"100\"",
+      "visivel": false,
+      "dica": "falhou com \"100\": zeros no meio e no fim",
+      "setup": {
+       "texto": [
+        49,
+        48,
+        48,
+        0,
+        85,
+        85
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 100
+       }
+      }
+     },
+     {
+      "nome": "\"255\"",
+      "visivel": false,
+      "dica": "falhou com \"255\", o maior valor",
+      "setup": {
+       "texto": [
+        50,
+        53,
+        53,
+        0,
+        85,
+        85
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "\"99\"",
+      "visivel": false,
+      "dica": "falhou com \"99\"",
+      "setup": {
+       "texto": [
+        57,
+        57,
+        0,
+        85,
+        85,
+        85
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 99
+       }
+      }
+     },
+     {
+      "nome": "\"5\"",
+      "visivel": false,
+      "dica": "falhou com um dígito",
+      "setup": {
+       "texto": [
+        53,
+        0,
+        85,
+        85,
+        85,
+        85
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 5
+       }
+      }
+     },
+     {
+      "nome": "\"200\"",
+      "visivel": false,
+      "dica": "falhou com \"200\"",
+      "setup": {
+       "texto": [
+        50,
+        48,
+        48,
+        0,
+        85,
+        85
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 200
+       }
+      }
+     },
+     {
+      "nome": "\"10\"",
+      "visivel": false,
+      "dica": "falhou com \"10\"",
+      "setup": {
+       "texto": [
+        49,
+        48,
+        0,
+        85,
+        85,
+        85
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 10
+       }
+      }
+     },
+     {
+      "nome": "\"123\"",
+      "visivel": false,
+      "dica": "falhou com \"123\"",
+      "setup": {
+       "texto": [
+        49,
+        50,
+        51,
+        0,
+        85,
+        85
+       ],
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 123
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 28,
+     "ciclos": 294,
+     "proibir": [
+      "MUL"
+     ]
+    }
+   },
+   {
+    "id": "z80-049-fatorial-recursivo",
+    "linguagem": "z80",
+    "titulo": "Fatorial recursivo",
+    "dificuldade": "medio",
+    "trilha": "procedimentos",
+    "tags": [
+     "recursão",
+     "call",
+     "push",
+     "pop"
+    ],
+    "prerequisitos": [
+     "z80-022-procedimento-que-dobra",
+     "z80-023-preservar-os-registradores"
+    ],
+    "aula": null,
+    "enunciado": "Calcule o **fatorial** de `n` (0 a 8) por **recursão** e grave o resultado, de 16 bits, na palavra `res`. Por definição, `0! = 1! = 1` e `n! = n * (n-1)!`.\n\n## Exemplos\n\n| n | res |\n|---|---|\n| 5 | 120 |\n| 0 | 1 |\n| 8 | 40320 |\n\n## Restrições\n\n- A sub-rotina precisa chamar a si mesma (`CALL` para o próprio rótulo).\n- A pilha deve terminar equilibrada.",
+    "contrato": "Memória: `n` ($8000) e `res` ($8002-$8003, palavra). Os testes conferem `res` e a pilha equilibrada.",
+    "editorial": "Cada chamada recursiva empilha o endereço de retorno (2 bytes) e o `n` guardado (2 bytes do `PUSH AF`). Para 8!, são 8 níveis de 4 bytes: 32 bytes de pilha, o que é nada num Z80 com 64 KB, mas torna a recursão profunda um perigo em máquinas com pouca RAM.\n\nO fatorial é o exemplo didático de recursão, mas em assembly o laço é sempre mais barato. A recursão se paga em problemas onde a estrutura é naturalmente recursiva (árvores, a torre de Hanói e o quicksort deste curso).",
+    "codigoInicial": "; res = n! por recursão (16 bits)\nn   EQU 8000h\nres EQU 8002h   ; palavra (2 bytes)\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n   EQU 8000h\nres EQU 8002h\n\n    LD A,(n)\n    CALL fat\n    LD (res),HL\n    HALT\n\n; fat: A = n  ->  HL = n!\nfat:\n    CP 2\n    JR NC,rec\n    LD HL,1        ; caso base: 0! = 1! = 1\n    RET\nrec:\n    PUSH AF        ; guarda n\n    DEC A\n    CALL fat       ; HL = (n-1)!\n    POP AF         ; A = n\n    LD B,A\n    LD D,H\n    LD E,L         ; DE = (n-1)!\n    DEC B          ; faltam n-1 somas\nmult:\n    ADD HL,DE\n    DJNZ mult      ; HL = n * (n-1)!\n    RET",
+    "dicas": [
+     "Toda recursão tem um **caso base** e um passo que reduz o problema. O caso base: se `n < 2`, o resultado é 1. O passo: calcular `(n-1)!` chamando a si mesma e multiplicar por `n`.",
+     "Antes de chamar `fat` de novo, guarde `n` na pilha (`PUSH AF`), porque a chamada vai destruir A. Ao voltar, `POP AF` devolve `n`, e `HL` traz `(n-1)!`.",
+     "Multiplicar `HL` por `n` (`n >= 2`) são `n - 1` somas de `HL` com a cópia dele em `DE`: `LD D,H / LD E,L`, `LD B,A / DEC B`, e `ADD HL,DE / DJNZ`. O resultado fica em `HL` e o `RET` entrega ao nível de cima."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "5!",
+      "visivel": true,
+      "setup": {
+       "n": 5,
+       "res": {
+        "w": 30583
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": 120
+        }
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "3!",
+      "visivel": true,
+      "setup": {
+       "n": 3,
+       "res": {
+        "w": 30583
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": 6
+        }
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "0!",
+      "visivel": false,
+      "dica": "falhou com 0!: vale 1",
+      "setup": {
+       "n": 0,
+       "res": {
+        "w": 30583
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": 1
+        }
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "1!",
+      "visivel": false,
+      "dica": "falhou com 1!: vale 1",
+      "setup": {
+       "n": 1,
+       "res": {
+        "w": 30583
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": 1
+        }
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "2!",
+      "visivel": false,
+      "dica": "falhou com 2!",
+      "setup": {
+       "n": 2,
+       "res": {
+        "w": 30583
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": 2
+        }
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "4!",
+      "visivel": false,
+      "dica": "falhou com 4!",
+      "setup": {
+       "n": 4,
+       "res": {
+        "w": 30583
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": 24
+        }
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "6!",
+      "visivel": false,
+      "dica": "falhou com 6! = 720: passa de um byte",
+      "setup": {
+       "n": 6,
+       "res": {
+        "w": 30583
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": 720
+        }
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "7!",
+      "visivel": false,
+      "dica": "falhou com 7! = 5040",
+      "setup": {
+       "n": 7,
+       "res": {
+        "w": 30583
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": 5040
+        }
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "8!",
+      "visivel": false,
+      "dica": "falhou com 8! = 40320, o maior que cabe em 16 bits",
+      "setup": {
+       "n": 8,
+       "res": {
+        "w": 30583
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": 40320
+        }
+       },
+       "pilhaEquilibrada": true
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 32,
+     "ciclos": 1326,
+     "recursao": true,
+     "exigir": [
+      "CALL",
+      "RET"
+     ]
+    }
+   },
+   {
+    "id": "z80-050-torre-de-hanoi",
+    "linguagem": "z80",
+    "titulo": "Torre de Hanói",
+    "dificuldade": "medio",
+    "trilha": "procedimentos",
+    "tags": [
+     "recursão",
+     "hanói",
+     "call",
+     "contador"
+    ],
+    "prerequisitos": [
+     "z80-049-fatorial-recursivo"
+    ],
+    "aula": null,
+    "enunciado": "Resolva a **Torre de Hanói** com `n` discos (`n` de 0 a 7) e conte quantos movimentos são feitos, gravando o total em `res`. A solução recursiva é: mova `n-1` discos para o pino auxiliar, mova o maior (**um movimento**), e mova os `n-1` discos de novo.\n\n## Exemplos\n\n| n | res |\n|---|---|\n| 1 | 1 |\n| 3 | 7 |\n| 7 | 127 |\n\n## Restrições\n\n- Conte os movimentos **um a um**, dentro da recursão (`INC` na memória). Não calcule `2^n - 1` direto.\n- A pilha deve terminar equilibrada.",
+    "contrato": "Memória: `n` ($8000) e `res` ($8001). Os testes conferem `res` e a pilha equilibrada.",
+    "editorial": "A Torre de Hanói é a recursão com **duas chamadas** por nível, e o número de movimentos é `2^n - 1`, o que mostra por que a recursão com várias chamadas cresce tão rápido: 7 discos fazem 127 movimentos e 20 discos passariam de um milhão.\n\nOs pinos de origem, destino e auxiliar foram omitidos porque não mudam a contagem. Se você os quisesse mostrar, bastaria passá-los em registradores e trocar dois deles a cada chamada.",
+    "codigoInicial": "; res = número de movimentos da Torre de Hanói com n discos\nn   EQU 8000h\nres EQU 8001h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n   EQU 8000h\nres EQU 8001h\n\n    XOR A\n    LD (res),A     ; zera o contador\n    LD A,(n)\n    CALL hanoi\n    HALT\n\n; hanoi: A = número de discos a mover\nhanoi:\n    OR A\n    RET Z          ; sem discos, nada a fazer\n    DEC A\n    PUSH AF        ; guarda n-1\n    CALL hanoi     ; move n-1 discos para o auxiliar\n    LD HL,res\n    INC (HL)       ; move o maior disco\n    POP AF\n    CALL hanoi     ; move n-1 discos de cima do auxiliar\n    RET",
+    "dicas": [
+     "A recursão tem dois ramos: mover `n-1` discos, mover o maior (um movimento) e mover `n-1` discos de novo. O caso base é `n = 0`, em que não há nada para mover.",
+     "Guarde o contador na memória (`res`) e incremente-o a cada movimento com `LD HL,res` e `INC (HL)`. Zere `res` no começo do programa.",
+     "A sub-rotina recebe `n` em A. Faça `DEC A` e `PUSH AF` antes da primeira chamada, para ter `n-1` à mão. Depois do movimento, `POP AF` devolve `n-1` para a segunda chamada."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "3 discos",
+      "visivel": true,
+      "setup": {
+       "n": 3,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 7
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "4 discos",
+      "visivel": true,
+      "setup": {
+       "n": 4,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 15
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "0 discos",
+      "visivel": false,
+      "dica": "falhou com 0 discos: nenhum movimento",
+      "setup": {
+       "n": 0,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "1 discos",
+      "visivel": false,
+      "dica": "falhou com 1 disco: um movimento",
+      "setup": {
+       "n": 1,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "2 discos",
+      "visivel": false,
+      "dica": "falhou com 2 discos: três movimentos",
+      "setup": {
+       "n": 2,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 3
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "5 discos",
+      "visivel": false,
+      "dica": "falhou com 5 discos",
+      "setup": {
+       "n": 5,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 31
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "6 discos",
+      "visivel": false,
+      "dica": "falhou com 6 discos",
+      "setup": {
+       "n": 6,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 63
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "7 discos",
+      "visivel": false,
+      "dica": "falhou com 7 discos (127 movimentos)",
+      "setup": {
+       "n": 7,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 127
+       },
+       "pilhaEquilibrada": true
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 27,
+     "ciclos": 14540,
+     "recursao": true,
+     "exigir": [
+      "CALL",
+      "RET"
+     ]
+    }
+   },
+   {
+    "id": "z80-051-transpor-matriz",
+    "linguagem": "z80",
+    "titulo": "Transpor matriz",
+    "dificuldade": "medio",
+    "trilha": "vetores",
+    "tags": [
+     "matriz",
+     "transposta",
+     "índices",
+     "push"
+    ],
+    "prerequisitos": [
+     "z80-021-inverter-o-vetor",
+     "z80-024-inverter-com-a-pilha"
+    ],
+    "aula": null,
+    "enunciado": "`matriz` é uma matriz 3x3 de bytes guardada **linha por linha** (9 bytes). Grave em `saida` a **transposta**: o elemento da linha `i`, coluna `j` vai para a linha `j`, coluna `i`.\n\n## Exemplos\n\n| matriz | saida |\n|---|---|\n| 1 2 3 / 4 5 6 / 7 8 9 | 1 4 7 / 2 5 8 / 3 6 9 |\n\n## Restrições\n\n- Linha `i`, coluna `j` está no byte `3*i + j`.\n- A pilha deve terminar equilibrada.",
+    "contrato": "Memória: `matriz` ($8100, 9 bytes) e `saida` ($8200, 9 bytes). Os testes conferem `saida`.",
+    "editorial": "Uma matriz em memória é um vetor linear, e todo acesso é aritmética de índices: `m[i][j]` está em `base + 3i + j`. Transpor troca o papel de `i` e `j`, então uma das duas matrizes é percorrida com **passo** diferente de 1. Esse padrão (passo constante) é a base de gráficos, onde um pixel vizinho é `+1` na horizontal e `+largura` na vertical.\n\nPara 3x3, o passo 3 foi feito com três `INC DE`. Para outros passos, `ADD HL,DE` com o passo em DE é a forma geral, e para potências de dois um `ADD HL,HL` repetido.",
+    "codigoInicial": "; saida = transposta de matriz\nmatriz EQU 8100h   ; 3x3, linha por linha\nsaida  EQU 8200h   ; 3x3\n\n    ; seu código aqui\n    HALT",
+    "solucao": "matriz EQU 8100h\nsaida  EQU 8200h\n\n    LD HL,matriz\n    LD DE,saida\n    LD C,3         ; 3 linhas da matriz\nlinha:\n    PUSH DE        ; guarda o começo desta coluna da saída\n    LD B,3\ncol:\n    LD A,(HL)\n    LD (DE),A\n    INC HL         ; próximo elemento da linha\n    INC DE\n    INC DE\n    INC DE         ; salta 3: desce uma linha na saída\n    DJNZ col\n    POP DE\n    INC DE         ; próxima coluna da saída\n    DEC C\n    JR NZ,linha\n    HALT",
+    "dicas": [
+     "A linha `i` da matriz de entrada vira a coluna `i` da saída. Ler a entrada em ordem (HL só avança) e escrever a saída com **passo 3** transpõe a matriz.",
+     "Para cada linha (C), leia três elementos (B). Depois de gravar um, `INC DE` três vezes avança uma linha na saída. Ao fim da linha, volte DE ao topo da coluna e `INC DE` para a coluna seguinte.",
+     "Use `PUSH DE` no início de cada linha para guardar o topo da coluna e `POP DE` no fim. O `POP` desfaz o `PUSH`: a pilha termina equilibrada."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "matriz 1",
+      "visivel": true,
+      "setup": {
+       "matriz": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         1,
+         4,
+         7,
+         2,
+         5,
+         8,
+         3,
+         6,
+         9
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "matriz 2",
+      "visivel": true,
+      "setup": {
+       "matriz": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "matriz 3",
+      "visivel": false,
+      "dica": "falhou com zeros (o vetor de saída deve ser escrito por inteiro)",
+      "setup": {
+       "matriz": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "matriz 4",
+      "visivel": false,
+      "dica": "falhou com todos os elementos iguais",
+      "setup": {
+       "matriz": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "matriz 5",
+      "visivel": false,
+      "dica": "falhou com matriz 5",
+      "setup": {
+       "matriz": [
+        240,
+        93,
+        98,
+        34,
+        152,
+        117,
+        149,
+        118,
+        94
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         240,
+         34,
+         149,
+         93,
+         152,
+         118,
+         98,
+         117,
+         94
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "matriz 6",
+      "visivel": false,
+      "dica": "falhou com matriz 6",
+      "setup": {
+       "matriz": [
+        26,
+        246,
+        216,
+        90,
+        175,
+        36,
+        30,
+        172,
+        84
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         26,
+         90,
+         30,
+         246,
+         175,
+         172,
+         216,
+         36,
+         84
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "matriz 7",
+      "visivel": false,
+      "dica": "falhou com linhas diferentes: linhas viram colunas",
+      "setup": {
+       "matriz": [
+        1,
+        2,
+        3,
+        0,
+        0,
+        0,
+        9,
+        9,
+        9
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         1,
+         0,
+         9,
+         2,
+         0,
+         9,
+         3,
+         0,
+         9
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "matriz 8",
+      "visivel": false,
+      "dica": "falhou com matriz 8",
+      "setup": {
+       "matriz": [
+        37,
+        163,
+        159,
+        255,
+        83,
+        64,
+        223,
+        174,
+        131
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         37,
+         255,
+         223,
+         163,
+         83,
+         174,
+         159,
+         64,
+         131
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 25,
+     "ciclos": 616,
+     "exigir": [
+      "PUSH",
+      "POP"
+     ]
+    }
+   },
+   {
+    "id": "z80-052-tabela-de-saltos",
+    "linguagem": "z80",
+    "titulo": "Tabela de saltos",
+    "dificuldade": "medio",
+    "trilha": "enderecamento",
+    "tags": [
+     "jp (hl)",
+     "dw",
+     "despacho",
+     "tabela"
+    ],
+    "prerequisitos": [
+     "z80-026-tabela-de-quadrados",
+     "z80-038-dias-do-mes"
+    ],
+    "aula": null,
+    "enunciado": "`cmd` (0 a 3) escolhe uma operação sobre o byte `x`, e o resultado vai para `res`:\n\n| cmd | operação |\n|---|---|\n| 0 | `x + 1` |\n| 1 | `x - 1` |\n| 2 | `x * 2` |\n| 3 | `NOT x` (inverte todos os bits) |\n\nTodas as contas são módulo 256.\n\n## Exemplos\n\n| cmd | x | res |\n|---|---|---|\n| 0 | 5 | 6 |\n| 2 | 100 | 200 |\n| 3 | $0F | $F0 |\n\n## Restrições\n\n- Monte uma **tabela de endereços** (`DW`) com um rótulo por operação e salte para o endereço certo com `JP (HL)`. Sem uma cadeia de comparações.",
+    "contrato": "Memória: `cmd` ($8000), `x` ($8001) e `res` ($8002). Os testes conferem `res`.",
+    "editorial": "`JP (HL)` é a instrução de salto indireto do Z80, e junto com uma tabela de `DW` forma o `switch` de C e o *dispatcher* de interpretadores, de máquinas de estados e de menus. O custo é fixo, o mesmo para 4 ou para 256 casos, enquanto a cadeia de comparações custa mais a cada caso.\n\nApesar de se escrever `JP (HL)`, a instrução **não lê a memória**: ela copia HL para o contador de programa em 4 ciclos. O 6502 tem `JMP (addr)` que lê de fato, e o 8086 tem `JMP [BX]`.",
+    "codigoInicial": "; res = operação cmd aplicada a x (tabela de saltos)\ncmd EQU 8000h\nx   EQU 8001h\nres EQU 8002h\n\n    ; seu código aqui\n    HALT",
+    "solucao": "cmd EQU 8000h\nx   EQU 8001h\nres EQU 8002h\n\n    LD A,(cmd)\n    ADD A,A        ; cada entrada da tabela tem 2 bytes\n    LD E,A\n    LD D,0\n    LD HL,tabela\n    ADD HL,DE\n    LD E,(HL)      ; byte baixo do endereço\n    INC HL\n    LD D,(HL)      ; byte alto\n    EX DE,HL       ; HL = endereço da operação\n    LD A,(x)\n    JP (HL)\nmais1:\n    INC A\n    JR grava\nmenos1:\n    DEC A\n    JR grava\ndobro:\n    ADD A,A\n    JR grava\ninverte:\n    CPL\ngrava:\n    LD (res),A\n    HALT\n\ntabela:\n    DW mais1, menos1, dobro, inverte",
+    "dicas": [
+     "Uma tabela de saltos troca uma cadeia de `CP` / `JR` por uma consulta: o comando é o **índice** de uma tabela de endereços, e o programa salta para o endereço lido. Cada endereço tem 2 bytes (`DW`), então o deslocamento é `cmd * 2`.",
+     "Calcule `HL = tabela + 2*cmd` (`ADD A,A`, `LD E,A`, `LD D,0`, `ADD HL,DE`). Leia o endereço em dois passos (byte baixo e alto) para DE e passe-o a HL com `EX DE,HL`.",
+     "`JP (HL)` salta para o endereço **contido em** HL (apesar dos parênteses, não lê a memória). Cada operação termina em `JR grava`. Ponha a tabela depois do `HALT`, com `DW mais1, menos1, dobro, inverte`."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "comando 0, x = 5",
+      "visivel": true,
+      "setup": {
+       "cmd": 0,
+       "x": 5,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 6
+       }
+      }
+     },
+     {
+      "nome": "comando 2, x = 100",
+      "visivel": true,
+      "setup": {
+       "cmd": 2,
+       "x": 100,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 200
+       }
+      }
+     },
+     {
+      "nome": "comando 1, x = 0",
+      "visivel": false,
+      "dica": "falhou com o comando 1 (menos 1) e x = 0: dá a volta para 255",
+      "setup": {
+       "cmd": 1,
+       "x": 0,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "comando 3, x = 15",
+      "visivel": false,
+      "dica": "falhou com o comando 3 (inverter os bits)",
+      "setup": {
+       "cmd": 3,
+       "x": 15,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 240
+       }
+      }
+     },
+     {
+      "nome": "comando 0, x = 255",
+      "visivel": false,
+      "dica": "falhou com o comando 0 e x = 255: dá a volta para 0",
+      "setup": {
+       "cmd": 0,
+       "x": 255,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "comando 1, x = 1",
+      "visivel": false,
+      "dica": "falhou com o comando 1",
+      "setup": {
+       "cmd": 1,
+       "x": 1,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "comando 2, x = 200",
+      "visivel": false,
+      "dica": "falhou com o comando 2 (dobro) e x = 200: dá a volta",
+      "setup": {
+       "cmd": 2,
+       "x": 200,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 144
+       }
+      }
+     },
+     {
+      "nome": "comando 3, x = 170",
+      "visivel": false,
+      "dica": "falhou com o comando 3 e x = $AA",
+      "setup": {
+       "cmd": 3,
+       "x": 170,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 85
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 41,
+     "ciclos": 119,
+     "exigir": [
+      "JP"
+     ]
+    }
+   },
+   {
+    "id": "z80-053-copiar-bloco-grande",
+    "linguagem": "z80",
+    "titulo": "Copiar bloco grande",
+    "dificuldade": "medio",
+    "trilha": "vetores",
+    "tags": [
+     "ldir",
+     "bc",
+     "16 bits",
+     "bloco"
+    ],
+    "prerequisitos": [
+     "z80-020-copiar-bloco"
+    ],
+    "aula": null,
+    "enunciado": "Copie os `n` primeiros bytes de `origem` para `destino`, com `n` uma **palavra** de 16 bits (de 0 a 300). Os bytes de `destino` depois dos `n` primeiros **não podem mudar**.\n\n## Exemplos\n\n| n | efeito |\n|---|---|\n| 300 | copia 300 bytes |\n| 256 | copia 256 bytes |\n| 0 | nada muda |\n\n## Restrições\n\n- O contador não cabe em um byte: use `BC` inteiro.",
+    "contrato": "Memória: `n` ($8000-$8001, palavra), `origem` ($8200, 300 bytes) e `destino` ($8400, 304 bytes). Os testes conferem `destino`.",
+    "editorial": "A diferença para o desafio de copiar 20 bytes é o tamanho do contador: com 16 bits, o teste de zero precisa dos dois bytes, e `LD A,B / OR C` é o idioma Z80 para isso (`DEC BC` não atualiza flags, então não dá para testar o fim de um laço por ele).\n\nO `LDIR` copia 21 ciclos por byte, e 300 bytes gastam cerca de 6300 ciclos, ou 1,6 ms a 4 MHz. Rotinas de jogo copiam telas de 6 KB assim, 30 vezes por segundo, o que consome uns 9% do tempo.",
+    "codigoInicial": "; copia n bytes de origem para destino\nn       EQU 8000h   ; palavra (2 bytes)\norigem  EQU 8200h   ; até 300 bytes\ndestino EQU 8400h   ; até 300 bytes (+4 de guarda)\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n       EQU 8000h\norigem  EQU 8200h\ndestino EQU 8400h\n\n    LD BC,(n)      ; BC = quantidade, em 16 bits\n    LD A,B\n    OR C\n    JR Z,fim       ; BC = 0 copiaria 65536 bytes\n    LD HL,origem\n    LD DE,destino\n    LDIR\nfim:\n    HALT",
+    "dicas": [
+     "Com `n` até 300, o contador passa de 255 e não cabe mais em um registrador de 8 bits: a quantidade vai inteira em `BC`. `LD BC,(n)` carrega os dois bytes de `n` de uma vez.",
+     "Depois monte HL (origem) e DE (destino) e execute `LDIR`. A instrução repete até BC chegar a zero, e funciona com os 16 bits.",
+     "Não esqueça o caso `n = 0`: com BC = 0 o `LDIR` copia 65536 bytes. Teste os dois bytes de BC de uma vez: `LD A,B` e `OR C` ligam Z somente se o par todo for zero."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "copiar 300 bytes",
+      "visivel": true,
+      "setup": {
+       "n": {
+        "w": 300
+       },
+       "origem": [
+        229,
+        217,
+        42,
+        217,
+        21,
+        107,
+        96,
+        160,
+        228,
+        141,
+        210,
+        243,
+        191,
+        244,
+        238,
+        144,
+        47,
+        19,
+        42,
+        25,
+        217,
+        4,
+        0,
+        210,
+        184,
+        247,
+        92,
+        229,
+        96,
+        115,
+        160,
+        20,
+        18,
+        14,
+        207,
+        41,
+        78,
+        157,
+        168,
+        160,
+        202,
+        78,
+        176,
+        85,
+        219,
+        208,
+        47,
+        2,
+        24,
+        162,
+        209,
+        254,
+        74,
+        113,
+        158,
+        80,
+        42,
+        134,
+        34,
+        26,
+        146,
+        128,
+        17,
+        82,
+        18,
+        25,
+        179,
+        41,
+        123,
+        234,
+        235,
+        205,
+        188,
+        191,
+        78,
+        21,
+        229,
+        67,
+        99,
+        80,
+        60,
+        247,
+        135,
+        96,
+        219,
+        189,
+        27,
+        174,
+        87,
+        120,
+        44,
+        161,
+        200,
+        254,
+        27,
+        245,
+        26,
+        186,
+        152,
+        112,
+        19,
+        147,
+        10,
+        83,
+        48,
+        180,
+        201,
+        194,
+        161,
+        83,
+        99,
+        27,
+        86,
+        208,
+        113,
+        134,
+        6,
+        104,
+        125,
+        223,
+        194,
+        244,
+        78,
+        193,
+        142,
+        33,
+        116,
+        93,
+        147,
+        92,
+        226,
+        94,
+        120,
+        68,
+        180,
+        45,
+        138,
+        14,
+        195,
+        185,
+        57,
+        159,
+        87,
+        93,
+        18,
+        60,
+        156,
+        91,
+        58,
+        56,
+        157,
+        81,
+        154,
+        32,
+        206,
+        176,
+        1,
+        250,
+        224,
+        20,
+        200,
+        213,
+        162,
+        247,
+        5,
+        159,
+        146,
+        162,
+        106,
+        223,
+        158,
+        243,
+        7,
+        2,
+        79,
+        35,
+        123,
+        127,
+        159,
+        152,
+        72,
+        173,
+        114,
+        82,
+        194,
+        222,
+        84,
+        19,
+        147,
+        47,
+        152,
+        18,
+        19,
+        210,
+        57,
+        82,
+        65,
+        205,
+        82,
+        52,
+        253,
+        102,
+        16,
+        141,
+        80,
+        195,
+        232,
+        210,
+        231,
+        82,
+        15,
+        121,
+        237,
+        142,
+        239,
+        252,
+        54,
+        83,
+        44,
+        226,
+        193,
+        126,
+        244,
+        225,
+        58,
+        75,
+        74,
+        189,
+        107,
+        34,
+        172,
+        13,
+        214,
+        214,
+        188,
+        104,
+        223,
+        3,
+        8,
+        74,
+        147,
+        195,
+        121,
+        97,
+        111,
+        115,
+        227,
+        63,
+        145,
+        86,
+        227,
+        31,
+        69,
+        110,
+        1,
+        25,
+        144,
+        57,
+        187,
+        58,
+        241,
+        226,
+        161,
+        180,
+        215,
+        122,
+        31,
+        30,
+        214,
+        189,
+        254,
+        29,
+        127,
+        110,
+        161,
+        82,
+        241,
+        144,
+        185,
+        45,
+        231,
+        74,
+        199,
+        98,
+        67,
+        163,
+        68,
+        162,
+        252,
+        207,
+        240,
+        19,
+        228,
+        132,
+        174,
+        216,
+        39,
+        200,
+        81,
+        41
+       ],
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         229,
+         217,
+         42,
+         217,
+         21,
+         107,
+         96,
+         160,
+         228,
+         141,
+         210,
+         243,
+         191,
+         244,
+         238,
+         144,
+         47,
+         19,
+         42,
+         25,
+         217,
+         4,
+         0,
+         210,
+         184,
+         247,
+         92,
+         229,
+         96,
+         115,
+         160,
+         20,
+         18,
+         14,
+         207,
+         41,
+         78,
+         157,
+         168,
+         160,
+         202,
+         78,
+         176,
+         85,
+         219,
+         208,
+         47,
+         2,
+         24,
+         162,
+         209,
+         254,
+         74,
+         113,
+         158,
+         80,
+         42,
+         134,
+         34,
+         26,
+         146,
+         128,
+         17,
+         82,
+         18,
+         25,
+         179,
+         41,
+         123,
+         234,
+         235,
+         205,
+         188,
+         191,
+         78,
+         21,
+         229,
+         67,
+         99,
+         80,
+         60,
+         247,
+         135,
+         96,
+         219,
+         189,
+         27,
+         174,
+         87,
+         120,
+         44,
+         161,
+         200,
+         254,
+         27,
+         245,
+         26,
+         186,
+         152,
+         112,
+         19,
+         147,
+         10,
+         83,
+         48,
+         180,
+         201,
+         194,
+         161,
+         83,
+         99,
+         27,
+         86,
+         208,
+         113,
+         134,
+         6,
+         104,
+         125,
+         223,
+         194,
+         244,
+         78,
+         193,
+         142,
+         33,
+         116,
+         93,
+         147,
+         92,
+         226,
+         94,
+         120,
+         68,
+         180,
+         45,
+         138,
+         14,
+         195,
+         185,
+         57,
+         159,
+         87,
+         93,
+         18,
+         60,
+         156,
+         91,
+         58,
+         56,
+         157,
+         81,
+         154,
+         32,
+         206,
+         176,
+         1,
+         250,
+         224,
+         20,
+         200,
+         213,
+         162,
+         247,
+         5,
+         159,
+         146,
+         162,
+         106,
+         223,
+         158,
+         243,
+         7,
+         2,
+         79,
+         35,
+         123,
+         127,
+         159,
+         152,
+         72,
+         173,
+         114,
+         82,
+         194,
+         222,
+         84,
+         19,
+         147,
+         47,
+         152,
+         18,
+         19,
+         210,
+         57,
+         82,
+         65,
+         205,
+         82,
+         52,
+         253,
+         102,
+         16,
+         141,
+         80,
+         195,
+         232,
+         210,
+         231,
+         82,
+         15,
+         121,
+         237,
+         142,
+         239,
+         252,
+         54,
+         83,
+         44,
+         226,
+         193,
+         126,
+         244,
+         225,
+         58,
+         75,
+         74,
+         189,
+         107,
+         34,
+         172,
+         13,
+         214,
+         214,
+         188,
+         104,
+         223,
+         3,
+         8,
+         74,
+         147,
+         195,
+         121,
+         97,
+         111,
+         115,
+         227,
+         63,
+         145,
+         86,
+         227,
+         31,
+         69,
+         110,
+         1,
+         25,
+         144,
+         57,
+         187,
+         58,
+         241,
+         226,
+         161,
+         180,
+         215,
+         122,
+         31,
+         30,
+         214,
+         189,
+         254,
+         29,
+         127,
+         110,
+         161,
+         82,
+         241,
+         144,
+         185,
+         45,
+         231,
+         74,
+         199,
+         98,
+         67,
+         163,
+         68,
+         162,
+         252,
+         207,
+         240,
+         19,
+         228,
+         132,
+         174,
+         216,
+         39,
+         200,
+         81,
+         41,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "copiar 256 bytes",
+      "visivel": true,
+      "setup": {
+       "n": {
+        "w": 256
+       },
+       "origem": [
+        123,
+        142,
+        122,
+        253,
+        73,
+        241,
+        203,
+        109,
+        150,
+        89,
+        132,
+        161,
+        110,
+        72,
+        149,
+        248,
+        248,
+        69,
+        35,
+        82,
+        252,
+        98,
+        206,
+        128,
+        132,
+        228,
+        201,
+        18,
+        219,
+        240,
+        82,
+        192,
+        2,
+        193,
+        22,
+        43,
+        105,
+        203,
+        103,
+        162,
+        163,
+        196,
+        96,
+        32,
+        2,
+        89,
+        244,
+        84,
+        169,
+        115,
+        14,
+        187,
+        75,
+        195,
+        141,
+        10,
+        211,
+        228,
+        132,
+        11,
+        216,
+        239,
+        45,
+        230,
+        62,
+        208,
+        49,
+        146,
+        101,
+        177,
+        164,
+        129,
+        69,
+        65,
+        101,
+        249,
+        104,
+        243,
+        121,
+        235,
+        104,
+        62,
+        29,
+        1,
+        221,
+        178,
+        81,
+        60,
+        194,
+        83,
+        139,
+        65,
+        110,
+        168,
+        72,
+        31,
+        13,
+        194,
+        33,
+        81,
+        32,
+        19,
+        14,
+        167,
+        49,
+        171,
+        85,
+        73,
+        227,
+        212,
+        238,
+        53,
+        79,
+        167,
+        121,
+        120,
+        11,
+        233,
+        0,
+        225,
+        159,
+        73,
+        117,
+        92,
+        9,
+        7,
+        12,
+        135,
+        237,
+        102,
+        180,
+        230,
+        251,
+        70,
+        65,
+        249,
+        67,
+        230,
+        79,
+        31,
+        8,
+        237,
+        25,
+        22,
+        238,
+        75,
+        74,
+        224,
+        16,
+        74,
+        45,
+        50,
+        145,
+        53,
+        116,
+        196,
+        131,
+        39,
+        183,
+        252,
+        159,
+        229,
+        51,
+        126,
+        219,
+        204,
+        84,
+        235,
+        253,
+        26,
+        176,
+        109,
+        38,
+        99,
+        153,
+        36,
+        142,
+        128,
+        236,
+        225,
+        55,
+        26,
+        29,
+        95,
+        206,
+        225,
+        244,
+        18,
+        198,
+        87,
+        75,
+        142,
+        157,
+        51,
+        161,
+        138,
+        85,
+        124,
+        108,
+        66,
+        216,
+        201,
+        193,
+        148,
+        5,
+        197,
+        88,
+        155,
+        215,
+        41,
+        138,
+        193,
+        64,
+        139,
+        200,
+        170,
+        51,
+        42,
+        35,
+        233,
+        172,
+        112,
+        23,
+        212,
+        45,
+        102,
+        121,
+        201,
+        22,
+        44,
+        209,
+        222,
+        242,
+        129,
+        112,
+        219,
+        74,
+        3,
+        103,
+        101,
+        229,
+        200,
+        4,
+        38,
+        192,
+        236,
+        15,
+        168,
+        194,
+        172,
+        210,
+        200,
+        34,
+        88,
+        11,
+        85,
+        214,
+        27,
+        135,
+        113,
+        213,
+        196,
+        112,
+        26,
+        26,
+        222,
+        94,
+        248,
+        10,
+        242,
+        116,
+        23,
+        243,
+        141,
+        123,
+        53,
+        161,
+        120,
+        200,
+        189,
+        252,
+        245,
+        201,
+        90,
+        244,
+        41,
+        245,
+        28,
+        105,
+        103,
+        108,
+        38,
+        250,
+        33,
+        216,
+        40,
+        41,
+        211,
+        204,
+        205
+       ],
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         123,
+         142,
+         122,
+         253,
+         73,
+         241,
+         203,
+         109,
+         150,
+         89,
+         132,
+         161,
+         110,
+         72,
+         149,
+         248,
+         248,
+         69,
+         35,
+         82,
+         252,
+         98,
+         206,
+         128,
+         132,
+         228,
+         201,
+         18,
+         219,
+         240,
+         82,
+         192,
+         2,
+         193,
+         22,
+         43,
+         105,
+         203,
+         103,
+         162,
+         163,
+         196,
+         96,
+         32,
+         2,
+         89,
+         244,
+         84,
+         169,
+         115,
+         14,
+         187,
+         75,
+         195,
+         141,
+         10,
+         211,
+         228,
+         132,
+         11,
+         216,
+         239,
+         45,
+         230,
+         62,
+         208,
+         49,
+         146,
+         101,
+         177,
+         164,
+         129,
+         69,
+         65,
+         101,
+         249,
+         104,
+         243,
+         121,
+         235,
+         104,
+         62,
+         29,
+         1,
+         221,
+         178,
+         81,
+         60,
+         194,
+         83,
+         139,
+         65,
+         110,
+         168,
+         72,
+         31,
+         13,
+         194,
+         33,
+         81,
+         32,
+         19,
+         14,
+         167,
+         49,
+         171,
+         85,
+         73,
+         227,
+         212,
+         238,
+         53,
+         79,
+         167,
+         121,
+         120,
+         11,
+         233,
+         0,
+         225,
+         159,
+         73,
+         117,
+         92,
+         9,
+         7,
+         12,
+         135,
+         237,
+         102,
+         180,
+         230,
+         251,
+         70,
+         65,
+         249,
+         67,
+         230,
+         79,
+         31,
+         8,
+         237,
+         25,
+         22,
+         238,
+         75,
+         74,
+         224,
+         16,
+         74,
+         45,
+         50,
+         145,
+         53,
+         116,
+         196,
+         131,
+         39,
+         183,
+         252,
+         159,
+         229,
+         51,
+         126,
+         219,
+         204,
+         84,
+         235,
+         253,
+         26,
+         176,
+         109,
+         38,
+         99,
+         153,
+         36,
+         142,
+         128,
+         236,
+         225,
+         55,
+         26,
+         29,
+         95,
+         206,
+         225,
+         244,
+         18,
+         198,
+         87,
+         75,
+         142,
+         157,
+         51,
+         161,
+         138,
+         85,
+         124,
+         108,
+         66,
+         216,
+         201,
+         193,
+         148,
+         5,
+         197,
+         88,
+         155,
+         215,
+         41,
+         138,
+         193,
+         64,
+         139,
+         200,
+         170,
+         51,
+         42,
+         35,
+         233,
+         172,
+         112,
+         23,
+         212,
+         45,
+         102,
+         121,
+         201,
+         22,
+         44,
+         209,
+         222,
+         242,
+         129,
+         112,
+         219,
+         74,
+         3,
+         103,
+         101,
+         229,
+         200,
+         4,
+         38,
+         192,
+         236,
+         15,
+         168,
+         194,
+         172,
+         210,
+         200,
+         34,
+         88,
+         11,
+         85,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "copiar 255 bytes",
+      "visivel": false,
+      "dica": "falhou com 255 bytes: cabe em um byte, mas BC precisa dos 16 bits",
+      "setup": {
+       "n": {
+        "w": 255
+       },
+       "origem": [
+        116,
+        18,
+        69,
+        62,
+        58,
+        154,
+        21,
+        1,
+        138,
+        59,
+        89,
+        92,
+        152,
+        111,
+        112,
+        162,
+        103,
+        31,
+        43,
+        102,
+        188,
+        151,
+        34,
+        8,
+        49,
+        212,
+        95,
+        20,
+        229,
+        224,
+        63,
+        2,
+        112,
+        138,
+        85,
+        107,
+        170,
+        227,
+        106,
+        86,
+        73,
+        84,
+        122,
+        170,
+        69,
+        108,
+        119,
+        238,
+        228,
+        23,
+        5,
+        13,
+        65,
+        153,
+        99,
+        41,
+        130,
+        112,
+        118,
+        132,
+        216,
+        1,
+        121,
+        168,
+        182,
+        209,
+        146,
+        210,
+        135,
+        68,
+        56,
+        144,
+        9,
+        67,
+        85,
+        15,
+        4,
+        247,
+        80,
+        127,
+        209,
+        1,
+        177,
+        165,
+        190,
+        3,
+        169,
+        123,
+        38,
+        35,
+        99,
+        58,
+        158,
+        165,
+        37,
+        31,
+        142,
+        255,
+        71,
+        134,
+        124,
+        199,
+        80,
+        15,
+        42,
+        221,
+        5,
+        134,
+        190,
+        60,
+        58,
+        47,
+        96,
+        67,
+        227,
+        84,
+        80,
+        207,
+        149,
+        94,
+        172,
+        193,
+        170,
+        85,
+        61,
+        229,
+        206,
+        6,
+        20,
+        140,
+        113,
+        69,
+        91,
+        146,
+        140,
+        18,
+        135,
+        161,
+        156,
+        79,
+        251,
+        181,
+        162,
+        71,
+        41,
+        237,
+        8,
+        181,
+        45,
+        187,
+        234,
+        194,
+        122,
+        97,
+        222,
+        151,
+        14,
+        12,
+        83,
+        134,
+        179,
+        130,
+        191,
+        23,
+        35,
+        134,
+        132,
+        124,
+        229,
+        58,
+        222,
+        187,
+        178,
+        251,
+        219,
+        226,
+        228,
+        245,
+        68,
+        215,
+        6,
+        179,
+        230,
+        109,
+        129,
+        43,
+        206,
+        54,
+        10,
+        57,
+        215,
+        142,
+        1,
+        127,
+        28,
+        134,
+        181,
+        189,
+        215,
+        252,
+        167,
+        231,
+        139,
+        16,
+        141,
+        194,
+        111,
+        71,
+        251,
+        168,
+        223,
+        32,
+        42,
+        126,
+        206,
+        83,
+        56,
+        14,
+        27,
+        238,
+        197,
+        41,
+        45,
+        214,
+        84,
+        16,
+        225,
+        160,
+        131,
+        244,
+        11,
+        6,
+        238,
+        177,
+        233,
+        40,
+        33,
+        172,
+        120,
+        65,
+        238,
+        215,
+        203,
+        239,
+        131,
+        221,
+        85,
+        13,
+        195,
+        215,
+        196,
+        185,
+        13,
+        235,
+        203,
+        189,
+        180,
+        162,
+        40,
+        104,
+        140,
+        203,
+        192,
+        4,
+        47,
+        125,
+        190,
+        2,
+        61,
+        225,
+        251,
+        233,
+        8,
+        152,
+        36,
+        75,
+        14,
+        103,
+        75,
+        132,
+        178,
+        169,
+        255,
+        78,
+        9,
+        50,
+        54,
+        229,
+        219,
+        151,
+        107,
+        8,
+        90,
+        107,
+        101,
+        199,
+        165,
+        132,
+        167,
+        96
+       ],
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         116,
+         18,
+         69,
+         62,
+         58,
+         154,
+         21,
+         1,
+         138,
+         59,
+         89,
+         92,
+         152,
+         111,
+         112,
+         162,
+         103,
+         31,
+         43,
+         102,
+         188,
+         151,
+         34,
+         8,
+         49,
+         212,
+         95,
+         20,
+         229,
+         224,
+         63,
+         2,
+         112,
+         138,
+         85,
+         107,
+         170,
+         227,
+         106,
+         86,
+         73,
+         84,
+         122,
+         170,
+         69,
+         108,
+         119,
+         238,
+         228,
+         23,
+         5,
+         13,
+         65,
+         153,
+         99,
+         41,
+         130,
+         112,
+         118,
+         132,
+         216,
+         1,
+         121,
+         168,
+         182,
+         209,
+         146,
+         210,
+         135,
+         68,
+         56,
+         144,
+         9,
+         67,
+         85,
+         15,
+         4,
+         247,
+         80,
+         127,
+         209,
+         1,
+         177,
+         165,
+         190,
+         3,
+         169,
+         123,
+         38,
+         35,
+         99,
+         58,
+         158,
+         165,
+         37,
+         31,
+         142,
+         255,
+         71,
+         134,
+         124,
+         199,
+         80,
+         15,
+         42,
+         221,
+         5,
+         134,
+         190,
+         60,
+         58,
+         47,
+         96,
+         67,
+         227,
+         84,
+         80,
+         207,
+         149,
+         94,
+         172,
+         193,
+         170,
+         85,
+         61,
+         229,
+         206,
+         6,
+         20,
+         140,
+         113,
+         69,
+         91,
+         146,
+         140,
+         18,
+         135,
+         161,
+         156,
+         79,
+         251,
+         181,
+         162,
+         71,
+         41,
+         237,
+         8,
+         181,
+         45,
+         187,
+         234,
+         194,
+         122,
+         97,
+         222,
+         151,
+         14,
+         12,
+         83,
+         134,
+         179,
+         130,
+         191,
+         23,
+         35,
+         134,
+         132,
+         124,
+         229,
+         58,
+         222,
+         187,
+         178,
+         251,
+         219,
+         226,
+         228,
+         245,
+         68,
+         215,
+         6,
+         179,
+         230,
+         109,
+         129,
+         43,
+         206,
+         54,
+         10,
+         57,
+         215,
+         142,
+         1,
+         127,
+         28,
+         134,
+         181,
+         189,
+         215,
+         252,
+         167,
+         231,
+         139,
+         16,
+         141,
+         194,
+         111,
+         71,
+         251,
+         168,
+         223,
+         32,
+         42,
+         126,
+         206,
+         83,
+         56,
+         14,
+         27,
+         238,
+         197,
+         41,
+         45,
+         214,
+         84,
+         16,
+         225,
+         160,
+         131,
+         244,
+         11,
+         6,
+         238,
+         177,
+         233,
+         40,
+         33,
+         172,
+         120,
+         65,
+         238,
+         215,
+         203,
+         239,
+         131,
+         221,
+         85,
+         13,
+         195,
+         215,
+         196,
+         185,
+         13,
+         235,
+         203,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "copiar 257 bytes",
+      "visivel": false,
+      "dica": "falhou com 257 bytes: um a mais que o limite de um byte",
+      "setup": {
+       "n": {
+        "w": 257
+       },
+       "origem": [
+        179,
+        84,
+        74,
+        205,
+        240,
+        147,
+        248,
+        171,
+        62,
+        216,
+        87,
+        91,
+        144,
+        191,
+        110,
+        240,
+        199,
+        244,
+        101,
+        35,
+        157,
+        229,
+        51,
+        1,
+        65,
+        252,
+        121,
+        34,
+        151,
+        41,
+        120,
+        191,
+        178,
+        162,
+        85,
+        135,
+        207,
+        71,
+        153,
+        133,
+        183,
+        163,
+        225,
+        96,
+        255,
+        3,
+        19,
+        233,
+        103,
+        73,
+        60,
+        126,
+        151,
+        229,
+        23,
+        189,
+        211,
+        249,
+        85,
+        194,
+        254,
+        200,
+        250,
+        245,
+        251,
+        23,
+        82,
+        53,
+        233,
+        43,
+        72,
+        70,
+        230,
+        50,
+        159,
+        15,
+        182,
+        162,
+        3,
+        223,
+        123,
+        195,
+        76,
+        5,
+        135,
+        93,
+        98,
+        57,
+        59,
+        187,
+        225,
+        252,
+        176,
+        87,
+        208,
+        112,
+        42,
+        142,
+        29,
+        212,
+        79,
+        208,
+        176,
+        101,
+        0,
+        124,
+        37,
+        223,
+        128,
+        181,
+        187,
+        75,
+        241,
+        217,
+        44,
+        74,
+        126,
+        173,
+        122,
+        234,
+        41,
+        211,
+        78,
+        120,
+        183,
+        92,
+        162,
+        56,
+        76,
+        58,
+        108,
+        253,
+        132,
+        14,
+        39,
+        137,
+        9,
+        97,
+        223,
+        164,
+        69,
+        210,
+        209,
+        169,
+        13,
+        129,
+        38,
+        142,
+        70,
+        180,
+        180,
+        193,
+        89,
+        70,
+        42,
+        20,
+        181,
+        122,
+        52,
+        30,
+        187,
+        248,
+        189,
+        181,
+        246,
+        247,
+        90,
+        120,
+        99,
+        109,
+        117,
+        101,
+        14,
+        217,
+        195,
+        79,
+        52,
+        41,
+        0,
+        99,
+        135,
+        101,
+        175,
+        77,
+        216,
+        212,
+        110,
+        2,
+        21,
+        163,
+        231,
+        10,
+        27,
+        236,
+        75,
+        80,
+        169,
+        215,
+        191,
+        146,
+        183,
+        46,
+        96,
+        38,
+        212,
+        109,
+        246,
+        35,
+        4,
+        174,
+        180,
+        19,
+        34,
+        233,
+        235,
+        74,
+        255,
+        246,
+        104,
+        43,
+        69,
+        238,
+        145,
+        56,
+        102,
+        142,
+        16,
+        76,
+        65,
+        21,
+        235,
+        184,
+        172,
+        76,
+        113,
+        122,
+        55,
+        37,
+        216,
+        176,
+        120,
+        92,
+        15,
+        116,
+        44,
+        109,
+        190,
+        114,
+        30,
+        2,
+        138,
+        216,
+        137,
+        250,
+        2,
+        83,
+        134,
+        214,
+        8,
+        236,
+        201,
+        21,
+        77,
+        101,
+        236,
+        248,
+        98,
+        183,
+        7,
+        202,
+        174,
+        152,
+        113,
+        166,
+        159,
+        104,
+        198,
+        144,
+        4,
+        79,
+        62,
+        88,
+        233,
+        186,
+        226,
+        56,
+        182,
+        178,
+        39,
+        251,
+        157,
+        183,
+        250,
+        25,
+        86,
+        115,
+        67,
+        61,
+        203,
+        169
+       ],
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         179,
+         84,
+         74,
+         205,
+         240,
+         147,
+         248,
+         171,
+         62,
+         216,
+         87,
+         91,
+         144,
+         191,
+         110,
+         240,
+         199,
+         244,
+         101,
+         35,
+         157,
+         229,
+         51,
+         1,
+         65,
+         252,
+         121,
+         34,
+         151,
+         41,
+         120,
+         191,
+         178,
+         162,
+         85,
+         135,
+         207,
+         71,
+         153,
+         133,
+         183,
+         163,
+         225,
+         96,
+         255,
+         3,
+         19,
+         233,
+         103,
+         73,
+         60,
+         126,
+         151,
+         229,
+         23,
+         189,
+         211,
+         249,
+         85,
+         194,
+         254,
+         200,
+         250,
+         245,
+         251,
+         23,
+         82,
+         53,
+         233,
+         43,
+         72,
+         70,
+         230,
+         50,
+         159,
+         15,
+         182,
+         162,
+         3,
+         223,
+         123,
+         195,
+         76,
+         5,
+         135,
+         93,
+         98,
+         57,
+         59,
+         187,
+         225,
+         252,
+         176,
+         87,
+         208,
+         112,
+         42,
+         142,
+         29,
+         212,
+         79,
+         208,
+         176,
+         101,
+         0,
+         124,
+         37,
+         223,
+         128,
+         181,
+         187,
+         75,
+         241,
+         217,
+         44,
+         74,
+         126,
+         173,
+         122,
+         234,
+         41,
+         211,
+         78,
+         120,
+         183,
+         92,
+         162,
+         56,
+         76,
+         58,
+         108,
+         253,
+         132,
+         14,
+         39,
+         137,
+         9,
+         97,
+         223,
+         164,
+         69,
+         210,
+         209,
+         169,
+         13,
+         129,
+         38,
+         142,
+         70,
+         180,
+         180,
+         193,
+         89,
+         70,
+         42,
+         20,
+         181,
+         122,
+         52,
+         30,
+         187,
+         248,
+         189,
+         181,
+         246,
+         247,
+         90,
+         120,
+         99,
+         109,
+         117,
+         101,
+         14,
+         217,
+         195,
+         79,
+         52,
+         41,
+         0,
+         99,
+         135,
+         101,
+         175,
+         77,
+         216,
+         212,
+         110,
+         2,
+         21,
+         163,
+         231,
+         10,
+         27,
+         236,
+         75,
+         80,
+         169,
+         215,
+         191,
+         146,
+         183,
+         46,
+         96,
+         38,
+         212,
+         109,
+         246,
+         35,
+         4,
+         174,
+         180,
+         19,
+         34,
+         233,
+         235,
+         74,
+         255,
+         246,
+         104,
+         43,
+         69,
+         238,
+         145,
+         56,
+         102,
+         142,
+         16,
+         76,
+         65,
+         21,
+         235,
+         184,
+         172,
+         76,
+         113,
+         122,
+         55,
+         37,
+         216,
+         176,
+         120,
+         92,
+         15,
+         116,
+         44,
+         109,
+         190,
+         114,
+         30,
+         2,
+         138,
+         216,
+         137,
+         250,
+         2,
+         83,
+         134,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "copiar 1 bytes",
+      "visivel": false,
+      "dica": "falhou com 1 byte",
+      "setup": {
+       "n": {
+        "w": 1
+       },
+       "origem": [
+        235,
+        123,
+        77,
+        78,
+        6,
+        116,
+        134,
+        49,
+        241,
+        178,
+        118,
+        246,
+        122,
+        79,
+        1,
+        169,
+        89,
+        120,
+        132,
+        7,
+        182,
+        201,
+        167,
+        51,
+        218,
+        175,
+        212,
+        51,
+        19,
+        130,
+        127,
+        158,
+        145,
+        126,
+        249,
+        26,
+        253,
+        179,
+        210,
+        96,
+        164,
+        113,
+        107,
+        160,
+        127,
+        172,
+        179,
+        12,
+        43,
+        193,
+        96,
+        220,
+        29,
+        133,
+        117,
+        187,
+        227,
+        159,
+        56,
+        93,
+        168,
+        141,
+        174,
+        121,
+        163,
+        240,
+        252,
+        151,
+        123,
+        159,
+        104,
+        247,
+        34,
+        144,
+        44,
+        187,
+        30,
+        71,
+        42,
+        170,
+        162,
+        119,
+        30,
+        176,
+        139,
+        211,
+        119,
+        244,
+        67,
+        175,
+        190,
+        156,
+        187,
+        43,
+        50,
+        196,
+        232,
+        230,
+        242,
+        85,
+        20,
+        155,
+        248,
+        10,
+        171,
+        13,
+        79,
+        55,
+        167,
+        87,
+        96,
+        120,
+        254,
+        242,
+        196,
+        217,
+        149,
+        211,
+        127,
+        46,
+        26,
+        170,
+        189,
+        129,
+        210,
+        147,
+        51,
+        188,
+        221,
+        241,
+        45,
+        34,
+        212,
+        7,
+        84,
+        0,
+        228,
+        74,
+        42,
+        180,
+        224,
+        146,
+        235,
+        93,
+        87,
+        31,
+        101,
+        15,
+        31,
+        180,
+        62,
+        148,
+        13,
+        162,
+        107,
+        45,
+        241,
+        72,
+        96,
+        27,
+        54,
+        25,
+        89,
+        77,
+        71,
+        25,
+        45,
+        55,
+        240,
+        228,
+        92,
+        51,
+        188,
+        125,
+        176,
+        188,
+        38,
+        107,
+        47,
+        89,
+        116,
+        192,
+        79,
+        92,
+        195,
+        85,
+        86,
+        232,
+        202,
+        92,
+        215,
+        136,
+        228,
+        149,
+        113,
+        201,
+        24,
+        6,
+        125,
+        216,
+        61,
+        170,
+        111,
+        181,
+        240,
+        14,
+        188,
+        0,
+        20,
+        192,
+        179,
+        15,
+        7,
+        123,
+        24,
+        10,
+        38,
+        107,
+        5,
+        79,
+        8,
+        191,
+        214,
+        152,
+        173,
+        61,
+        165,
+        125,
+        109,
+        11,
+        6,
+        227,
+        191,
+        28,
+        73,
+        8,
+        225,
+        159,
+        14,
+        137,
+        225,
+        37,
+        46,
+        58,
+        88,
+        185,
+        239,
+        238,
+        150,
+        236,
+        30,
+        37,
+        254,
+        227,
+        124,
+        24,
+        132,
+        185,
+        8,
+        81,
+        65,
+        166,
+        30,
+        6,
+        6,
+        25,
+        97,
+        120,
+        130,
+        142,
+        92,
+        198,
+        10,
+        35,
+        194,
+        28,
+        49,
+        13,
+        182,
+        199,
+        165,
+        191,
+        203,
+        216,
+        156,
+        118,
+        206,
+        145,
+        142,
+        193,
+        129,
+        114,
+        125,
+        106,
+        28,
+        117,
+        31,
+        233,
+        253,
+        71
+       ],
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         235,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "copiar 0 bytes",
+      "visivel": false,
+      "dica": "falhou com n = 0: nada deve ser copiado (LDIR com BC = 0 copiaria 65536)",
+      "setup": {
+       "n": {
+        "w": 0
+       },
+       "origem": [
+        218,
+        56,
+        178,
+        41,
+        44,
+        199,
+        120,
+        217,
+        3,
+        191,
+        56,
+        74,
+        129,
+        44,
+        95,
+        94,
+        151,
+        194,
+        164,
+        118,
+        250,
+        96,
+        174,
+        158,
+        254,
+        186,
+        18,
+        94,
+        129,
+        115,
+        188,
+        168,
+        86,
+        185,
+        126,
+        65,
+        80,
+        2,
+        244,
+        174,
+        189,
+        56,
+        64,
+        87,
+        221,
+        202,
+        31,
+        217,
+        194,
+        116,
+        240,
+        35,
+        26,
+        35,
+        36,
+        165,
+        210,
+        7,
+        164,
+        201,
+        155,
+        136,
+        253,
+        177,
+        243,
+        82,
+        148,
+        249,
+        68,
+        64,
+        52,
+        14,
+        172,
+        24,
+        137,
+        183,
+        16,
+        143,
+        150,
+        113,
+        90,
+        246,
+        224,
+        234,
+        108,
+        83,
+        152,
+        224,
+        143,
+        245,
+        118,
+        68,
+        152,
+        166,
+        153,
+        4,
+        26,
+        128,
+        11,
+        75,
+        20,
+        33,
+        142,
+        208,
+        211,
+        223,
+        228,
+        91,
+        67,
+        163,
+        189,
+        18,
+        44,
+        229,
+        78,
+        160,
+        27,
+        231,
+        40,
+        214,
+        24,
+        0,
+        118,
+        135,
+        132,
+        77,
+        166,
+        159,
+        223,
+        240,
+        134,
+        205,
+        136,
+        205,
+        174,
+        87,
+        220,
+        79,
+        48,
+        156,
+        214,
+        74,
+        105,
+        4,
+        22,
+        176,
+        109,
+        160,
+        125,
+        74,
+        108,
+        85,
+        57,
+        21,
+        212,
+        226,
+        180,
+        47,
+        87,
+        54,
+        74,
+        49,
+        174,
+        128,
+        62,
+        160,
+        141,
+        164,
+        172,
+        191,
+        255,
+        166,
+        7,
+        210,
+        99,
+        24,
+        142,
+        152,
+        151,
+        55,
+        158,
+        3,
+        92,
+        25,
+        172,
+        63,
+        123,
+        189,
+        57,
+        116,
+        210,
+        28,
+        225,
+        255,
+        32,
+        229,
+        64,
+        183,
+        151,
+        7,
+        122,
+        231,
+        222,
+        200,
+        224,
+        64,
+        50,
+        217,
+        32,
+        219,
+        23,
+        158,
+        98,
+        18,
+        6,
+        57,
+        149,
+        182,
+        254,
+        28,
+        18,
+        47,
+        215,
+        56,
+        21,
+        222,
+        89,
+        56,
+        10,
+        118,
+        183,
+        242,
+        102,
+        114,
+        9,
+        148,
+        163,
+        251,
+        30,
+        222,
+        127,
+        36,
+        12,
+        27,
+        240,
+        59,
+        20,
+        20,
+        109,
+        93,
+        122,
+        59,
+        183,
+        82,
+        87,
+        79,
+        98,
+        202,
+        155,
+        85,
+        47,
+        173,
+        238,
+        2,
+        197,
+        58,
+        142,
+        53,
+        33,
+        119,
+        69,
+        120,
+        136,
+        202,
+        1,
+        151,
+        154,
+        110,
+        65,
+        95,
+        123,
+        40,
+        93,
+        143,
+        134,
+        140,
+        153,
+        44,
+        194,
+        176,
+        7,
+        197,
+        67,
+        94,
+        23,
+        113,
+        143,
+        32,
+        29,
+        40
+       ],
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "copiar 100 bytes",
+      "visivel": false,
+      "dica": "falhou com 100 bytes",
+      "setup": {
+       "n": {
+        "w": 100
+       },
+       "origem": [
+        192,
+        143,
+        244,
+        154,
+        170,
+        121,
+        96,
+        32,
+        253,
+        159,
+        209,
+        190,
+        210,
+        224,
+        146,
+        34,
+        212,
+        33,
+        0,
+        132,
+        122,
+        26,
+        98,
+        156,
+        71,
+        5,
+        15,
+        239,
+        94,
+        28,
+        19,
+        144,
+        139,
+        96,
+        245,
+        142,
+        212,
+        44,
+        3,
+        227,
+        8,
+        180,
+        215,
+        238,
+        100,
+        12,
+        103,
+        184,
+        197,
+        32,
+        182,
+        136,
+        214,
+        3,
+        130,
+        109,
+        126,
+        170,
+        60,
+        5,
+        53,
+        83,
+        212,
+        26,
+        12,
+        106,
+        72,
+        113,
+        80,
+        99,
+        35,
+        12,
+        244,
+        107,
+        100,
+        190,
+        178,
+        41,
+        200,
+        29,
+        206,
+        77,
+        210,
+        69,
+        167,
+        75,
+        132,
+        107,
+        89,
+        241,
+        114,
+        37,
+        136,
+        1,
+        187,
+        238,
+        242,
+        202,
+        63,
+        0,
+        243,
+        193,
+        248,
+        44,
+        208,
+        18,
+        72,
+        219,
+        77,
+        0,
+        186,
+        7,
+        150,
+        200,
+        246,
+        81,
+        120,
+        255,
+        128,
+        217,
+        197,
+        153,
+        255,
+        226,
+        173,
+        152,
+        25,
+        253,
+        6,
+        170,
+        251,
+        54,
+        114,
+        32,
+        88,
+        187,
+        88,
+        192,
+        193,
+        254,
+        37,
+        87,
+        175,
+        2,
+        136,
+        82,
+        154,
+        122,
+        51,
+        219,
+        3,
+        176,
+        254,
+        105,
+        3,
+        55,
+        239,
+        34,
+        115,
+        224,
+        35,
+        90,
+        98,
+        12,
+        223,
+        82,
+        147,
+        169,
+        185,
+        114,
+        85,
+        50,
+        61,
+        248,
+        10,
+        74,
+        238,
+        42,
+        184,
+        43,
+        73,
+        90,
+        34,
+        232,
+        239,
+        107,
+        172,
+        125,
+        187,
+        154,
+        190,
+        53,
+        63,
+        10,
+        124,
+        35,
+        107,
+        140,
+        164,
+        162,
+        206,
+        32,
+        216,
+        124,
+        94,
+        239,
+        50,
+        156,
+        6,
+        162,
+        161,
+        42,
+        52,
+        55,
+        152,
+        56,
+        117,
+        232,
+        130,
+        5,
+        102,
+        135,
+        217,
+        251,
+        80,
+        216,
+        30,
+        144,
+        19,
+        63,
+        180,
+        18,
+        15,
+        187,
+        60,
+        64,
+        153,
+        155,
+        176,
+        24,
+        227,
+        84,
+        153,
+        143,
+        140,
+        171,
+        254,
+        146,
+        12,
+        212,
+        134,
+        106,
+        114,
+        22,
+        252,
+        35,
+        90,
+        199,
+        236,
+        182,
+        15,
+        71,
+        95,
+        197,
+        190,
+        92,
+        109,
+        239,
+        80,
+        60,
+        120,
+        80,
+        232,
+        102,
+        56,
+        193,
+        73,
+        65,
+        16,
+        198,
+        158,
+        239,
+        217,
+        32,
+        250,
+        238,
+        136,
+        112,
+        68,
+        112,
+        147,
+        45,
+        19,
+        60,
+        185,
+        124,
+        97,
+        17,
+        229,
+        72
+       ],
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         192,
+         143,
+         244,
+         154,
+         170,
+         121,
+         96,
+         32,
+         253,
+         159,
+         209,
+         190,
+         210,
+         224,
+         146,
+         34,
+         212,
+         33,
+         0,
+         132,
+         122,
+         26,
+         98,
+         156,
+         71,
+         5,
+         15,
+         239,
+         94,
+         28,
+         19,
+         144,
+         139,
+         96,
+         245,
+         142,
+         212,
+         44,
+         3,
+         227,
+         8,
+         180,
+         215,
+         238,
+         100,
+         12,
+         103,
+         184,
+         197,
+         32,
+         182,
+         136,
+         214,
+         3,
+         130,
+         109,
+         126,
+         170,
+         60,
+         5,
+         53,
+         83,
+         212,
+         26,
+         12,
+         106,
+         72,
+         113,
+         80,
+         99,
+         35,
+         12,
+         244,
+         107,
+         100,
+         190,
+         178,
+         41,
+         200,
+         29,
+         206,
+         77,
+         210,
+         69,
+         167,
+         75,
+         132,
+         107,
+         89,
+         241,
+         114,
+         37,
+         136,
+         1,
+         187,
+         238,
+         242,
+         202,
+         63,
+         0,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "copiar 299 bytes",
+      "visivel": false,
+      "dica": "falhou com 299 bytes",
+      "setup": {
+       "n": {
+        "w": 299
+       },
+       "origem": [
+        208,
+        220,
+        37,
+        171,
+        106,
+        192,
+        75,
+        179,
+        131,
+        243,
+        52,
+        166,
+        192,
+        107,
+        176,
+        58,
+        196,
+        134,
+        195,
+        245,
+        161,
+        43,
+        141,
+        116,
+        175,
+        149,
+        157,
+        66,
+        97,
+        172,
+        89,
+        48,
+        43,
+        215,
+        148,
+        137,
+        8,
+        150,
+        64,
+        180,
+        185,
+        46,
+        26,
+        197,
+        46,
+        141,
+        117,
+        35,
+        22,
+        70,
+        1,
+        248,
+        176,
+        169,
+        16,
+        185,
+        62,
+        77,
+        68,
+        152,
+        41,
+        161,
+        6,
+        240,
+        217,
+        161,
+        73,
+        193,
+        205,
+        145,
+        201,
+        49,
+        252,
+        59,
+        217,
+        116,
+        108,
+        50,
+        234,
+        49,
+        222,
+        129,
+        133,
+        124,
+        161,
+        252,
+        214,
+        26,
+        62,
+        193,
+        178,
+        106,
+        36,
+        145,
+        16,
+        143,
+        80,
+        237,
+        16,
+        6,
+        120,
+        160,
+        247,
+        37,
+        163,
+        37,
+        111,
+        13,
+        129,
+        98,
+        195,
+        84,
+        249,
+        152,
+        102,
+        81,
+        80,
+        82,
+        171,
+        84,
+        60,
+        133,
+        179,
+        89,
+        48,
+        104,
+        248,
+        175,
+        21,
+        68,
+        231,
+        150,
+        98,
+        225,
+        5,
+        29,
+        161,
+        109,
+        118,
+        36,
+        217,
+        46,
+        135,
+        69,
+        39,
+        199,
+        226,
+        27,
+        64,
+        55,
+        193,
+        2,
+        66,
+        252,
+        14,
+        35,
+        68,
+        126,
+        89,
+        2,
+        27,
+        227,
+        59,
+        39,
+        122,
+        189,
+        130,
+        254,
+        6,
+        44,
+        196,
+        183,
+        233,
+        145,
+        127,
+        141,
+        143,
+        232,
+        226,
+        104,
+        122,
+        125,
+        196,
+        187,
+        116,
+        155,
+        209,
+        222,
+        24,
+        233,
+        164,
+        92,
+        135,
+        138,
+        51,
+        111,
+        167,
+        112,
+        136,
+        41,
+        34,
+        244,
+        88,
+        177,
+        137,
+        115,
+        235,
+        9,
+        126,
+        125,
+        96,
+        223,
+        92,
+        188,
+        167,
+        169,
+        135,
+        236,
+        207,
+        232,
+        60,
+        1,
+        28,
+        183,
+        143,
+        193,
+        189,
+        9,
+        211,
+        176,
+        120,
+        217,
+        57,
+        203,
+        212,
+        45,
+        32,
+        203,
+        236,
+        254,
+        193,
+        242,
+        249,
+        121,
+        185,
+        110,
+        172,
+        172,
+        218,
+        191,
+        208,
+        50,
+        105,
+        123,
+        237,
+        5,
+        91,
+        86,
+        106,
+        38,
+        161,
+        17,
+        8,
+        86,
+        129,
+        230,
+        186,
+        140,
+        238,
+        58,
+        123,
+        250,
+        223,
+        35,
+        226,
+        27,
+        117,
+        250,
+        110,
+        159,
+        194,
+        31,
+        248,
+        227,
+        137,
+        99,
+        183,
+        41,
+        114,
+        156,
+        23,
+        50,
+        1,
+        116,
+        209,
+        74,
+        104,
+        39,
+        102,
+        177
+       ],
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         208,
+         220,
+         37,
+         171,
+         106,
+         192,
+         75,
+         179,
+         131,
+         243,
+         52,
+         166,
+         192,
+         107,
+         176,
+         58,
+         196,
+         134,
+         195,
+         245,
+         161,
+         43,
+         141,
+         116,
+         175,
+         149,
+         157,
+         66,
+         97,
+         172,
+         89,
+         48,
+         43,
+         215,
+         148,
+         137,
+         8,
+         150,
+         64,
+         180,
+         185,
+         46,
+         26,
+         197,
+         46,
+         141,
+         117,
+         35,
+         22,
+         70,
+         1,
+         248,
+         176,
+         169,
+         16,
+         185,
+         62,
+         77,
+         68,
+         152,
+         41,
+         161,
+         6,
+         240,
+         217,
+         161,
+         73,
+         193,
+         205,
+         145,
+         201,
+         49,
+         252,
+         59,
+         217,
+         116,
+         108,
+         50,
+         234,
+         49,
+         222,
+         129,
+         133,
+         124,
+         161,
+         252,
+         214,
+         26,
+         62,
+         193,
+         178,
+         106,
+         36,
+         145,
+         16,
+         143,
+         80,
+         237,
+         16,
+         6,
+         120,
+         160,
+         247,
+         37,
+         163,
+         37,
+         111,
+         13,
+         129,
+         98,
+         195,
+         84,
+         249,
+         152,
+         102,
+         81,
+         80,
+         82,
+         171,
+         84,
+         60,
+         133,
+         179,
+         89,
+         48,
+         104,
+         248,
+         175,
+         21,
+         68,
+         231,
+         150,
+         98,
+         225,
+         5,
+         29,
+         161,
+         109,
+         118,
+         36,
+         217,
+         46,
+         135,
+         69,
+         39,
+         199,
+         226,
+         27,
+         64,
+         55,
+         193,
+         2,
+         66,
+         252,
+         14,
+         35,
+         68,
+         126,
+         89,
+         2,
+         27,
+         227,
+         59,
+         39,
+         122,
+         189,
+         130,
+         254,
+         6,
+         44,
+         196,
+         183,
+         233,
+         145,
+         127,
+         141,
+         143,
+         232,
+         226,
+         104,
+         122,
+         125,
+         196,
+         187,
+         116,
+         155,
+         209,
+         222,
+         24,
+         233,
+         164,
+         92,
+         135,
+         138,
+         51,
+         111,
+         167,
+         112,
+         136,
+         41,
+         34,
+         244,
+         88,
+         177,
+         137,
+         115,
+         235,
+         9,
+         126,
+         125,
+         96,
+         223,
+         92,
+         188,
+         167,
+         169,
+         135,
+         236,
+         207,
+         232,
+         60,
+         1,
+         28,
+         183,
+         143,
+         193,
+         189,
+         9,
+         211,
+         176,
+         120,
+         217,
+         57,
+         203,
+         212,
+         45,
+         32,
+         203,
+         236,
+         254,
+         193,
+         242,
+         249,
+         121,
+         185,
+         110,
+         172,
+         172,
+         218,
+         191,
+         208,
+         50,
+         105,
+         123,
+         237,
+         5,
+         91,
+         86,
+         106,
+         38,
+         161,
+         17,
+         8,
+         86,
+         129,
+         230,
+         186,
+         140,
+         238,
+         58,
+         123,
+         250,
+         223,
+         35,
+         226,
+         27,
+         117,
+         250,
+         110,
+         159,
+         194,
+         31,
+         248,
+         227,
+         137,
+         99,
+         183,
+         41,
+         114,
+         156,
+         23,
+         50,
+         1,
+         116,
+         209,
+         74,
+         104,
+         39,
+         102,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 17,
+     "ciclos": 6350,
+     "exigir": [
+      "LDIR"
+     ]
+    }
+   },
+   {
+    "id": "z80-054-multiplicar-por-7",
+    "linguagem": "z80",
+    "titulo": "Multiplicar por 7",
+    "dificuldade": "medio",
+    "trilha": "aritmetica",
+    "tags": [
+     "multiplicar",
+     "deslocar",
+     "add hl",
+     "sem laço"
+    ],
+    "prerequisitos": [
+     "z80-007-soma-de-16-bits",
+     "z80-029-multiplicar-8x8"
+    ],
+    "aula": null,
+    "enunciado": "Multiplique `A` (sem sinal) por **7** e deixe o resultado, de 16 bits, em `HL`.\n\n## Exemplos\n\n| A | HL |\n|---|---|\n| 3 | 21 |\n| 100 | 700 |\n| 255 | 1785 |\n\n## Restrições\n\n- **Sem laço e sem desvio**: nada de `DJNZ`, `JR`, `JP` ou `CALL`. O programa é uma sequência reta de instruções.",
+    "contrato": "Registradores: `A` chega com o valor do teste. Os testes conferem `HL`.",
+    "editorial": "Para constantes pequenas, deslocar e somar vence qualquer laço: aqui são 9 instruções e menos de 80 ciclos, contra mais de 400 do desafio de multiplicar 8x8. Compiladores fazem isso automaticamente (*strength reduction*): `x*7` vira `(x<<3) - x`, `x*10` vira `(x<<3) + (x<<1)`.\n\nA regra é escolher a decomposição com menos termos. Para 7, a forma `8 - 1` (2 termos) bate a forma `4 + 2 + 1` (3 termos), e para 15 ou 31 o mesmo ganho se repete.",
+    "codigoInicial": "; HL = A * 7 (16 bits)\n\n    HALT",
+    "solucao": "    LD L,A\n    LD H,0         ; HL = x\n    LD D,H\n    LD E,L         ; DE = x\n    ADD HL,HL      ; 2x\n    ADD HL,HL      ; 4x\n    ADD HL,HL      ; 8x\n    OR A\n    SBC HL,DE      ; 8x - x = 7x\n    HALT",
+    "dicas": [
+     "Multiplicar por uma constante é decompô-la em somas e diferenças de potências de dois: `7 = 8 - 1`, então `7x = 8x - x`.",
+     "Estenda A para 16 bits em HL (`LD L,A`, `LD H,0`) e guarde uma cópia em DE (`LD D,H`, `LD E,L`). Três `ADD HL,HL` multiplicam por 8.",
+     "Subtraia a cópia: `OR A` (zera o carry) e `SBC HL,DE`. Não há laço nem desvio: o programa é só instruções em sequência."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "A = 0",
+      "visivel": true,
+      "setup": {
+       "A": 0
+      },
+      "espera": {
+       "HL": 0
+      }
+     },
+     {
+      "nome": "A = 1",
+      "visivel": true,
+      "setup": {
+       "A": 1
+      },
+      "espera": {
+       "HL": 7
+      }
+     },
+     {
+      "nome": "A = 2",
+      "visivel": false,
+      "dica": "falhou com A = 2",
+      "setup": {
+       "A": 2
+      },
+      "espera": {
+       "HL": 14
+      }
+     },
+     {
+      "nome": "A = 10",
+      "visivel": false,
+      "dica": "falhou com A = 10",
+      "setup": {
+       "A": 10
+      },
+      "espera": {
+       "HL": 70
+      }
+     },
+     {
+      "nome": "A = 36",
+      "visivel": false,
+      "dica": "falhou com A = 36",
+      "setup": {
+       "A": 36
+      },
+      "espera": {
+       "HL": 252
+      }
+     },
+     {
+      "nome": "A = 37",
+      "visivel": false,
+      "dica": "falhou com A = 37",
+      "setup": {
+       "A": 37
+      },
+      "espera": {
+       "HL": 259
+      }
+     },
+     {
+      "nome": "A = 100",
+      "visivel": false,
+      "dica": "falhou com A = 100",
+      "setup": {
+       "A": 100
+      },
+      "espera": {
+       "HL": 700
+      }
+     },
+     {
+      "nome": "A = 255",
+      "visivel": false,
+      "dica": "falhou com A = 255: o resultado (1785) usa os 16 bits",
+      "setup": {
+       "A": 255
+      },
+      "espera": {
+       "HL": 1785
+      }
+     },
+     {
+      "nome": "A = 128",
+      "visivel": false,
+      "dica": "falhou com A = 128",
+      "setup": {
+       "A": 128
+      },
+      "espera": {
+       "HL": 896
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 12,
+     "ciclos": 71,
+     "proibir": [
+      "DJNZ",
+      "JR",
+      "JP",
+      "CALL"
+     ]
+    }
+   },
+   {
+    "id": "z80-055-girar-o-vetor",
+    "linguagem": "z80",
+    "titulo": "Girar o vetor",
+    "dificuldade": "medio",
+    "trilha": "vetores",
+    "tags": [
+     "lddr",
+     "rotação",
+     "vetor",
+     "bloco"
+    ],
+    "prerequisitos": [
+     "z80-020-copiar-bloco",
+     "z80-021-inverter-o-vetor"
+    ],
+    "aula": null,
+    "enunciado": "Gire o vetor uma posição **para a direita**: cada elemento vai para a posição seguinte e o último volta para a primeira. Opera sobre os `n` primeiros elementos de `vetor` (`n` de 0 a 10), no próprio lugar. Os bytes depois dos `n` primeiros não podem mudar.\n\n## Exemplos\n\n| antes | depois |\n|---|---|\n| 1, 2, 3, 4, 5 | 5, 1, 2, 3, 4 |\n| 1, 2 | 2, 1 |\n| 7 | 7 |\n\n## Restrições\n\n- Use `LDDR`, a cópia de bloco para trás: cópia para a frente (`LDIR`) sobrescreveria os dados antes de lê-los.",
+    "contrato": "Memória: `n` ($8000) e `vetor` ($8100, 10 bytes). Os testes conferem o vetor.",
+    "editorial": "Quando origem e destino se sobrepõem, a **direção** da cópia decide se o resultado está certo: copiar para a frente por cima de si mesmo repetiria o primeiro valor pelo vetor todo (é o truque do desafio de preencher). Para deslocar para a direita, copia-se de trás para a frente; para a esquerda, de frente para trás.\n\nO `memmove` da biblioteca C escolhe a direção sozinho comparando os endereços. Em Z80, é o programador que escolhe entre `LDIR` e `LDDR`.",
+    "codigoInicial": "; gira vetor uma posição para a direita\nn     EQU 8000h\nvetor EQU 8100h   ; até 10 bytes\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n     EQU 8000h\nvetor EQU 8100h\n\n    LD A,(n)\n    CP 2\n    JR C,fim       ; 0 ou 1 elemento: nada a fazer\n    LD C,A\n    LD B,0         ; BC = n\n    LD HL,vetor\n    ADD HL,BC\n    DEC HL         ; HL = último elemento\n    LD A,(HL)      ; guarda o último\n    LD D,H\n    LD E,L         ; DE = destino (último)\n    DEC HL         ; HL = penúltimo (origem)\n    DEC BC         ; BC = n - 1 elementos a deslocar\n    LDDR           ; copia de trás para a frente\n    LD (vetor),A   ; o último vira o primeiro\nfim:\n    HALT",
+    "dicas": [
+     "Deslocar todos os elementos uma posição para a direita e colocar o último no início. Guarde o último elemento antes, porque o primeiro deslocamento o sobrescreve.",
+     "`LDDR` copia de `(HL)` para `(DE)` e **decrementa** os dois, repetindo BC vezes. Com origem no penúltimo e destino no último, deslocar de trás para a frente não destrói nenhum dado ainda não copiado. São `n - 1` bytes.",
+     "Monte HL = `vetor + n - 1` (o último) com `ADD HL,BC` e `DEC HL`, leia o último em A, passe HL a DE (`LD D,H / LD E,L`) e `DEC HL`. No fim, `LD (vetor),A`. Trate `n < 2` antes de tudo."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "1, 2, 3, 4, 5",
+      "visivel": true,
+      "setup": {
+       "n": 5,
+       "vetor": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         5,
+         1,
+         2,
+         3,
+         4,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "1, 2",
+      "visivel": true,
+      "setup": {
+       "n": 2,
+       "vetor": [
+        1,
+        2,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         2,
+         1,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "7",
+      "visivel": false,
+      "dica": "falhou com um elemento (nada muda)",
+      "setup": {
+       "n": 1,
+       "vetor": [
+        7,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         7,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "(vazio)",
+      "visivel": false,
+      "dica": "falhou com vetor vazio",
+      "setup": {
+       "n": 0,
+       "vetor": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "9, 8, 7",
+      "visivel": false,
+      "dica": "falhou com três elementos",
+      "setup": {
+       "n": 3,
+       "vetor": [
+        9,
+        8,
+        7,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         7,
+         9,
+         8,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "10, 20, 30, 40, 50, 60, 70, 80, 90, 100",
+      "visivel": false,
+      "dica": "falhou com 10 elementos",
+      "setup": {
+       "n": 10,
+       "vetor": [
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        70,
+        80,
+        90,
+        100
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         100,
+         10,
+         20,
+         30,
+         40,
+         50,
+         60,
+         70,
+         80,
+         90
+        ]
+       }
+      }
+     },
+     {
+      "nome": "0, 255",
+      "visivel": false,
+      "dica": "falhou com dois elementos (viram trocados)",
+      "setup": {
+       "n": 2,
+       "vetor": [
+        0,
+        255,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         255,
+         0,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "1, 2, 3, 4",
+      "visivel": false,
+      "dica": "falhou com quatro elementos",
+      "setup": {
+       "n": 4,
+       "vetor": [
+        1,
+        2,
+        3,
+        4,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         4,
+         1,
+         2,
+         3,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 26,
+     "ciclos": 289,
+     "exigir": [
+      "LDDR"
+     ]
+    }
+   },
+   {
+    "id": "z80-056-dividir-16-por-16",
+    "linguagem": "z80",
+    "titulo": "Dividir 16 por 16",
+    "dificuldade": "dificil",
+    "trilha": "aritmetica",
+    "tags": [
+     "divisão",
+     "resto",
+     "adc hl",
+     "deslocamento"
+    ],
+    "prerequisitos": [
+     "z80-030-dividir-8-bits",
+     "z80-032-comparar-16-bits"
+    ],
+    "aula": null,
+    "enunciado": "Divida `HL` (dividendo) por `DE` (divisor), ambos de 16 bits **sem sinal**, com `DE` de 1 a 65535. Deixe o **quociente** em `BC` e o **resto** em `HL`.\n\n## Exemplos\n\n| HL | DE | BC | HL depois |\n|---|---|---|---|\n| 100 | 7 | 14 | 2 |\n| 12345 | 100 | 123 | 45 |\n| 5 | 10 | 0 | 5 |\n\n## Restrições\n\n- O laço deve ter 16 voltas (uma por bit), não centenas de subtrações.\n- Cuidado com divisores acima de 32767.",
+    "contrato": "Registradores: `HL` (dividendo) e `DE` (divisor) chegam com os valores do teste. Os testes conferem `BC` (quociente) e `HL` (resto).",
+    "editorial": "O Z80 não tem instrução de dividir, e o algoritmo acima é o padrão de toda biblioteca: 16 voltas de deslocar, comparar e subtrair, cerca de 1500 ciclos. Quociente e resto saem juntos, como no `DIV` do 8086.\n\nO detalhe que separa a solução correta da quase correta é o **17º bit**. Quando o divisor passa de 32767, o resto parcial dobrado pode exigir 17 bits, e o `ADC HL,HL` o perde no carry. Quem só compara `HL` com `DE` erra. É um bug clássico: passa nos testes com números pequenos e falha só com divisores grandes.",
+    "codigoInicial": "; BC = HL / DE; HL = HL mod DE (16 bits, sem sinal)\n\n    HALT",
+    "solucao": "    LD B,H\n    LD C,L         ; BC = dividendo (vai sendo trocado pelo quociente)\n    LD HL,0        ; HL = resto parcial\n    LD A,16\nlaco:\n    SLA C\n    RL B           ; desloca o dividendo: o bit alto vai ao carry\n    ADC HL,HL      ; resto = resto * 2 + bit\n    JR C,subtrai   ; passou de 16 bits: certamente >= divisor\n    OR A\n    SBC HL,DE\n    JR NC,um       ; coube\n    ADD HL,DE      ; não coube: desfaz\n    JR prox\nsubtrai:\n    OR A\n    SBC HL,DE\num:\n    INC C          ; bit 1 no quociente (o bit 0 de C está livre)\nprox:\n    DEC A\n    JR NZ,laco\n    HALT",
+    "dicas": [
+     "É a divisão longa da escola, em binário: a cada bit do dividendo (do mais alto ao mais baixo), o resto parcial dobra e recebe esse bit. Se o resto for maior ou igual ao divisor, subtrai-se o divisor e o bit do quociente é 1; senão é 0. São 16 bits, 16 voltas.",
+     "Use `BC` como dividendo e **depois** como quociente: `SLA C` / `RL B` empurram o bit alto para o carry, e `ADC HL,HL` o traz para o resto (`resto * 2 + bit`). O bit livre que sobra em `C` recebe o bit do quociente com `INC C`.",
+     "Compare com `OR A` / `SBC HL,DE`: sem empréstimo (`NC`), coube e o resto já está subtraído; com empréstimo, desfaça com `ADD HL,DE`. Armadilha: se o `ADC HL,HL` ligar o carry, o resto estourou os 16 bits e é **maior** que qualquer divisor: subtraia sem comparar."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "100 / 7",
+      "visivel": true,
+      "setup": {
+       "HL": 100,
+       "DE": 7
+      },
+      "espera": {
+       "BC": 14,
+       "HL": 2
+      }
+     },
+     {
+      "nome": "65535 / 1",
+      "visivel": true,
+      "setup": {
+       "HL": 65535,
+       "DE": 1
+      },
+      "espera": {
+       "BC": 65535,
+       "HL": 0
+      }
+     },
+     {
+      "nome": "0 / 5",
+      "visivel": false,
+      "dica": "falhou com dividendo zero",
+      "setup": {
+       "HL": 0,
+       "DE": 5
+      },
+      "espera": {
+       "BC": 0,
+       "HL": 0
+      }
+     },
+     {
+      "nome": "65535 / 65535",
+      "visivel": false,
+      "dica": "falhou com dividendo e divisor iguais ($FFFF)",
+      "setup": {
+       "HL": 65535,
+       "DE": 65535
+      },
+      "espera": {
+       "BC": 1,
+       "HL": 0
+      }
+     },
+     {
+      "nome": "1000 / 3",
+      "visivel": false,
+      "dica": "falhou com 1000 / 3",
+      "setup": {
+       "HL": 1000,
+       "DE": 3
+      },
+      "espera": {
+       "BC": 333,
+       "HL": 1
+      }
+     },
+     {
+      "nome": "12345 / 100",
+      "visivel": false,
+      "dica": "falhou com 12345 / 100 (quociente de dois dígitos)",
+      "setup": {
+       "HL": 12345,
+       "DE": 100
+      },
+      "espera": {
+       "BC": 123,
+       "HL": 45
+      }
+     },
+     {
+      "nome": "5 / 10",
+      "visivel": false,
+      "dica": "falhou com dividendo menor que o divisor: quociente 0 e resto 5",
+      "setup": {
+       "HL": 5,
+       "DE": 10
+      },
+      "espera": {
+       "BC": 0,
+       "HL": 5
+      }
+     },
+     {
+      "nome": "40000 / 257",
+      "visivel": false,
+      "dica": "falhou com divisor de mais de um byte",
+      "setup": {
+       "HL": 40000,
+       "DE": 257
+      },
+      "espera": {
+       "BC": 155,
+       "HL": 165
+      }
+     },
+     {
+      "nome": "60000 / 40000",
+      "visivel": false,
+      "dica": "falhou com divisor acima de 32767: o resto parcial passa de 16 bits ao deslocar",
+      "setup": {
+       "HL": 60000,
+       "DE": 40000
+      },
+      "espera": {
+       "BC": 1,
+       "HL": 20000
+      }
+     },
+     {
+      "nome": "32768 / 32768",
+      "visivel": false,
+      "dica": "falhou com $8000 / $8000",
+      "setup": {
+       "HL": 32768,
+       "DE": 32768
+      },
+      "espera": {
+       "BC": 1,
+       "HL": 0
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 31,
+     "ciclos": 1668,
+     "proibir": [
+      "DIV"
+     ]
+    }
+   },
+   {
+    "id": "z80-057-multiplicar-16x16",
+    "linguagem": "z80",
+    "titulo": "Multiplicar 16x16",
+    "dificuldade": "dificil",
+    "trilha": "aritmetica",
+    "tags": [
+     "multiplicação",
+     "32 bits",
+     "adc",
+     "deslocar e somar"
+    ],
+    "prerequisitos": [
+     "z80-029-multiplicar-8x8",
+     "z80-043-somar-palavras"
+    ],
+    "aula": null,
+    "enunciado": "Multiplique `BC` por `DE` (16 bits, sem sinal) e grave o produto de **32 bits** em `prod`, em *little-endian* (4 bytes, o menos significativo primeiro).\n\n## Exemplos\n\n| BC | DE | prod |\n|---|---|---|\n| 300 | 500 | 150000 |\n| 256 | 256 | 65536 |\n| 65535 | 65535 | 4294836225 |\n\n## Restrições\n\n- Sem laço de `BC` somas de `DE`: o laço tem 16 voltas.",
+    "contrato": "Registradores: `BC` e `DE` chegam com os valores do teste. Memória: `prod` ($8000-$8003, 4 bytes). Os testes conferem `prod`.",
+    "editorial": "Uma multiplicação 16x16 que mantém todos os 32 bits do produto é a base das bibliotecas de ponto fixo e de aritmética de precisão múltipla. A estrutura é a mesma do 8x8: o que muda é onde mora o produto. Aqui ele não cabe em registradores, então vai para a memória, e `SLA`/`RL` sobre `(HL)` fazem o deslocamento de 32 bits em 4 instruções.\n\nUma versão mais rápida usa o conjunto alternativo de registradores (`EXX`) para guardar os 32 bits em `HL'` e `DE'`. Ela corta uns 40% dos ciclos, ao custo de ficar bem mais difícil de ler.",
+    "codigoInicial": "; prod = BC * DE (32 bits)\nprod EQU 8000h   ; 4 bytes, little-endian\n\n    ; seu código aqui\n    HALT",
+    "solucao": "prod EQU 8000h\n\n    LD HL,0\n    LD (prod),HL\n    LD (prod+2),HL\n    LD A,16\nlaco:\n    LD HL,prod     ; prod = prod * 2 (32 bits, byte a byte)\n    SLA (HL)\n    INC HL\n    RL (HL)\n    INC HL\n    RL (HL)\n    INC HL\n    RL (HL)\n    SLA C          ; bit mais alto do multiplicador vai ao carry\n    RL B\n    JR NC,pula\n    LD HL,(prod)   ; prod = prod + DE\n    ADD HL,DE\n    LD (prod),HL\n    JR NC,pula\n    LD HL,(prod+2) ; vai-um para a palavra alta\n    INC HL\n    LD (prod+2),HL\npula:\n    DEC A\n    JR NZ,laco\n    HALT",
+    "dicas": [
+     "Deslocar e somar, como no 8x8, só que o produto tem 32 bits. A cada bit do multiplicador (do mais alto ao mais baixo): dobre o produto e, se o bit vale 1, some o multiplicando.",
+     "O produto vive na memória (`prod`, 4 bytes). Dobrar 32 bits é um `SLA (HL)` seguido de três `RL (HL)` nos bytes seguintes, que propagam o carry. O multiplicador sai de `BC` com `SLA C` / `RL B`.",
+     "Somar `DE` ao produto: `LD HL,(prod)`, `ADD HL,DE`, `LD (prod),HL`. Se isso ligar o carry (os `LD` não o alteram), some 1 à palavra alta: `LD HL,(prod+2)`, `INC HL`, `LD (prod+2),HL`."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "300 x 500",
+      "visivel": true,
+      "setup": {
+       "BC": 300,
+       "DE": 500,
+       "prod": [
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "prod": [
+         240,
+         73,
+         2,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "0 x 12345",
+      "visivel": true,
+      "setup": {
+       "BC": 0,
+       "DE": 12345,
+       "prod": [
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "prod": [
+         0,
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "65535 x 65535",
+      "visivel": false,
+      "dica": "falhou com multiplicando zero",
+      "setup": {
+       "BC": 65535,
+       "DE": 65535,
+       "prod": [
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "prod": [
+         1,
+         0,
+         254,
+         255
+        ]
+       }
+      }
+     },
+     {
+      "nome": "1 x 65535",
+      "visivel": false,
+      "dica": "falhou com $FFFF x $FFFF = $FFFE0001: usa os 32 bits",
+      "setup": {
+       "BC": 1,
+       "DE": 65535,
+       "prod": [
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "prod": [
+         255,
+         255,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "256 x 256",
+      "visivel": false,
+      "dica": "falhou com 1 x $FFFF",
+      "setup": {
+       "BC": 256,
+       "DE": 256,
+       "prod": [
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "prod": [
+         0,
+         0,
+         1,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "1234 x 5678",
+      "visivel": false,
+      "dica": "falhou com 256 x 256 = 65536: o produto passa de 16 bits",
+      "setup": {
+       "BC": 1234,
+       "DE": 5678,
+       "prod": [
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "prod": [
+         188,
+         233,
+         106,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "40000 x 3",
+      "visivel": false,
+      "dica": "falhou com 1234 x 5678",
+      "setup": {
+       "BC": 40000,
+       "DE": 3,
+       "prod": [
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "prod": [
+         192,
+         212,
+         1,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "65535 x 2",
+      "visivel": false,
+      "dica": "falhou com 40000 x 3",
+      "setup": {
+       "BC": 65535,
+       "DE": 2,
+       "prod": [
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "prod": [
+         254,
+         255,
+         1,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "255 x 255",
+      "visivel": false,
+      "dica": "falhou com $FFFF x 2: o vai-um deve subir para a palavra alta",
+      "setup": {
+       "BC": 255,
+       "DE": 255,
+       "prod": [
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "prod": [
+         1,
+         254,
+         0,
+         0
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 51,
+     "ciclos": 3451
+    }
+   },
+   {
+    "id": "z80-058-fibonacci-32-bits",
+    "linguagem": "z80",
+    "titulo": "Fibonacci de 32 bits",
+    "dificuldade": "dificil",
+    "trilha": "aritmetica",
+    "tags": [
+     "fibonacci",
+     "32 bits",
+     "adc hl",
+     "precisão múltipla"
+    ],
+    "prerequisitos": [
+     "z80-007-soma-de-16-bits",
+     "z80-043-somar-palavras"
+    ],
+    "aula": null,
+    "enunciado": "Calcule o **n-ésimo número de Fibonacci** (`fib(0) = 0`, `fib(1) = 1`, `fib(n) = fib(n-1) + fib(n-2)`) para `n` de 0 a 47 e grave o resultado, de **32 bits**, em `res` (*little-endian*, 4 bytes). `fib(47)` é o maior que cabe em 32 bits.\n\n## Exemplos\n\n| n | res |\n|---|---|\n| 0 | 0 |\n| 10 | 55 |\n| 30 | 832040 |\n| 47 | 2971215073 |\n\n## Restrições\n\n- Os números passam de 16 bits: some em 32 bits, com vai-um entre as palavras.",
+    "contrato": "Memória: `n` ($8000), `res` ($8010-$8013, 4 bytes) e dois acumuladores de 32 bits, `ant` ($8020) e `atu` ($8030). Os testes conferem `res`.",
+    "editorial": "`ADD HL,DE` seguido de `ADC HL,DE` é a **aritmética de precisão múltipla** do Z80: o primeiro soma as palavras baixas e deixa o vai-um no carry; o segundo soma as altas já incluindo-o. Estendendo para 3, 4 ou N palavras, qualquer tamanho de inteiro é possível, e é assim que se implementa aritmética de números grandes.\n\nOs números de Fibonacci crescem como `1,618^n`, então 47 é o limite de 32 bits e 93 o de 64. Calcular de forma iterativa, guardando só o par anterior, é O(n); a definição recursiva direta seria exponencial.",
+    "codigoInicial": "; res = fib(n) em 32 bits\nn   EQU 8000h\nres EQU 8010h   ; 4 bytes, little-endian\nant EQU 8020h   ; 4 bytes\natu EQU 8030h   ; 4 bytes\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n   EQU 8000h\nres EQU 8010h\nant EQU 8020h\natu EQU 8030h\n\n    LD HL,0\n    LD (ant),HL    ; ant = 0\n    LD (ant+2),HL\n    LD (atu+2),HL\n    INC HL\n    LD (atu),HL    ; atu = 1\n    LD A,(n)\n    OR A\n    JR Z,fim\n    LD B,A\nlaco:\n    LD HL,(ant)    ; t = ant + atu\n    LD DE,(atu)\n    ADD HL,DE\n    PUSH HL        ; t, parte baixa\n    LD HL,(ant+2)\n    LD DE,(atu+2)\n    ADC HL,DE      ; t, parte alta (com o vai-um)\n    EX DE,HL       ; DE = t alta\n    LD HL,(atu)\n    LD (ant),HL    ; ant = atu\n    LD HL,(atu+2)\n    LD (ant+2),HL\n    POP HL\n    LD (atu),HL    ; atu = t\n    LD (atu+2),DE\n    DJNZ laco\nfim:\n    LD HL,(ant)    ; depois de n voltas, ant = fib(n)\n    LD (res),HL\n    LD HL,(ant+2)\n    LD (res+2),HL\n    HALT",
+    "dicas": [
+     "Mantenha dois números consecutivos, `ant` e `atu` (começam em 0 e 1), e a cada volta avance o par: o novo `atu` é `ant + atu` e o novo `ant` é o antigo `atu`. Depois de `n` voltas, `ant` vale `fib(n)`.",
+     "Cada número tem 32 bits (4 bytes na memória). Some a parte baixa com `ADD HL,DE` e a parte alta com **`ADC HL,DE`**, que inclui o vai-um da soma anterior. Nenhuma instrução entre as duas somas pode alterar o carry: os `LD` e o `PUSH` não alteram.",
+     "Guarde a parte baixa da soma na pilha (`PUSH HL`) enquanto calcula a alta e mova `atu` para `ant` pelos pares. Trate `n = 0` antes do laço (`DJNZ` com B = 0 daria 256 voltas) e copie `ant` para `res` no fim."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "fib(10)",
+      "visivel": true,
+      "setup": {
+       "n": 10,
+       "res": [
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": [
+         55,
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "fib(24)",
+      "visivel": true,
+      "setup": {
+       "n": 24,
+       "res": [
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": [
+         32,
+         181,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "fib(0)",
+      "visivel": false,
+      "dica": "falhou com n = 0: o resultado é 0",
+      "setup": {
+       "n": 0,
+       "res": [
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": [
+         0,
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "fib(1)",
+      "visivel": false,
+      "dica": "falhou com n = 1",
+      "setup": {
+       "n": 1,
+       "res": [
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": [
+         1,
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "fib(2)",
+      "visivel": false,
+      "dica": "falhou com n = 2",
+      "setup": {
+       "n": 2,
+       "res": [
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": [
+         1,
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "fib(30)",
+      "visivel": false,
+      "dica": "falhou com n = 30 = 832040: passa de 16 bits",
+      "setup": {
+       "n": 30,
+       "res": [
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": [
+         40,
+         178,
+         12,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "fib(40)",
+      "visivel": false,
+      "dica": "falhou com n = 40 = 102334155",
+      "setup": {
+       "n": 40,
+       "res": [
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": [
+         203,
+         126,
+         25,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "nome": "fib(47)",
+      "visivel": false,
+      "dica": "falhou com n = 47 = 2971215073, o maior que cabe em 32 bits",
+      "setup": {
+       "n": 47,
+       "res": [
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": [
+         225,
+         36,
+         25,
+         177
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 77,
+     "ciclos": 11259
+    }
+   },
+   {
+    "id": "z80-059-crivo-de-eratostenes",
+    "linguagem": "z80",
+    "titulo": "Crivo de Eratóstenes",
+    "dificuldade": "dificil",
+    "trilha": "vetores",
+    "tags": [
+     "primos",
+     "crivo",
+     "vetor",
+     "laço duplo"
+    ],
+    "prerequisitos": [
+     "z80-019-preencher-o-vetor",
+     "z80-033-raiz-quadrada-inteira"
+    ],
+    "aula": null,
+    "enunciado": "Para `n` de 2 a 64, preencha os `n` primeiros bytes de `crivo` de modo que `crivo[k]` seja **1** se `k` é primo e **0** se não for (0 e 1 não são primos). Use o **crivo de Eratóstenes**: comece com todos marcados como primos e, para cada primo encontrado, desmarque seus múltiplos. Os bytes depois dos `n` primeiros não podem mudar.\n\n## Exemplos\n\n| n | crivo (0 a n-1) |\n|---|---|\n| 10 | 0 0 1 1 0 1 0 1 0 0 |\n| 3 | 0 0 1 |\n\n## Restrições\n\n- Os índices vão de 0 a n-1.",
+    "contrato": "Memória: `n` ($8000) e `crivo` ($8100, 64 bytes, chega com `$EE`). Os testes conferem `crivo`.",
+    "editorial": "O crivo de Eratóstenes (século III a.C.) acha todos os primos abaixo de `n` em tempo próximo de O(n log log n), bem melhor que testar a divisibilidade de cada número. Aqui a otimização clássica de parar em `raiz de n` foi deixada de lado para manter o código curto: o resultado é o mesmo, só mais lento.\n\nO crivo é o primeiro exemplo do curso de um algoritmo cujo custo vem da **memória** (um byte por número) mais que do cálculo. Com um bit por número seriam só 8 bytes para n = 64, ao preço de mais instruções para endereçar bits.",
+    "codigoInicial": "; crivo[k] = 1 se k é primo, k < n\nn     EQU 8000h\ncrivo EQU 8100h   ; até 64 bytes\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n     EQU 8000h\ncrivo EQU 8100h\n\n    LD A,(n)\n    LD C,A         ; C = n\n    LD B,A\n    LD HL,crivo\nini:\n    LD (HL),1      ; todos começam marcados como primos\n    INC HL\n    DJNZ ini\n    XOR A\n    LD (crivo),A   ; 0 e 1 não são primos\n    LD (crivo+1),A\n    LD B,2         ; B = i\nexterno:\n    LD A,B\n    CP C\n    JR NC,fim      ; i >= n\n    LD E,A\n    LD D,0\n    LD HL,crivo\n    ADD HL,DE\n    LD A,(HL)\n    OR A\n    JR Z,proximo   ; i não é primo\n    LD A,B\nmarca:\n    ADD A,B        ; próximo múltiplo de i\n    CP C\n    JR NC,proximo  ; j >= n\n    LD E,A\n    LD D,0\n    LD HL,crivo\n    ADD HL,DE\n    LD (HL),0\n    JR marca\nproximo:\n    INC B\n    JR externo\nfim:\n    HALT",
+    "dicas": [
+     "O crivo começa supondo que todo número é primo e vai riscando os que não são. Cada número `i` ainda marcado como primo risca `2i`, `3i`, `4i`, ... Quem sobrar é primo.",
+     "Primeiro, preencha os `n` bytes com 1 e zere `crivo[0]` e `crivo[1]`. Depois, laço externo com `i` de 2 até `n - 1` (use B): se `crivo[i]` for 0, pule. Senão, laço interno: `j = j + i` enquanto `j < n`, gravando 0 em `crivo[j]`.",
+     "Para acessar `crivo[k]`, monte `HL = crivo + k` (`LD E,k`, `LD D,0`, `LD HL,crivo`, `ADD HL,DE`). Compare `j` com `n` usando `CP C` (C guarda `n`) antes de gravar."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "primos abaixo de 10",
+      "visivel": true,
+      "setup": {
+       "n": 10,
+       "crivo": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "crivo": [
+         0,
+         0,
+         1,
+         1,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "primos abaixo de 30",
+      "visivel": true,
+      "setup": {
+       "n": 30,
+       "crivo": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "crivo": [
+         0,
+         0,
+         1,
+         1,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         1,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "primos abaixo de 2",
+      "visivel": false,
+      "dica": "falhou com n = 2: só 0 e 1, nenhum primo",
+      "setup": {
+       "n": 2,
+       "crivo": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "crivo": [
+         0,
+         0,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "primos abaixo de 3",
+      "visivel": false,
+      "dica": "falhou com n = 3: o 2 é primo",
+      "setup": {
+       "n": 3,
+       "crivo": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "crivo": [
+         0,
+         0,
+         1,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "primos abaixo de 20",
+      "visivel": false,
+      "dica": "falhou com n = 20",
+      "setup": {
+       "n": 20,
+       "crivo": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "crivo": [
+         0,
+         0,
+         1,
+         1,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "primos abaixo de 64",
+      "visivel": false,
+      "dica": "falhou com n = 64 (o vetor inteiro)",
+      "setup": {
+       "n": 64,
+       "crivo": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "crivo": [
+         0,
+         0,
+         1,
+         1,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "primos abaixo de 50",
+      "visivel": false,
+      "dica": "falhou com n = 50",
+      "setup": {
+       "n": 50,
+       "crivo": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "crivo": [
+         0,
+         0,
+         1,
+         1,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         0,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "primos abaixo de 13",
+      "visivel": false,
+      "dica": "falhou com n = 13: o 12 não pode ser marcado como primo",
+      "setup": {
+       "n": 13,
+       "crivo": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "crivo": [
+         0,
+         0,
+         1,
+         1,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 57,
+     "ciclos": 13340
+    }
+   },
+   {
+    "id": "z80-060-ordenar-por-insercao",
+    "linguagem": "z80",
+    "titulo": "Ordenar por inserção",
+    "dificuldade": "dificil",
+    "trilha": "vetores",
+    "tags": [
+     "ordenação",
+     "inserção",
+     "deslocamento",
+     "estável"
+    ],
+    "prerequisitos": [
+     "z80-039-ordenar-por-bolhas"
+    ],
+    "aula": null,
+    "enunciado": "Ordene em ordem **crescente** os `n` primeiros bytes de `vetor` (`n` de 0 a 10), sem sinal, **no próprio lugar**, pelo método da **inserção**: para cada elemento (a partir do segundo), desloque para a direita os elementos maiores que ele que estão à sua esquerda e coloque-o no buraco. Os bytes depois dos `n` primeiros não podem mudar.\n\n## Exemplos\n\n| antes | depois |\n|---|---|\n| 5, 2, 9, 1, 7 | 1, 2, 5, 7, 9 |\n| 3, 2, 1 | 1, 2, 3 |\n\n## Restrições\n\n- Nenhuma troca de pares: use deslocamento e uma única escrita da chave.\n- `vetor` fica em $8100.",
+    "contrato": "Memória: `n` ($8000) e `vetor` ($8100, 10 bytes). Os testes conferem o vetor ordenado e o resto intacto.",
+    "editorial": "A inserção é o método que as pessoas usam para ordenar cartas na mão, e costuma ser o mais rápido dos três métodos quadráticos (bolhas, seleção, inserção) para vetores pequenos ou quase ordenados: no melhor caso, é O(n). Cada elemento é lido e escrito uma única vez no laço interno, enquanto o método das bolhas faz uma troca de dois elementos a cada passo.\n\nO truque de usar `L = 0` como \"cheguei ao começo\" depende do alinhamento do vetor em uma página de 256 bytes. É o tipo de otimização que se vê em código de 8 bits, mas que quebra se o vetor mudar de endereço; a versão geral compararia `HL` com `vetor` usando `OR A` / `SBC HL,DE`.",
+    "codigoInicial": "; ordena os n primeiros bytes de vetor, crescente\nn     EQU 8000h\nvetor EQU 8100h   ; até 10 bytes\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n     EQU 8000h\nvetor EQU 8100h\n\n    LD A,(n)\n    CP 2\n    JR C,fim\n    DEC A\n    LD B,A         ; B = elementos a inserir (do segundo em diante)\n    LD HL,vetor+1\nexterno:\n    LD C,(HL)      ; C = chave\n    PUSH HL\ninterno:\n    LD A,L\n    OR A           ; vetor está em $8100: L = 0 é o começo\n    JR Z,coloca\n    DEC HL\n    LD A,(HL)      ; elemento à esquerda\n    CP C\n    JR C,volta     ; menor que a chave: o lugar é logo à direita\n    JR Z,volta     ; igual: não passa (mantém a ordem)\n    INC HL\n    LD (HL),A      ; desloca para a direita\n    DEC HL\n    JR interno\nvolta:\n    INC HL\ncoloca:\n    LD (HL),C      ; grava a chave no buraco\n    POP HL\n    INC HL\n    DJNZ externo\nfim:\n    HALT",
+    "dicas": [
+     "Dois laços: o externo pega cada elemento (a chave) a partir do segundo; o interno anda para a esquerda deslocando uma casa para a direita cada elemento maior que a chave. Quando o deslocamento para, o buraco que sobrou é o lugar da chave.",
+     "Guarde a chave em C e a posição dela na pilha (`PUSH HL`). No laço interno, `DEC HL`, leia o vizinho com `LD A,(HL)`, `CP C`: se for menor ou igual, o buraco fica à direita dele (`INC HL`). Senão, copie-o uma casa adiante (`INC HL`, `LD (HL),A`, `DEC HL`) e continue.",
+     "Pare também ao chegar ao começo do vetor. Como `vetor` está em $8100, o byte baixo `L` vale 0 no primeiro elemento: `LD A,L` / `OR A` / `JR Z,coloca` evita uma comparação de 16 bits. No fim: `LD (HL),C`, `POP HL` e `INC HL` avançam para a próxima chave."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "5, 2, 9, 1, 7",
+      "visivel": true,
+      "setup": {
+       "n": 5,
+       "vetor": [
+        5,
+        2,
+        9,
+        1,
+        7,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         5,
+         7,
+         9,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "1, 2, 3",
+      "visivel": true,
+      "setup": {
+       "n": 3,
+       "vetor": [
+        1,
+        2,
+        3,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         3,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "3, 2, 1",
+      "visivel": false,
+      "dica": "falhou com um vetor em ordem decrescente (pior caso)",
+      "setup": {
+       "n": 3,
+       "vetor": [
+        3,
+        2,
+        1,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         3,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "7",
+      "visivel": false,
+      "dica": "falhou com um elemento",
+      "setup": {
+       "n": 1,
+       "vetor": [
+        7,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         7,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "(vazio)",
+      "visivel": false,
+      "dica": "falhou com vetor vazio (n = 0)",
+      "setup": {
+       "n": 0,
+       "vetor": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "4, 4, 2, 2, 9, 9, 1",
+      "visivel": false,
+      "dica": "falhou com valores repetidos",
+      "setup": {
+       "n": 7,
+       "vetor": [
+        4,
+        4,
+        2,
+        2,
+        9,
+        9,
+        1,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         2,
+         4,
+         4,
+         9,
+         9,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "255, 0, 128, 64",
+      "visivel": false,
+      "dica": "falhou com 255, 0, 128, 64 (ordem sem sinal)",
+      "setup": {
+       "n": 4,
+       "vetor": [
+        255,
+        0,
+        128,
+        64,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         0,
+         64,
+         128,
+         255,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "10 elementos",
+      "visivel": false,
+      "dica": "falhou com 10 elementos decrescentes",
+      "setup": {
+       "n": 10,
+       "vetor": [
+        10,
+        9,
+        8,
+        7,
+        6,
+        5,
+        4,
+        3,
+        2,
+        1
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         3,
+         4,
+         5,
+         6,
+         7,
+         8,
+         9,
+         10
+        ]
+       }
+      }
+     },
+     {
+      "nome": "10 elementos",
+      "visivel": false,
+      "dica": "falhou com 10 elementos aleatórios",
+      "setup": {
+       "n": 10,
+       "vetor": [
+        70,
+        191,
+        195,
+        87,
+        195,
+        251,
+        23,
+        73,
+        5,
+        193
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         5,
+         23,
+         70,
+         73,
+         87,
+         191,
+         193,
+         195,
+         195,
+         251
+        ]
+       }
+      }
+     },
+     {
+      "nome": "2, 1",
+      "visivel": false,
+      "dica": "falhou com dois elementos",
+      "setup": {
+       "n": 2,
+       "vetor": [
+        2,
+        1,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "5, 1, 5, 1, 5, 1",
+      "visivel": false,
+      "dica": "falhou com valores repetidos alternados",
+      "setup": {
+       "n": 6,
+       "vetor": [
+        5,
+        1,
+        5,
+        1,
+        5,
+        1,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         1,
+         1,
+         5,
+         5,
+         5,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 37,
+     "ciclos": 4171
+    }
+   },
+   {
+    "id": "z80-061-quicksort-recursivo",
+    "linguagem": "z80",
+    "titulo": "Quicksort recursivo",
+    "dificuldade": "dificil",
+    "trilha": "procedimentos",
+    "tags": [
+     "quicksort",
+     "recursão",
+     "partição",
+     "pilha"
+    ],
+    "prerequisitos": [
+     "z80-039-ordenar-por-bolhas",
+     "z80-049-fatorial-recursivo",
+     "z80-060-ordenar-por-insercao"
+    ],
+    "aula": null,
+    "enunciado": "Ordene em ordem **crescente** os `n` primeiros bytes de `vetor` (`n` de 0 a 10), sem sinal, **no próprio lugar**, pelo **quicksort recursivo**: escolha um pivô, particione o vetor em \"menores que o pivô\" e \"o resto\", e ordene cada parte recursivamente. Os bytes depois dos `n` primeiros não podem mudar.\n\n## Exemplos\n\n| antes | depois |\n|---|---|\n| 5, 2, 9, 1, 7 | 1, 2, 5, 7, 9 |\n| 6, 6, 6, 6 | 6, 6, 6, 6 |\n\n## Restrições\n\n- A sub-rotina precisa chamar a si mesma.\n- A pilha deve terminar equilibrada.\n- `vetor` fica em $8100.",
+    "contrato": "Memória: `n` ($8000) e `vetor` ($8100, 10 bytes). Os testes conferem o vetor ordenado, o resto intacto e a pilha equilibrada.",
+    "editorial": "O quicksort é o mais usado dos algoritmos de ordenação por ser O(n log n) em média, mas é um bom teste de recursão em assembly: a rotina se chama duas vezes por nível e precisa salvar na pilha tudo que a chamada interna destruiria. Aqui são `lo`, `hi` e `p`, 6 bytes por nível mais 2 do endereço de retorno.\n\nCom o pivô no último elemento, o pior caso é um vetor já ordenado (cada partição tira só um elemento e a pilha cresce n níveis). Para vetores pequenos como este, o método de inserção do desafio anterior costuma ser mais rápido, e bibliotecas reais trocam de método abaixo de uns 10 elementos.",
+    "codigoInicial": "; ordena os n primeiros bytes de vetor com quicksort\nn     EQU 8000h\nvetor EQU 8100h   ; até 10 bytes\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n     EQU 8000h\nvetor EQU 8100h\n\n    LD A,(n)\n    CP 2\n    JR C,fim\n    DEC A\n    LD C,A         ; C = hi = n - 1\n    LD B,0         ; B = lo = 0\n    CALL qs\nfim:\n    HALT\n\n; qs: ordena vetor[B..C] (índices, inclusive)\nqs:\n    LD A,B\n    CP C\n    RET NC         ; lo >= hi: nada a fazer\n    PUSH BC        ; guarda (lo, hi)\n    LD H,81h       ; H fixo: vetor está em $8100, L é o índice\n    LD L,C\n    LD D,(HL)      ; D = pivô = vetor[hi]\n    LD E,B         ; E = i\n    LD L,B         ; L = j\npart:\n    LD A,L\n    CP C\n    JR NC,fimpart  ; j >= hi\n    LD A,(HL)\n    CP D\n    JR NC,prox     ; vetor[j] >= pivô\n    LD B,A         ; B = vetor[j]\n    PUSH HL\n    LD L,E\n    LD A,(HL)      ; A = vetor[i]\n    LD (HL),B      ; vetor[i] = vetor[j]\n    POP HL\n    LD (HL),A      ; vetor[j] = antigo vetor[i]\n    INC E\nprox:\n    INC L\n    JR part\nfimpart:\n    LD L,E         ; troca vetor[i] com vetor[hi]\n    LD B,(HL)\n    LD L,C\n    LD A,(HL)\n    LD (HL),B\n    LD L,E\n    LD (HL),A      ; o pivô está na posição final p = i\n    POP BC         ; B = lo, C = hi\n    PUSH BC\n    PUSH DE        ; guarda p (em E)\n    LD A,E\n    CP B\n    JR Z,direita   ; p = lo: não há parte esquerda\n    LD C,E\n    DEC C          ; hi' = p - 1\n    CALL qs\ndireita:\n    POP DE\n    POP BC\n    LD B,E\n    INC B          ; lo' = p + 1\n    CALL qs\n    RET",
+    "dicas": [
+     "O quicksort escolhe um pivô, reorganiza o vetor para que os menores que o pivô fiquem à esquerda dele e os demais à direita, e ordena cada lado com a mesma rotina. O caso base é um trecho de 0 ou 1 elemento (`lo >= hi`).",
+     "A partição de Lomuto usa o último elemento como pivô: `i` guarda onde vai o próximo \"menor\"; percorra `j` de `lo` a `hi - 1` e, se `vetor[j] < pivô`, troque `vetor[j]` com `vetor[i]` e avance `i`. No fim, troque `vetor[i]` com o pivô: ele fica na posição final `p = i`.",
+     "Para a recursão, empilhe `lo`, `hi` e `p` antes de chamar `qs` para `[lo, p-1]` e depois para `[p+1, hi]`. Cuidado: se `p = lo`, não há parte esquerda (`p - 1` daria volta em 8 bits). Dica de registradores: com `vetor` em $8100, use `H = 81h` fixo e `L` como índice."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "5, 2, 9, 1, 7",
+      "visivel": true,
+      "setup": {
+       "n": 5,
+       "vetor": [
+        5,
+        2,
+        9,
+        1,
+        7,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         5,
+         7,
+         9,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "1, 2, 3",
+      "visivel": true,
+      "setup": {
+       "n": 3,
+       "vetor": [
+        1,
+        2,
+        3,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         3,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "3, 2, 1",
+      "visivel": false,
+      "dica": "falhou com um vetor em ordem decrescente",
+      "setup": {
+       "n": 3,
+       "vetor": [
+        3,
+        2,
+        1,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         3,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "7",
+      "visivel": false,
+      "dica": "falhou com um elemento",
+      "setup": {
+       "n": 1,
+       "vetor": [
+        7,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         7,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "(vazio)",
+      "visivel": false,
+      "dica": "falhou com vetor vazio (n = 0)",
+      "setup": {
+       "n": 0,
+       "vetor": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "4, 4, 2, 2, 9, 9, 1",
+      "visivel": false,
+      "dica": "falhou com valores repetidos",
+      "setup": {
+       "n": 7,
+       "vetor": [
+        4,
+        4,
+        2,
+        2,
+        9,
+        9,
+        1,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         2,
+         4,
+         4,
+         9,
+         9,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "255, 0, 128, 64",
+      "visivel": false,
+      "dica": "falhou com 255, 0, 128, 64 (ordem sem sinal)",
+      "setup": {
+       "n": 4,
+       "vetor": [
+        255,
+        0,
+        128,
+        64,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         0,
+         64,
+         128,
+         255,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "10 elementos",
+      "visivel": false,
+      "dica": "falhou com 10 elementos decrescentes",
+      "setup": {
+       "n": 10,
+       "vetor": [
+        10,
+        9,
+        8,
+        7,
+        6,
+        5,
+        4,
+        3,
+        2,
+        1
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         3,
+         4,
+         5,
+         6,
+         7,
+         8,
+         9,
+         10
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "10 elementos",
+      "visivel": false,
+      "dica": "falhou com 10 elementos aleatórios",
+      "setup": {
+       "n": 10,
+       "vetor": [
+        104,
+        163,
+        61,
+        226,
+        106,
+        176,
+        137,
+        130,
+        191,
+        204
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         61,
+         104,
+         106,
+         130,
+         137,
+         163,
+         176,
+         191,
+         204,
+         226
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "2, 1",
+      "visivel": false,
+      "dica": "falhou com dois elementos",
+      "setup": {
+       "n": 2,
+       "vetor": [
+        2,
+        1,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "6, 6, 6, 6",
+      "visivel": false,
+      "dica": "falhou com todos os elementos iguais",
+      "setup": {
+       "n": 4,
+       "vetor": [
+        6,
+        6,
+        6,
+        6,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         6,
+         6,
+         6,
+         6,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 71,
+     "ciclos": 5597,
+     "recursao": true,
+     "exigir": [
+      "CALL",
+      "RET"
+     ]
+    }
+   },
+   {
+    "id": "z80-062-crc-8",
+    "linguagem": "z80",
+    "titulo": "CRC-8",
+    "dificuldade": "dificil",
+    "trilha": "numeros",
+    "tags": [
+     "crc",
+     "checksum",
+     "xor",
+     "polinômio"
+    ],
+    "prerequisitos": [
+     "z80-034-espelhar-os-bits",
+     "z80-045-maiusculas"
+    ],
+    "aula": null,
+    "enunciado": "Calcule o **CRC-8** (polinômio $07, valor inicial 0, sem inversões) dos `n` primeiros bytes de `dados` (`n` de 0 a 8) e grave em `res`. O algoritmo, para cada byte:\n\n1. `crc = crc XOR byte`;\n2. repita 8 vezes: se o bit 7 de `crc` for 1, `crc = (crc << 1) XOR $07`; senão, `crc = crc << 1` (sempre em 8 bits).\n\n## Exemplos\n\n| dados | res |\n|---|---|\n| $31, $32, $33 | $C0 |\n| (vazio) | $00 |\n| $01 | $07 |\n\n## Restrições\n\n- Sem tabela de 256 bytes: calcule bit a bit.",
+    "contrato": "Memória: `n` ($8000), `res` ($8001) e `dados` ($8100, 8 bytes). Os testes conferem `res`.",
+    "editorial": "O CRC detecta erros de transmissão: um bit trocado em qualquer ponto da mensagem muda o CRC. O 07 é o polinômio `x^8 + x^2 + x + 1`, usado em sensores e protocolos simples (ATM HEC, SMBus). Tudo é XOR e deslocamento, sem somas com vai-um, o que o torna barato em hardware e em CPUs pequenas.\n\nA versão por tabela de 256 entradas processa um byte inteiro por consulta e é 5 a 8 vezes mais rápida, ao custo de 256 bytes de memória: um compromisso clássico entre tempo e espaço.",
+    "codigoInicial": "; res = CRC-8 (poly $07) dos n primeiros bytes de dados\nn     EQU 8000h\nres   EQU 8001h\ndados EQU 8100h   ; até 8 bytes\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n     EQU 8000h\nres   EQU 8001h\ndados EQU 8100h\n\n    LD C,0         ; C = crc\n    LD A,(n)\n    OR A\n    JR Z,grava\n    LD B,A\n    LD HL,dados\nbyte:\n    LD A,(HL)\n    XOR C          ; crc xor byte\n    LD D,8\nbit:\n    SLA A\n    JR NC,sem\n    XOR 07h        ; o bit que saiu era 1: aplica o polinômio\nsem:\n    DEC D\n    JR NZ,bit\n    LD C,A\n    INC HL\n    DJNZ byte\ngrava:\n    LD A,C\n    LD (res),A\n    HALT",
+    "dicas": [
+     "O CRC é o resto de uma divisão polinomial em aritmética de bits (sem vai-um). Processe um byte por vez: some-o (XOR) ao CRC e depois \"gire a manivela\" 8 vezes, uma por bit.",
+     "Cada volta da manivela: `SLA A` desloca o CRC e deixa o bit que saiu no carry. Se o carry ligou, aplique o polinômio com `XOR 07h`; senão, nada. Conte as 8 voltas com um registrador (`DEC D` / `JR NZ`).",
+     "Guarde o CRC em C entre os bytes e trate `n = 0` antes (o resultado é 0, e o `DJNZ` com B = 0 daria 256 voltas). `SLA A` e `XOR 07h` não são problema para os flags: o `JR NC` olha o carry logo depois do `SLA`."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "$31, $32, $33",
+      "visivel": true,
+      "setup": {
+       "n": 3,
+       "res": 77,
+       "dados": [
+        49,
+        50,
+        51,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 192
+       }
+      }
+     },
+     {
+      "nome": "$00",
+      "visivel": true,
+      "setup": {
+       "n": 1,
+       "res": 77,
+       "dados": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "(vazio)",
+      "visivel": false,
+      "dica": "falhou com dados vazios: CRC 0",
+      "setup": {
+       "n": 0,
+       "res": 77,
+       "dados": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "$FF",
+      "visivel": false,
+      "dica": "falhou com o byte $FF",
+      "setup": {
+       "n": 1,
+       "res": 77,
+       "dados": [
+        255,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 243
+       }
+      }
+     },
+     {
+      "nome": "$01, $02, $03, $04, $05, $06, $07, $08",
+      "visivel": false,
+      "dica": "falhou com 8 bytes",
+      "setup": {
+       "n": 8,
+       "res": 77,
+       "dados": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 62
+       }
+      }
+     },
+     {
+      "nome": "$80",
+      "visivel": false,
+      "dica": "falhou com $80: só o bit 7",
+      "setup": {
+       "n": 1,
+       "res": 77,
+       "dados": [
+        128,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 137
+       }
+      }
+     },
+     {
+      "nome": "$AA, $55",
+      "visivel": false,
+      "dica": "falhou com $AA, $55",
+      "setup": {
+       "n": 2,
+       "res": 77,
+       "dados": [
+        170,
+        85,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 54
+       }
+      }
+     },
+     {
+      "nome": "$12, $34, $56, $78",
+      "visivel": false,
+      "dica": "falhou com 4 bytes",
+      "setup": {
+       "n": 4,
+       "res": 77,
+       "dados": [
+        18,
+        52,
+        86,
+        120,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 28
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 34,
+     "ciclos": 2697,
+     "exigir": [
+      "XOR"
+     ]
+    }
+   },
+   {
+    "id": "z80-063-compressao-rle",
+    "linguagem": "z80",
+    "titulo": "Compressão RLE",
+    "dificuldade": "dificil",
+    "trilha": "strings",
+    "tags": [
+     "rle",
+     "compressão",
+     "corridas",
+     "ponteiros"
+    ],
+    "prerequisitos": [
+     "z80-017-soma-do-vetor",
+     "z80-020-copiar-bloco"
+    ],
+    "aula": null,
+    "enunciado": "Comprima `entrada` (`n` bytes, `n` de 0 a 8) pelo método **RLE** (*run-length encoding*): cada sequência de bytes iguais seguidos (uma **corrida**) vira um par `(quantidade, valor)` em `saida`. Grave em `tam` o número de bytes escritos em `saida`.\n\n## Exemplos\n\n| entrada | saida | tam |\n|---|---|---|\n| 1, 1, 1, 2, 2, 3 | 3, 1, 2, 2, 1, 3 | 6 |\n| 5 | 1, 5 | 2 |\n| (vazio) | (vazia) | 0 |\n\n## Restrições\n\n- Só corridas **consecutivas** se juntam: 9, 9, 8, 8, 8, 9 tem três corridas.\n- Os bytes de `saida` depois dos `tam` escritos não podem mudar.",
+    "contrato": "Memória: `n` ($8000), `tam` ($8001), `entrada` ($8100, 8 bytes) e `saida` ($8200, 16 bytes). Os testes conferem `saida` e `tam`.",
+    "editorial": "O RLE é a compressão mais simples que existe e é a base de formatos como PCX, TGA e o `.bmp` comprimido: bem-sucedido para dados com longas repetições (imagens de poucas cores) e **péssimo** para dados sem repetições, em que dobra o tamanho (veja o caso 1, 2, 3, 4 → 8 bytes). Compressores reais testam o resultado e guardam os dados sem compressão se for pior.\n\nA estrutura \"ponteiro de leitura, ponteiro de escrita, contador de restantes\" é o esqueleto de qualquer filtro sobre fluxos de bytes, da descompressão ao parser de comandos.",
+    "codigoInicial": "; saida = RLE de entrada; tam = bytes escritos\nn       EQU 8000h\ntam     EQU 8001h\nentrada EQU 8100h   ; até 8 bytes\nsaida   EQU 8200h   ; até 16 bytes\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n       EQU 8000h\ntam     EQU 8001h\nentrada EQU 8100h\nsaida   EQU 8200h\n\n    LD DE,saida\n    LD A,(n)\n    OR A\n    JR Z,fim\n    LD B,A         ; B = elementos ainda não lidos\n    LD HL,entrada\nlaco:\n    LD A,(HL)      ; valor da corrida\n    LD C,1         ; comprimento da corrida\n    INC HL\n    DEC B\n    JR Z,emite\ncont:\n    CP (HL)\n    JR NZ,emite    ; a corrida terminou\n    INC C\n    INC HL\n    DJNZ cont\nemite:\n    PUSH AF\n    LD A,C\n    LD (DE),A      ; quantidade\n    INC DE\n    POP AF\n    LD (DE),A      ; valor\n    INC DE\n    LD A,B\n    OR A\n    JR NZ,laco     ; ainda há elementos\nfim:\n    EX DE,HL       ; HL = fim da saída\n    LD DE,saida\n    OR A\n    SBC HL,DE      ; HL = bytes escritos\n    LD A,L\n    LD (tam),A\n    HALT",
+    "dicas": [
+     "Percorra a entrada com um ponteiro de leitura (HL) e um de escrita (DE). A cada corrida: leia o valor, conte quantos iguais vêm em seguida e escreva o par `(quantidade, valor)`.",
+     "Leia o primeiro da corrida em A, ponha 1 em C e avance. Enquanto o próximo (`CP (HL)`) for igual, `INC C` e avance. Ao terminar a corrida, escreva C e depois A em `(DE)`. Use B para saber quantos elementos faltam e pare quando chegar a 0.",
+     "Atenção ao fim da entrada: se o último elemento já foi lido, a corrida acaba sem comparar com nada além do vetor. O tamanho final é `DE - saida`: `EX DE,HL`, `LD DE,saida`, `OR A`, `SBC HL,DE`. Trate `n = 0` antes de ler."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "1, 1, 1, 2, 2, 3",
+      "visivel": true,
+      "setup": {
+       "n": 6,
+       "tam": 77,
+       "entrada": [
+        1,
+        1,
+        1,
+        2,
+        2,
+        3,
+        85,
+        85
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         3,
+         1,
+         2,
+         2,
+         1,
+         3,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ],
+        "tam": 6
+       }
+      }
+     },
+     {
+      "nome": "5",
+      "visivel": true,
+      "setup": {
+       "n": 1,
+       "tam": 77,
+       "entrada": [
+        5,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         1,
+         5,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ],
+        "tam": 2
+       }
+      }
+     },
+     {
+      "nome": "(vazio)",
+      "visivel": false,
+      "dica": "falhou com entrada vazia: saída vazia e tam = 0",
+      "setup": {
+       "n": 0,
+       "tam": 77,
+       "entrada": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ],
+        "tam": 0
+       }
+      }
+     },
+     {
+      "nome": "7, 7, 7, 7, 7, 7, 7, 7",
+      "visivel": false,
+      "dica": "falhou com uma só corrida de 8 elementos",
+      "setup": {
+       "n": 8,
+       "tam": 77,
+       "entrada": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         8,
+         7,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ],
+        "tam": 2
+       }
+      }
+     },
+     {
+      "nome": "1, 2, 3, 4",
+      "visivel": false,
+      "dica": "falhou sem repetições (todas as corridas têm 1)",
+      "setup": {
+       "n": 4,
+       "tam": 77,
+       "entrada": [
+        1,
+        2,
+        3,
+        4,
+        85,
+        85,
+        85,
+        85
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         1,
+         1,
+         1,
+         2,
+         1,
+         3,
+         1,
+         4,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ],
+        "tam": 8
+       }
+      }
+     },
+     {
+      "nome": "0, 0, 5, 5, 0, 0",
+      "visivel": false,
+      "dica": "falhou com corridas que se repetem (0,0, 5,5, 0,0)",
+      "setup": {
+       "n": 6,
+       "tam": 77,
+       "entrada": [
+        0,
+        0,
+        5,
+        5,
+        0,
+        0,
+        85,
+        85
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         2,
+         0,
+         2,
+         5,
+         2,
+         0,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ],
+        "tam": 6
+       }
+      }
+     },
+     {
+      "nome": "255, 255, 1",
+      "visivel": false,
+      "dica": "falhou com $FF repetido",
+      "setup": {
+       "n": 3,
+       "tam": 77,
+       "entrada": [
+        255,
+        255,
+        1,
+        85,
+        85,
+        85,
+        85,
+        85
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         2,
+         255,
+         1,
+         1,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ],
+        "tam": 4
+       }
+      }
+     },
+     {
+      "nome": "9, 9, 8, 8, 8, 9",
+      "visivel": false,
+      "dica": "falhou: o valor 9 aparece em duas corridas separadas",
+      "setup": {
+       "n": 6,
+       "tam": 77,
+       "entrada": [
+        9,
+        9,
+        8,
+        8,
+        8,
+        9,
+        85,
+        85
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         2,
+         9,
+         3,
+         8,
+         1,
+         9,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ],
+        "tam": 6
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 50,
+     "ciclos": 563
+    }
+   },
+   {
+    "id": "z80-064-raiz-quadrada-16-bits",
+    "linguagem": "z80",
+    "titulo": "Raiz quadrada de 16 bits",
+    "dificuldade": "dificil",
+    "trilha": "numeros",
+    "tags": [
+     "raiz",
+     "dígito a dígito",
+     "16 bits",
+     "adc hl"
+    ],
+    "prerequisitos": [
+     "z80-033-raiz-quadrada-inteira",
+     "z80-036-girar-16-bits"
+    ],
+    "aula": null,
+    "enunciado": "`n` é uma palavra de 16 bits sem sinal. Grave em `res` a parte inteira da raiz quadrada: o maior `r` (de 0 a 255) com `r * r <= n`. O método é o **dígito a dígito**: 8 voltas (uma por bit da raiz), em vez de até 255 subtrações.\n\n## Exemplos\n\n| n | res |\n|---|---|\n| 10000 | 100 |\n| 65535 | 255 |\n| 65024 | 254 |\n| 0 | 0 |\n\n## Restrições\n\n- O laço tem 8 voltas.",
+    "contrato": "Memória: `n` ($8000-$8001, palavra), `res` ($8002) e `cont` ($8003, contador livre). Os testes conferem `res`.",
+    "editorial": "Esse é o algoritmo do compasso binário que as calculadoras de bolso usam, e vem do método manual de extrair raízes que se ensinava na escola. Cada volta custa só deslocamentos e uma comparação, sem multiplicar: 8 voltas contra até 255 do método dos ímpares (desafio 33 estendido para 16 bits).\n\nO programa tem pouco espaço de registradores (BC e HL ficam ocupados com `n` e o resto, DE com o teste), então o contador de voltas e a raiz parcial foram para a memória. Em código real, o conjunto alternativo de registradores (`EXX`) resolveria o problema.",
+    "codigoInicial": "; res = parte inteira da raiz quadrada de n\nn    EQU 8000h   ; palavra (2 bytes)\nres  EQU 8002h\ncont EQU 8003h   ; contador livre\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n    EQU 8000h\nres  EQU 8002h\ncont EQU 8003h\n\n    XOR A\n    LD (res),A     ; raiz = 0\n    LD A,8\n    LD (cont),A\n    LD BC,(n)      ; BC = n, vai sendo consumido pela esquerda\n    LD HL,0        ; HL = resto\nlaco:\n    SLA C          ; dois bits altos de n entram no resto\n    RL B\n    ADC HL,HL\n    SLA C\n    RL B\n    ADC HL,HL      ; resto = resto * 4 + dois bits\n    LD A,(res)\n    LD E,A\n    LD D,0\n    PUSH HL\n    EX DE,HL       ; HL = raiz\n    ADD HL,HL\n    ADD HL,HL\n    INC HL         ; HL = 4 * raiz + 1\n    EX DE,HL       ; DE = teste\n    POP HL         ; HL = resto\n    OR A\n    SBC HL,DE\n    JR C,nao       ; resto < teste\n    LD A,(res)\n    ADD A,A\n    INC A          ; raiz = raiz * 2 + 1\n    JR grava\nnao:\n    ADD HL,DE      ; desfaz a subtração\n    LD A,(res)\n    ADD A,A        ; raiz = raiz * 2\ngrava:\n    LD (res),A\n    LD A,(cont)\n    DEC A\n    LD (cont),A\n    JR NZ,laco\n    HALT",
+    "dicas": [
+     "O método dígito a dígito é uma divisão longa para raízes: a cada passo, dois bits de `n` entram num resto, e uma tentativa decide se o próximo bit da raiz vale 1. São 8 bits de raiz, 8 voltas, porque `n` tem 16 bits.",
+     "Em cada volta: (1) desloque `BC` duas vezes à esquerda empurrando os bits altos para `HL` (`SLA C` / `RL B` / `ADC HL,HL`, duas vezes), de modo que `resto = resto * 4 + dois bits`; (2) calcule o teste `4 * raiz + 1`.",
+     "Se `resto >= teste`, subtraia (`OR A` / `SBC HL,DE`) e a raiz fica `raiz * 2 + 1`; senão, desfaça (`ADD HL,DE`) e a raiz fica `raiz * 2`. A raiz pode viver em `res` e o contador de voltas em `cont`, porque faltam registradores."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "n = 10000",
+      "visivel": true,
+      "setup": {
+       "n": {
+        "w": 10000
+       },
+       "res": 77,
+       "cont": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 100
+       }
+      }
+     },
+     {
+      "nome": "n = 255",
+      "visivel": true,
+      "setup": {
+       "n": {
+        "w": 255
+       },
+       "res": 77,
+       "cont": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 15
+       }
+      }
+     },
+     {
+      "nome": "n = 0",
+      "visivel": false,
+      "dica": "falhou com n = 0",
+      "setup": {
+       "n": {
+        "w": 0
+       },
+       "res": 77,
+       "cont": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "n = 1",
+      "visivel": false,
+      "dica": "falhou com n = 1",
+      "setup": {
+       "n": {
+        "w": 1
+       },
+       "res": 77,
+       "cont": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "n = 65535",
+      "visivel": false,
+      "dica": "falhou com n = 65535: a raiz é 255",
+      "setup": {
+       "n": {
+        "w": 65535
+       },
+       "res": 77,
+       "cont": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "n = 65025",
+      "visivel": false,
+      "dica": "falhou com n = 65025 = 255²",
+      "setup": {
+       "n": {
+        "w": 65025
+       },
+       "res": 77,
+       "cont": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "n = 65024",
+      "visivel": false,
+      "dica": "falhou com 65024, logo abaixo de 255²: a raiz é 254",
+      "setup": {
+       "n": {
+        "w": 65024
+       },
+       "res": 77,
+       "cont": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 254
+       }
+      }
+     },
+     {
+      "nome": "n = 99",
+      "visivel": false,
+      "dica": "falhou com n = 99",
+      "setup": {
+       "n": {
+        "w": 99
+       },
+       "res": 77,
+       "cont": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 9
+       }
+      }
+     },
+     {
+      "nome": "n = 4",
+      "visivel": false,
+      "dica": "falhou com n = 4",
+      "setup": {
+       "n": {
+        "w": 4
+       },
+       "res": 77,
+       "cont": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 2
+       }
+      }
+     },
+     {
+      "nome": "n = 40000",
+      "visivel": false,
+      "dica": "falhou com n = 40000",
+      "setup": {
+       "n": {
+        "w": 40000
+       },
+       "res": 77,
+       "cont": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 200
+       }
+      }
+     },
+     {
+      "nome": "n = 12345",
+      "visivel": false,
+      "dica": "falhou com n = 12345",
+      "setup": {
+       "n": {
+        "w": 12345
+       },
+       "res": 77,
+       "cont": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 111
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 71,
+     "ciclos": 2118
+    }
+   },
+   {
+    "id": "z80-065-numero-de-16-bits-para-texto",
+    "linguagem": "z80",
+    "titulo": "Número de 16 bits para texto",
+    "dificuldade": "dificil",
+    "trilha": "numeros",
+    "tags": [
+     "decimal",
+     "ascii",
+     "call",
+     "16 bits"
+    ],
+    "prerequisitos": [
+     "z80-047-numero-para-texto",
+     "z80-056-dividir-16-por-16"
+    ],
+    "aula": null,
+    "enunciado": "Escreva em `texto` o valor da palavra `n` (0 a 65535) como **texto decimal**, sem zeros à esquerda, terminado em zero. O número 0 vira o texto \"0\".\n\n## Exemplos\n\n| n | texto |\n|---|---|\n| 12345 | \"12345\" |\n| 40000 | \"40000\" |\n| 100 | \"100\" |\n| 0 | \"0\" |\n\n## Restrições\n\n- Os bytes depois do zero final não podem mudar.\n- A pilha deve terminar equilibrada.",
+    "contrato": "Memória: `n` ($8000-$8001, palavra), `flag` ($8002, livre) e `texto` ($8100, 8 bytes, chega com `$55`). Os testes conferem `texto`.",
+    "editorial": "Transformar um número em texto é a última etapa de qualquer programa que mostra resultados. A técnica é a divisão por potências de 10 em ordem decrescente, e a única dificuldade real é não imprimir zeros à esquerda sem perder os do meio (\"1000\" e \"105\").\n\nA divisão por subtração repetida custa até 9 voltas por dígito, aceitável para 5 dígitos. Uma alternativa é dividir por 10 repetidamente e empilhar os restos (saem do menos para o mais significativo), desempilhando-os na ordem certa para o texto.",
+    "codigoInicial": "; texto = n em decimal ASCII, terminado em zero\nn     EQU 8000h   ; palavra (2 bytes)\nflag  EQU 8002h   ; byte livre\ntexto EQU 8100h   ; até 5 dígitos + zero\n\n    ; seu código aqui\n    HALT",
+    "solucao": "n     EQU 8000h\nflag  EQU 8002h\ntexto EQU 8100h\n\n    LD HL,(n)\n    LD DE,texto\n    XOR A\n    LD (flag),A    ; ainda não escreveu nenhum dígito\n    LD BC,10000\n    CALL digito\n    LD BC,1000\n    CALL digito\n    LD BC,100\n    CALL digito\n    LD BC,10\n    CALL digito\n    LD A,L         ; o que sobra (0 a 9) são as unidades\n    ADD A,30h\n    LD (DE),A\n    INC DE\n    XOR A\n    LD (DE),A\n    HALT\n\n; HL = valor, DE = onde escrever, BC = divisor\ndigito:\n    XOR A          ; A = quociente\ndl:\n    PUSH HL\n    OR A\n    SBC HL,BC\n    JR C,dfim\n    INC SP         ; coube: descarta a cópia guardada\n    INC SP\n    INC A\n    JR dl\ndfim:\n    POP HL         ; não coube: restaura\n    LD B,A\n    LD A,(flag)\n    OR B           ; escreve se o dígito ≠ 0 ou já escreveu algum\n    RET Z\n    LD A,B\n    ADD A,30h\n    LD (DE),A\n    INC DE\n    LD A,1\n    LD (flag),A\n    RET",
+    "dicas": [
+     "É o mesmo método do desafio de 8 bits, com divisores de 16 bits: 10000, 1000, 100 e 10, e as unidades sobram no fim. Escreva uma sub-rotina `digito` e chame-a quatro vezes, com BC trocando de divisor.",
+     "A sub-rotina conta quantas vezes o divisor cabe em HL: `PUSH HL`, `OR A` / `SBC HL,BC`; se coube (sem carry), descarte a cópia salva (`INC SP` duas vezes) e some 1 ao quociente; se não coube, `POP HL` restaura. O quociente (um dígito) fica em A.",
+     "Para suprimir zeros à esquerda, use uma flag na memória (\"já escrevi algum dígito\"): só escreva o dígito se for ≠ 0 **ou** se a flag estiver ligada. As unidades são sempre escritas, mesmo sendo 0, e o texto termina em zero."
+    ],
+    "referencias": [
+     "Zilog, *Z80 CPU User Manual* (UM0080): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the Z80*: capítulos sobre as instruções usadas.",
+     "Lance A. Leventhal, *Z80 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "n = 0",
+      "visivel": true,
+      "setup": {
+       "n": {
+        "w": 0
+       },
+       "flag": 0,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         48,
+         0,
+         85,
+         85,
+         85,
+         85,
+         85,
+         85
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "n = 5",
+      "visivel": true,
+      "setup": {
+       "n": {
+        "w": 5
+       },
+       "flag": 0,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         53,
+         0,
+         85,
+         85,
+         85,
+         85,
+         85,
+         85
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "n = 10",
+      "visivel": false,
+      "dica": "falhou com 10: o zero das unidades tem de aparecer",
+      "setup": {
+       "n": {
+        "w": 10
+       },
+       "flag": 0,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         49,
+         48,
+         0,
+         85,
+         85,
+         85,
+         85,
+         85
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "n = 99",
+      "visivel": false,
+      "dica": "falhou com 99",
+      "setup": {
+       "n": {
+        "w": 99
+       },
+       "flag": 0,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         57,
+         57,
+         0,
+         85,
+         85,
+         85,
+         85,
+         85
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "n = 100",
+      "visivel": false,
+      "dica": "falhou com 100",
+      "setup": {
+       "n": {
+        "w": 100
+       },
+       "flag": 0,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         49,
+         48,
+         48,
+         0,
+         85,
+         85,
+         85,
+         85
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "n = 1000",
+      "visivel": false,
+      "dica": "falhou com 1000: três zeros no fim",
+      "setup": {
+       "n": {
+        "w": 1000
+       },
+       "flag": 0,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         49,
+         48,
+         48,
+         48,
+         0,
+         85,
+         85,
+         85
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "n = 10000",
+      "visivel": false,
+      "dica": "falhou com 10000: quatro zeros no fim",
+      "setup": {
+       "n": {
+        "w": 10000
+       },
+       "flag": 0,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         49,
+         48,
+         48,
+         48,
+         48,
+         0,
+         85,
+         85
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "n = 12345",
+      "visivel": false,
+      "dica": "falhou com 12345",
+      "setup": {
+       "n": {
+        "w": 12345
+       },
+       "flag": 0,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         49,
+         50,
+         51,
+         52,
+         53,
+         0,
+         85,
+         85
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "n = 65535",
+      "visivel": false,
+      "dica": "falhou com 65535 (cinco dígitos)",
+      "setup": {
+       "n": {
+        "w": 65535
+       },
+       "flag": 0,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         54,
+         53,
+         53,
+         51,
+         53,
+         0,
+         85,
+         85
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "n = 40000",
+      "visivel": false,
+      "dica": "falhou com 40000",
+      "setup": {
+       "n": {
+        "w": 40000
+       },
+       "flag": 0,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         52,
+         48,
+         48,
+         48,
+         48,
+         0,
+         85,
+         85
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "n = 65000",
+      "visivel": false,
+      "dica": "falhou com 65000: zeros no meio e no fim",
+      "setup": {
+       "n": {
+        "w": 65000
+       },
+       "flag": 0,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         54,
+         53,
+         48,
+         48,
+         48,
+         0,
+         85,
+         85
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "n = 9",
+      "visivel": false,
+      "dica": "falhou com um dígito",
+      "setup": {
+       "n": {
+        "w": 9
+       },
+       "flag": 0,
+       "texto": [
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         57,
+         0,
+         85,
+         85,
+         85,
+         85,
+         85,
+         85
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 72,
+     "ciclos": 1965,
+     "exigir": [
+      "CALL",
+      "RET"
+     ]
+    }
    }
   ];
   if (typeof module === 'object' && module.exports) module.exports = root.DESAFIOS;
