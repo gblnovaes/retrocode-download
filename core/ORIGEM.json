@@ -1,0 +1,11 @@
+{
+  "curso": "gblnovaes/curso-assembly",
+  "commit": "c1402ba286911c08f2108e344f266d22b78a0747",
+  "arquivos": {
+    "asm.js": "40773b4a3a99b50d3689688fb587b730d04f8243ee9ddeb92f50a4e11a63b252",
+    "cpu.js": "fbe5598e13344a7299816543511c3e416d1b0d6827f045d94e18c63c363862bd",
+    "decod.js": "36f6b9257c6ddb36392d0de4bbe2f4d3bdb4a6d3b42af30a2238cf91c993c77b",
+    "fonte8x8.js": "31bf99fae351d85478b14f6dabe0bbbbe193a867e831df730bf43846c8997b37",
+    "verificador.js": "2123d7bfd2de12a1b9bbdb32892ebe939e601a01aef860ab235f5f50f9b853e2"
+  }
+}
