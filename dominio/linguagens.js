@@ -9,7 +9,7 @@
   const LINGUAGENS = [
     { id: '8086', nome: 'Assembly 8086', curto: '8086', familia: 'Assembly', extensao: '.asm', disponivel: true },
     { id: 'z80', nome: 'Assembly Z80', curto: 'Z80', familia: 'Assembly', extensao: '.asm', disponivel: false },
-    { id: '6502', nome: 'Assembly 6502', curto: '6502', familia: 'Assembly', extensao: '.asm', disponivel: false },
+    { id: '6502', nome: 'Assembly 6502', curto: '6502', familia: 'Assembly', extensao: '.asm', disponivel: true },
     { id: 'c', nome: 'C', curto: 'C', familia: 'C', extensao: '.c', disponivel: false },
     { id: '68000', nome: 'Assembly 68000', curto: '68000', familia: 'Assembly', extensao: '.asm', disponivel: false }
   ];

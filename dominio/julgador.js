@@ -4,9 +4,10 @@
   const node = typeof require === 'function' && typeof module === 'object';
   const Linguagens = node ? require('./linguagens.js') : root.Linguagens;
   const Juiz8086 = node ? require('./juiz.js') : root.Juiz;
+  const Juiz6502 = node ? require('./juiz6502.js') : root.Juiz6502;
 
   // linguagem -> função julgar(desafio, codigo, modo). Linguagens novas entram aqui.
-  const JUIZES = { '8086': Juiz8086.julgar };
+  const JUIZES = { '8086': Juiz8086.julgar, '6502': Juiz6502.julgar };
 
   function julgar(desafio, codigo, modo) {
     const juiz = JUIZES[desafio.linguagem];

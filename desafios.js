@@ -27696,6 +27696,5698 @@
      "bytes": 61,
      "ciclos": 1816
     }
+   },
+   {
+    "id": "6502-001-guardar-o-valor",
+    "linguagem": "6502",
+    "titulo": "Guardar o valor",
+    "dificuldade": "facil",
+    "trilha": "registradores",
+    "tags": [
+     "lda",
+     "sta",
+     "memória",
+     "primeiro programa"
+    ],
+    "prerequisitos": [],
+    "aula": null,
+    "enunciado": "Copie o byte guardado em `origem` para `destino`. O 6502 não copia memória para memória direto: o valor passa pelo **acumulador** (A).\n\nO programa termina com `BRK`, que marca o fim para o juiz.\n\n## Exemplos\n\n| origem | destino no final |\n|---|---|\n| 7 | 7 |\n| 0 | 0 |\n| 255 | 255 |\n\n## Restrições\n\n- Use as constantes `origem` e `destino` que já estão no código (endereços da zero page).",
+    "contrato": "Memória: `origem` ($10) e `destino` ($11), um byte cada. Os testes preenchem `origem` (e põem lixo em `destino`) e conferem `destino`. Não renomeie as constantes.",
+    "editorial": "O 6502 tem só três registradores de uso geral de 8 bits (A, X e Y), e quase toda a aritmética passa pelo acumulador. Por isso copiar memória para memória é sempre \"carrega em A, guarda em outro lugar\". A **zero page** ($00 a $FF) é a área mais barata para variáveis: as instruções que a usam têm 2 bytes e gastam 3 ciclos, contra 3 bytes e 4 ciclos do endereçamento absoluto.\n\n`LDA` e `STA` têm uma diferença que importa mais adiante: `LDA` atualiza os flags N e Z conforme o valor carregado, e `STA` não mexe em nenhum flag.",
+    "codigoInicial": "; destino = origem\norigem  = $10\ndestino = $11\n\n    ; seu código aqui\n    BRK",
+    "solucao": "origem  = $10\ndestino = $11\n\n    LDA origem\n    STA destino\n    BRK",
+    "dicas": [
+     "`LDA` carrega um valor da memória em A e `STA` grava A na memória.",
+     "Escreva `LDA origem`, depois `STA destino`. Os nomes são constantes que valem endereços da zero page ($10 e $11).",
+     "Termine com `BRK`. Sem ele a CPU continua executando bytes que não são seu programa e o juiz acusa opcode inválido."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "valor 7",
+      "visivel": true,
+      "setup": {
+       "origem": 7,
+       "destino": 99
+      },
+      "espera": {
+       "mem": {
+        "destino": 7
+       }
+      }
+     },
+     {
+      "nome": "valor 0",
+      "visivel": true,
+      "setup": {
+       "origem": 0,
+       "destino": 99
+      },
+      "espera": {
+       "mem": {
+        "destino": 0
+       }
+      }
+     },
+     {
+      "nome": "valor 255",
+      "visivel": false,
+      "dica": "falhou com 255 (o byte inteiro precisa ser copiado)",
+      "setup": {
+       "origem": 255,
+       "destino": 99
+      },
+      "espera": {
+       "mem": {
+        "destino": 255
+       }
+      }
+     },
+     {
+      "nome": "valor 128",
+      "visivel": false,
+      "dica": "falhou com 128 (bit 7 ligado)",
+      "setup": {
+       "origem": 128,
+       "destino": 99
+      },
+      "espera": {
+       "mem": {
+        "destino": 128
+       }
+      }
+     },
+     {
+      "nome": "valor 1",
+      "visivel": false,
+      "dica": "falhou com 1",
+      "setup": {
+       "origem": 1,
+       "destino": 99
+      },
+      "espera": {
+       "mem": {
+        "destino": 1
+       }
+      }
+     },
+     {
+      "nome": "valor 127",
+      "visivel": false,
+      "dica": "falhou com 127",
+      "setup": {
+       "origem": 127,
+       "destino": 99
+      },
+      "espera": {
+       "mem": {
+        "destino": 127
+       }
+      }
+     },
+     {
+      "nome": "valor 200",
+      "visivel": false,
+      "dica": "falhou com 200",
+      "setup": {
+       "origem": 200,
+       "destino": 99
+      },
+      "espera": {
+       "mem": {
+        "destino": 200
+       }
+      }
+     },
+     {
+      "nome": "valor 64",
+      "visivel": false,
+      "dica": "falhou com 64",
+      "setup": {
+       "origem": 64,
+       "destino": 99
+      },
+      "espera": {
+       "mem": {
+        "destino": 64
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 5,
+     "ciclos": 6,
+     "exigir": [
+      "LDA",
+      "STA"
+     ]
+    }
+   },
+   {
+    "id": "6502-002-trocar-a-e-x",
+    "linguagem": "6502",
+    "titulo": "Trocar A e X",
+    "dificuldade": "facil",
+    "trilha": "registradores",
+    "tags": [
+     "transferência",
+     "tax",
+     "txa",
+     "troca"
+    ],
+    "prerequisitos": [],
+    "aula": null,
+    "enunciado": "Troque o conteúdo de **A** e de **X**: no final, A deve ter o valor que X tinha e X o que A tinha.\n\nO 6502 não tem uma instrução de troca (como o `XCHG` do 8086), então você precisa de um lugar para guardar um dos valores.\n\n## Exemplos\n\n| A e X antes | A e X depois |\n|---|---|\n| 5 e 9 | 9 e 5 |\n| 0 e 255 | 255 e 0 |\n\n## Restrições\n\n- Use a posição `tmp` da zero page como apoio.",
+    "contrato": "Registradores: A e X (entrada e saída). Memória: `tmp` ($10) livre para uso. Os testes preenchem A e X e conferem os dois.",
+    "editorial": "As instruções `TAX`, `TXA`, `TAY` e `TYA` copiam entre o acumulador e os índices, mas **não existe** transferência direta entre X e Y, nem troca. Uma troca precisa de um terceiro lugar: aqui, a posição `tmp` da memória. Outra forma é a pilha (`PHA`, `TXA`, `TAX`...), que gasta mais ciclos.\n\nNote que `TXA` e `LDX` mudam os flags N e Z; se o programa dependesse deles depois, seria preciso guardá-los. Neste exercício só os registradores são conferidos.",
+    "codigoInicial": "; troque A e X\ntmp = $10\n\n    ; seu código aqui\n    BRK",
+    "solucao": "tmp = $10\n\n    STA tmp\n    TXA\n    LDX tmp\n    BRK",
+    "dicas": [
+     "Quando você sobrescreve um registrador, perde o valor que ele tinha. Guarde um dos valores antes.",
+     "Guarde A em `tmp` com `STA tmp`. `TXA` copia X para A. Agora falta passar o valor antigo de A (que está em `tmp`) para X.",
+     "`LDX tmp` carrega o valor antigo de A em X. Pronto: A tem o que era de X e X o que era de A."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "A = 5, X = 9",
+      "visivel": true,
+      "setup": {
+       "A": 5,
+       "X": 9
+      },
+      "espera": {
+       "A": 9,
+       "X": 5
+      }
+     },
+     {
+      "nome": "A = 0, X = 255",
+      "visivel": true,
+      "setup": {
+       "A": 0,
+       "X": 255
+      },
+      "espera": {
+       "A": 255,
+       "X": 0
+      }
+     },
+     {
+      "nome": "A = 255, X = 0",
+      "visivel": false,
+      "dica": "falhou com A = 255 e X = 0",
+      "setup": {
+       "A": 255,
+       "X": 0
+      },
+      "espera": {
+       "A": 0,
+       "X": 255
+      }
+     },
+     {
+      "nome": "A = 1, X = 1",
+      "visivel": false,
+      "dica": "falhou com valores iguais (a troca não pode estragar nada)",
+      "setup": {
+       "A": 1,
+       "X": 1
+      },
+      "espera": {
+       "A": 1,
+       "X": 1
+      }
+     },
+     {
+      "nome": "A = 128, X = 127",
+      "visivel": false,
+      "dica": "falhou com 128 e 127",
+      "setup": {
+       "A": 128,
+       "X": 127
+      },
+      "espera": {
+       "A": 127,
+       "X": 128
+      }
+     },
+     {
+      "nome": "A = 42, X = 7",
+      "visivel": false,
+      "dica": "falhou com 42 e 7",
+      "setup": {
+       "A": 42,
+       "X": 7
+      },
+      "espera": {
+       "A": 7,
+       "X": 42
+      }
+     },
+     {
+      "nome": "A = 200, X = 100",
+      "visivel": false,
+      "dica": "falhou com 200 e 100",
+      "setup": {
+       "A": 200,
+       "X": 100
+      },
+      "espera": {
+       "A": 100,
+       "X": 200
+      }
+     },
+     {
+      "nome": "A = 3, X = 250",
+      "visivel": false,
+      "dica": "falhou com 3 e 250",
+      "setup": {
+       "A": 3,
+       "X": 250
+      },
+      "espera": {
+       "A": 250,
+       "X": 3
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 6,
+     "ciclos": 8
+    }
+   },
+   {
+    "id": "6502-003-zerar-os-tres-registradores",
+    "linguagem": "6502",
+    "titulo": "Zerar os três registradores",
+    "dificuldade": "facil",
+    "trilha": "registradores",
+    "tags": [
+     "lda",
+     "tax",
+     "tay",
+     "otimização"
+    ],
+    "prerequisitos": [],
+    "aula": null,
+    "enunciado": "Deixe **A**, **X** e **Y** valendo zero, no **menor tamanho** que conseguir. Ao final, o flag **Z** deve estar ligado.\n\n## Exemplos\n\n| A, X, Y antes | depois |\n|---|---|\n| 5, 6, 7 | 0, 0, 0 |\n| 255, 255, 255 | 0, 0, 0 |\n\n## Restrições\n\n- Os três registradores começam com valores quaisquer.\n- Vale a estrela de bytes se o programa for tão curto quanto o oficial.",
+    "contrato": "Registradores: A, X e Y (entrada e saída) e o flag Z (saída). Os testes preenchem os registradores com valores variados e conferem A = X = Y = 0 e Z = 1.",
+    "editorial": "Uma instrução de transferência ocupa **1 byte** e gasta 2 ciclos; carregar um imediato ocupa 2 bytes e também gasta 2 ciclos. Zerar os três registradores com três `LD?` imediatos custa 6 bytes; com `LDA #0` e duas transferências, 4 bytes. Em máquinas com 2 KB de RAM e programas em ROM pequena, cada byte conta, e esse tipo de economia era rotina.\n\nAs transferências também atualizam N e Z, então o flag Z termina ligado sem nenhum trabalho extra.",
+    "codigoInicial": "; A = X = Y = 0\n\n\n    ; seu código aqui\n    BRK",
+    "solucao": "    LDA #0\n    TAX\n    TAY\n    BRK",
+    "dicas": [
+     "`LDA #0` zera o acumulador, e as transferências `TAX`/`TAY` copiam o valor para os índices.",
+     "Carregar zero em cada registrador com `LDA #0`, `LDX #0`, `LDY #0` funciona, mas gasta 6 bytes. As transferências têm 1 byte cada.",
+     "Faça `LDA #0` e depois `TAX` e `TAY`. O `TAY` termina com Z ligado, porque transfere um valor zero."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "A, X e Y = 5, 6, 7",
+      "visivel": true,
+      "setup": {
+       "A": 5,
+       "X": 6,
+       "Y": 7
+      },
+      "espera": {
+       "A": 0,
+       "X": 0,
+       "Y": 0,
+       "Z": 1
+      }
+     },
+     {
+      "nome": "A, X e Y = 255, 255, 255",
+      "visivel": true,
+      "setup": {
+       "A": 255,
+       "X": 255,
+       "Y": 255
+      },
+      "espera": {
+       "A": 0,
+       "X": 0,
+       "Y": 0,
+       "Z": 1
+      }
+     },
+     {
+      "nome": "A, X e Y = 0, 0, 0",
+      "visivel": false,
+      "dica": "falhou com tudo já zerado (o Z fica ligado)",
+      "setup": {
+       "A": 0,
+       "X": 0,
+       "Y": 0
+      },
+      "espera": {
+       "A": 0,
+       "X": 0,
+       "Y": 0,
+       "Z": 1
+      }
+     },
+     {
+      "nome": "A, X e Y = 1, 0, 0",
+      "visivel": false,
+      "dica": "falhou com só A diferente de zero",
+      "setup": {
+       "A": 1,
+       "X": 0,
+       "Y": 0
+      },
+      "espera": {
+       "A": 0,
+       "X": 0,
+       "Y": 0,
+       "Z": 1
+      }
+     },
+     {
+      "nome": "A, X e Y = 0, 9, 0",
+      "visivel": false,
+      "dica": "falhou com só X diferente de zero",
+      "setup": {
+       "A": 0,
+       "X": 9,
+       "Y": 0
+      },
+      "espera": {
+       "A": 0,
+       "X": 0,
+       "Y": 0,
+       "Z": 1
+      }
+     },
+     {
+      "nome": "A, X e Y = 0, 0, 9",
+      "visivel": false,
+      "dica": "falhou com só Y diferente de zero",
+      "setup": {
+       "A": 0,
+       "X": 0,
+       "Y": 9
+      },
+      "espera": {
+       "A": 0,
+       "X": 0,
+       "Y": 0,
+       "Z": 1
+      }
+     },
+     {
+      "nome": "A, X e Y = 128, 64, 32",
+      "visivel": false,
+      "dica": "falhou com 128, 64 e 32",
+      "setup": {
+       "A": 128,
+       "X": 64,
+       "Y": 32
+      },
+      "espera": {
+       "A": 0,
+       "X": 0,
+       "Y": 0,
+       "Z": 1
+      }
+     },
+     {
+      "nome": "A, X e Y = 200, 100, 50",
+      "visivel": false,
+      "dica": "falhou com 200, 100 e 50",
+      "setup": {
+       "A": 200,
+       "X": 100,
+       "Y": 50
+      },
+      "espera": {
+       "A": 0,
+       "X": 0,
+       "Y": 0,
+       "Z": 1
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 5,
+     "ciclos": 6,
+     "exigir": [
+      "TAX",
+      "TAY"
+     ]
+    }
+   },
+   {
+    "id": "6502-004-copiar-x-para-y",
+    "linguagem": "6502",
+    "titulo": "Copiar X para Y",
+    "dificuldade": "facil",
+    "trilha": "registradores",
+    "tags": [
+     "transferência",
+     "ldy",
+     "stx",
+     "preservar"
+    ],
+    "prerequisitos": [
+     "6502-002-trocar-a-e-x"
+    ],
+    "aula": null,
+    "enunciado": "Copie **X** para **Y** **sem alterar A** (nem X).\n\nNão existe uma instrução `TXY` no 6502: a transferência direta é só entre A e os índices. Você precisa dar a volta sem perder o acumulador.\n\n## Exemplos\n\n| A e X antes | A, X e Y depois |\n|---|---|\n| 5 e 9 | 5, 9 e 9 |\n| 0 e 255 | 0, 255 e 255 |\n\n## Restrições\n\n- Use `tmp` ($10) como apoio, ou a pilha.\n- Vale a estrela de ciclos se o caminho for tão rápido quanto o oficial.",
+    "contrato": "Registradores: A e X (entrada), Y (saída, chega com lixo). Memória: `tmp` ($10) livre para uso. Os testes conferem A, X e Y no final.",
+    "editorial": "O 6502 liga os registradores de índice ao acumulador, mas nunca um ao outro. A solução curta usa a memória como ponte (`STX` e `LDY`: 3 + 3 = 6 ciclos); a alternativa com a pilha (`PHA`, `TXA`, `TAY`, `PLA`) tem o mesmo tamanho, 4 bytes, mas gasta 3 + 2 + 2 + 4 = 11 ciclos. É um bom exemplo de duas soluções com o mesmo tamanho e custos diferentes.\n\nA diferença importa em laços: dentro de um laço de 1000 voltas, 5 ciclos a mais são 5000 ciclos, cerca de 5 ms num 6502 a 1 MHz.",
+    "codigoInicial": "; Y = X, sem mexer em A\ntmp = $10\n\n    ; seu código aqui\n    BRK",
+    "solucao": "tmp = $10\n\n    STX tmp\n    LDY tmp\n    BRK",
+    "dicas": [
+     "`TXA` + `TAY` copiaria X para Y, mas passaria por A e o estragaria. Procure um caminho que não use A.",
+     "Dá para guardar X na memória com `STX` e carregar de lá em Y com `LDY`. Nenhum dos dois toca em A.",
+     "`STX tmp` seguido de `LDY tmp`. Outra solução é salvar A na pilha (`PHA`), fazer `TXA` e `TAY` e restaurar (`PLA`), mas gasta mais ciclos."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "A = 5, X = 9",
+      "visivel": true,
+      "setup": {
+       "A": 5,
+       "X": 9,
+       "Y": 77
+      },
+      "espera": {
+       "A": 5,
+       "X": 9,
+       "Y": 9
+      }
+     },
+     {
+      "nome": "A = 0, X = 255",
+      "visivel": true,
+      "setup": {
+       "A": 0,
+       "X": 255,
+       "Y": 77
+      },
+      "espera": {
+       "A": 0,
+       "X": 255,
+       "Y": 255
+      }
+     },
+     {
+      "nome": "A = 255, X = 0",
+      "visivel": false,
+      "dica": "falhou com A = 255 e X = 0",
+      "setup": {
+       "A": 255,
+       "X": 0,
+       "Y": 77
+      },
+      "espera": {
+       "A": 255,
+       "X": 0,
+       "Y": 0
+      }
+     },
+     {
+      "nome": "A = 1, X = 1",
+      "visivel": false,
+      "dica": "falhou com A = 1 e X = 1",
+      "setup": {
+       "A": 1,
+       "X": 1,
+       "Y": 77
+      },
+      "espera": {
+       "A": 1,
+       "X": 1,
+       "Y": 1
+      }
+     },
+     {
+      "nome": "A = 128, X = 127",
+      "visivel": false,
+      "dica": "falhou com 128 e 127: A não pode mudar",
+      "setup": {
+       "A": 128,
+       "X": 127,
+       "Y": 77
+      },
+      "espera": {
+       "A": 128,
+       "X": 127,
+       "Y": 127
+      }
+     },
+     {
+      "nome": "A = 42, X = 7",
+      "visivel": false,
+      "dica": "falhou com 42 e 7",
+      "setup": {
+       "A": 42,
+       "X": 7,
+       "Y": 77
+      },
+      "espera": {
+       "A": 42,
+       "X": 7,
+       "Y": 7
+      }
+     },
+     {
+      "nome": "A = 200, X = 100",
+      "visivel": false,
+      "dica": "falhou com 200 e 100",
+      "setup": {
+       "A": 200,
+       "X": 100,
+       "Y": 77
+      },
+      "espera": {
+       "A": 200,
+       "X": 100,
+       "Y": 100
+      }
+     },
+     {
+      "nome": "A = 3, X = 250",
+      "visivel": false,
+      "dica": "falhou com 3 e 250",
+      "setup": {
+       "A": 3,
+       "X": 250,
+       "Y": 77
+      },
+      "espera": {
+       "A": 3,
+       "X": 250,
+       "Y": 250
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 5,
+     "ciclos": 6
+    }
+   },
+   {
+    "id": "6502-005-somar-dois-bytes",
+    "linguagem": "6502",
+    "titulo": "Somar dois bytes",
+    "dificuldade": "facil",
+    "trilha": "aritmetica",
+    "tags": [
+     "adc",
+     "clc",
+     "carry",
+     "soma"
+    ],
+    "prerequisitos": [
+     "6502-001-guardar-o-valor"
+    ],
+    "aula": null,
+    "enunciado": "Some `a` e `b` e guarde o resultado em `soma`. O resultado é de **8 bits**: se passar de 255, só os 8 bits de baixo ficam (o resto \"vira a volta\").\n\nCuidado: o `ADC` do 6502 **sempre soma o flag C** (o vai-um). Quem controla o flag é você.\n\n## Exemplos\n\n| a | b | soma |\n|---|---|---|\n| 2 | 3 | 5 |\n| 100 | 55 | 155 |\n| 255 | 1 | 0 |\n| 200 | 100 | 44 |\n\n## Restrições\n\n- O flag C pode chegar ligado ou desligado: o programa precisa funcionar nos dois casos.",
+    "contrato": "Memória: `a` ($10), `b` ($11) e `soma` ($12). Os testes preenchem `a` e `b` (e o flag C, às vezes ligado) e conferem `soma`.",
+    "editorial": "O `ADC` soma o acumulador, o operando **e o carry**. Isso é o que permite encadear somas de vários bytes (o próximo desafio faz isso), mas obriga a regra de ouro: **`CLC` antes da primeira soma**. A subtração é o espelho: o `SBC` usa o carry como \"não-empréstimo\" e pede `SEC` antes.\n\nQuando o resultado passa de 255, o flag C vira 1 e o acumulador guarda os 8 bits baixos. Aqui o vai-um é ignorado; no desafio de soma de 16 bits ele passa a ser o dado mais importante.",
+    "codigoInicial": "; soma = a + b (8 bits)\na    = $10\nb    = $11\nsoma = $12\n\n    ; seu código aqui\n    BRK",
+    "solucao": "a    = $10\nb    = $11\nsoma = $12\n\n    CLC\n    LDA a\n    ADC b\n    STA soma\n    BRK",
+    "dicas": [
+     "No 6502 não existe um `ADD` simples: só `ADC` (soma com vai-um), que faz `A = A + valor + C`.",
+     "Antes de somar, desligue o vai-um com `CLC`. Depois `LDA a`, `ADC b` e `STA soma`.",
+     "Se esquecer o `CLC`, o resultado sai 1 a mais sempre que o flag C chegar ligado. Os testes ocultos ligam o C de propósito."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "2 + 3",
+      "visivel": true,
+      "setup": {
+       "a": 2,
+       "b": 3,
+       "soma": 0,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "soma": 5
+       }
+      }
+     },
+     {
+      "nome": "100 + 55",
+      "visivel": true,
+      "setup": {
+       "a": 100,
+       "b": 55,
+       "soma": 0,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "soma": 155
+       }
+      }
+     },
+     {
+      "nome": "0 + 0",
+      "visivel": false,
+      "dica": "falhou com 0 + 0",
+      "setup": {
+       "a": 0,
+       "b": 0,
+       "soma": 0,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "soma": 0
+       }
+      }
+     },
+     {
+      "nome": "255 + 1",
+      "visivel": false,
+      "dica": "falhou com 255 + 1: o resultado volta a zero (8 bits)",
+      "setup": {
+       "a": 255,
+       "b": 1,
+       "soma": 0,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "soma": 0
+       }
+      }
+     },
+     {
+      "nome": "200 + 100",
+      "visivel": false,
+      "dica": "falhou com 200 + 100: o resultado é 44 (300 - 256)",
+      "setup": {
+       "a": 200,
+       "b": 100,
+       "soma": 0,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "soma": 44
+       }
+      }
+     },
+     {
+      "nome": "128 + 128",
+      "visivel": false,
+      "dica": "falhou com 128 + 128",
+      "setup": {
+       "a": 128,
+       "b": 128,
+       "soma": 0,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "soma": 0
+       }
+      }
+     },
+     {
+      "nome": "1 + 254",
+      "visivel": false,
+      "dica": "falhou com 1 + 254",
+      "setup": {
+       "a": 1,
+       "b": 254,
+       "soma": 0,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "soma": 255
+       }
+      }
+     },
+     {
+      "nome": "255 + 255",
+      "visivel": false,
+      "dica": "falhou com 255 + 255: o resultado é 254",
+      "setup": {
+       "a": 255,
+       "b": 255,
+       "soma": 0,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "soma": 254
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 8,
+     "ciclos": 11,
+     "exigir": [
+      "ADC"
+     ]
+    }
+   },
+   {
+    "id": "6502-006-subtrair-dois-bytes",
+    "linguagem": "6502",
+    "titulo": "Subtrair dois bytes",
+    "dificuldade": "facil",
+    "trilha": "aritmetica",
+    "tags": [
+     "sbc",
+     "sec",
+     "borrow",
+     "subtração"
+    ],
+    "prerequisitos": [
+     "6502-005-somar-dois-bytes"
+    ],
+    "aula": null,
+    "enunciado": "Calcule `a - b` e guarde em `dif`, com 8 bits: se `b` for maior que `a`, o resultado \"dá a volta\" (por exemplo, `3 - 10 = 249`).\n\nNo 6502 o `SBC` usa o flag C como **\"sem empréstimo\"**: com C ligado a subtração é normal; com C desligado ela subtrai 1 a mais.\n\n## Exemplos\n\n| a | b | dif |\n|---|---|---|\n| 9 | 4 | 5 |\n| 100 | 100 | 0 |\n| 0 | 1 | 255 |\n| 3 | 10 | 249 |\n\n## Restrições\n\n- O flag C pode chegar ligado ou desligado: o programa precisa funcionar nos dois casos.",
+    "contrato": "Memória: `a` ($10), `b` ($11) e `dif` ($12). Os testes preenchem `a` e `b` (e o flag C) e conferem `dif`.",
+    "editorial": "O 6502 não tem um flag de empréstimo: ele usa o **carry invertido**. `SEC` significa \"não há empréstimo pendente\" e é o passo inicial de toda subtração; depois de um `SBC`, o carry fica **ligado** se não houve empréstimo (o resultado coube) e **desligado** se houve (o resultado foi negativo).\n\nÉ o inverso do 8086, onde a instrução `SUB` já começa limpa e o flag CF sobe quando há empréstimo. Quem vem de lá costuma esquecer o `SEC` nas primeiras vezes.",
+    "codigoInicial": "; dif = a - b (8 bits)\na   = $10\nb   = $11\ndif = $12\n\n    ; seu código aqui\n    BRK",
+    "solucao": "a   = $10\nb   = $11\ndif = $12\n\n    SEC\n    LDA a\n    SBC b\n    STA dif\n    BRK",
+    "dicas": [
+     "`SBC` faz `A = A - valor - (1 - C)`. É o contrário do `ADC` quanto ao flag: aqui o certo antes de começar é **ligar** o C.",
+     "Use `SEC` (liga o C), `LDA a`, `SBC b` e `STA dif`.",
+     "Sem o `SEC`, qualquer teste que chegue com C = 0 sai com 1 a menos. Os testes ocultos desligam o C de propósito."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "9 - 4",
+      "visivel": true,
+      "setup": {
+       "a": 9,
+       "b": 4,
+       "dif": 0,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "dif": 5
+       }
+      }
+     },
+     {
+      "nome": "100 - 100",
+      "visivel": true,
+      "setup": {
+       "a": 100,
+       "b": 100,
+       "dif": 0,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "dif": 0
+       }
+      }
+     },
+     {
+      "nome": "5 - 0",
+      "visivel": false,
+      "dica": "falhou com b = 0",
+      "setup": {
+       "a": 5,
+       "b": 0,
+       "dif": 0,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "dif": 5
+       }
+      }
+     },
+     {
+      "nome": "0 - 1",
+      "visivel": false,
+      "dica": "falhou com 0 - 1: o resultado é 255 (8 bits)",
+      "setup": {
+       "a": 0,
+       "b": 1,
+       "dif": 0,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "dif": 255
+       }
+      }
+     },
+     {
+      "nome": "255 - 255",
+      "visivel": false,
+      "dica": "falhou com 255 - 255",
+      "setup": {
+       "a": 255,
+       "b": 255,
+       "dif": 0,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "dif": 0
+       }
+      }
+     },
+     {
+      "nome": "3 - 10",
+      "visivel": false,
+      "dica": "falhou com 3 - 10: o resultado é 249",
+      "setup": {
+       "a": 3,
+       "b": 10,
+       "dif": 0,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "dif": 249
+       }
+      }
+     },
+     {
+      "nome": "200 - 55",
+      "visivel": false,
+      "dica": "falhou com 200 - 55",
+      "setup": {
+       "a": 200,
+       "b": 55,
+       "dif": 0,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "dif": 145
+       }
+      }
+     },
+     {
+      "nome": "128 - 129",
+      "visivel": false,
+      "dica": "falhou com 128 - 129: o resultado é 255",
+      "setup": {
+       "a": 128,
+       "b": 129,
+       "dif": 0,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "dif": 255
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 8,
+     "ciclos": 11,
+     "exigir": [
+      "SBC"
+     ]
+    }
+   },
+   {
+    "id": "6502-007-soma-de-16-bits",
+    "linguagem": "6502",
+    "titulo": "Soma de 16 bits",
+    "dificuldade": "facil",
+    "trilha": "aritmetica",
+    "tags": [
+     "adc",
+     "16 bits",
+     "carry",
+     "precisão estendida"
+    ],
+    "prerequisitos": [
+     "6502-005-somar-dois-bytes"
+    ],
+    "aula": null,
+    "enunciado": "Some dois números de **16 bits** (`a` e `b`, cada um em dois bytes, **byte baixo primeiro**) e guarde o resultado de 16 bits em `soma`. Em `estouro`, grave **1** se a soma passou de 65535, ou **0** se coube.\n\nO 6502 só soma 8 bits por vez; os 16 bits saem de duas somas encadeadas, com o vai-um do byte baixo entrando no byte alto.\n\n## Exemplos\n\n| a | b | soma | estouro |\n|---|---|---|---|\n| `$0102` | `$0304` | `$0406` | 0 |\n| `$00FF` | `$0001` | `$0100` | 0 |\n| `$FFFF` | `$0001` | `$0000` | 1 |\n\n## Restrições\n\n- Os números são **sem sinal**, em ordem *little-endian* (byte baixo no endereço menor).\n- O flag C pode chegar ligado.",
+    "contrato": "Memória: `a` ($10-$11), `b` ($12-$13), `soma` ($14-$15) e `estouro` ($16). Os testes preenchem `a` e `b` e conferem `soma` e `estouro`.",
+    "editorial": "Esta é a razão de o `ADC` somar o carry: uma soma de 16 bits é uma soma de 8 bits seguida de outra que **herda o vai-um**. Aqui o `CLC` fica só no começo; se você o repetir antes da soma dos bytes altos, o vai-um se perde e o `00FFh + 0001h` sai errado (`0000h` em vez de `0100h`).\n\nO truque do estouro, `LDA #0` + `ADC #0`, converte um flag em um número (0 ou 1) sem nenhum desvio, e funciona porque o `LDA` não altera o carry. A mesma ideia estende para 24, 32 ou mais bits: é só repetir o `ADC` byte a byte.",
+    "codigoInicial": "; soma = a + b, com 16 bits\na       = $10   ; 16 bits: baixo em $10, alto em $11\nb       = $12\nsoma    = $14\nestouro = $16\n\n    ; seu código aqui\n    BRK",
+    "solucao": "a       = $10\nb       = $12\nsoma    = $14\nestouro = $16\n\n    CLC\n    LDA a\n    ADC b\n    STA soma\n    LDA a+1\n    ADC b+1\n    STA soma+1\n    LDA #0\n    ADC #0          ; o vai-um final vira 0 ou 1\n    STA estouro\n    BRK",
+    "dicas": [
+     "Some primeiro os bytes **baixos** (com `CLC` antes). O vai-um que sobrar fica no flag C.",
+     "Some depois os bytes **altos** com `ADC` **sem** `CLC`: o `ADC` soma o carry que veio da conta de baixo. O byte alto de `a` está em `a+1`, o de `b` em `b+1`, e o de `soma` em `soma+1`.",
+     "Para o `estouro`, faça `LDA #0` (que não mexe no carry) e depois `ADC #0`: o acumulador vira 0 ou 1, conforme o carry final."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "0102 + 0304",
+      "visivel": true,
+      "setup": {
+       "a": {
+        "w": 258
+       },
+       "b": {
+        "w": 772
+       },
+       "soma": {
+        "w": 0
+       },
+       "estouro": 9,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "soma": {
+         "w": 1030
+        },
+        "estouro": 0
+       }
+      }
+     },
+     {
+      "nome": "00FF + 0001",
+      "visivel": true,
+      "setup": {
+       "a": {
+        "w": 255
+       },
+       "b": {
+        "w": 1
+       },
+       "soma": {
+        "w": 0
+       },
+       "estouro": 9,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "soma": {
+         "w": 256
+        },
+        "estouro": 0
+       }
+      }
+     },
+     {
+      "nome": "FFFF + 0001",
+      "visivel": false,
+      "dica": "falhou com FFFFh + 1: o resultado é 0 e o estouro é 1",
+      "setup": {
+       "a": {
+        "w": 65535
+       },
+       "b": {
+        "w": 1
+       },
+       "soma": {
+        "w": 0
+       },
+       "estouro": 9,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "soma": {
+         "w": 0
+        },
+        "estouro": 1
+       }
+      }
+     },
+     {
+      "nome": "1234 + 1111",
+      "visivel": false,
+      "dica": "falhou com 1234h + 1111h",
+      "setup": {
+       "a": {
+        "w": 4660
+       },
+       "b": {
+        "w": 4369
+       },
+       "soma": {
+        "w": 0
+       },
+       "estouro": 9,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "soma": {
+         "w": 9029
+        },
+        "estouro": 0
+       }
+      }
+     },
+     {
+      "nome": "8000 + 8000",
+      "visivel": false,
+      "dica": "falhou com 8000h + 8000h: o resultado é 0 e o estouro é 1",
+      "setup": {
+       "a": {
+        "w": 32768
+       },
+       "b": {
+        "w": 32768
+       },
+       "soma": {
+        "w": 0
+       },
+       "estouro": 9,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "soma": {
+         "w": 0
+        },
+        "estouro": 1
+       }
+      }
+     },
+     {
+      "nome": "0000 + 0000",
+      "visivel": false,
+      "dica": "falhou com 0 + 0",
+      "setup": {
+       "a": {
+        "w": 0
+       },
+       "b": {
+        "w": 0
+       },
+       "soma": {
+        "w": 0
+       },
+       "estouro": 9,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "soma": {
+         "w": 0
+        },
+        "estouro": 0
+       }
+      }
+     },
+     {
+      "nome": "FFFF + FFFF",
+      "visivel": false,
+      "dica": "falhou com FFFFh + FFFFh",
+      "setup": {
+       "a": {
+        "w": 65535
+       },
+       "b": {
+        "w": 65535
+       },
+       "soma": {
+        "w": 0
+       },
+       "estouro": 9,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "soma": {
+         "w": 65534
+        },
+        "estouro": 1
+       }
+      }
+     },
+     {
+      "nome": "7FFF + 0001",
+      "visivel": false,
+      "dica": "falhou com 7FFFh + 1",
+      "setup": {
+       "a": {
+        "w": 32767
+       },
+       "b": {
+        "w": 1
+       },
+       "soma": {
+        "w": 0
+       },
+       "estouro": 9,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "soma": {
+         "w": 32768
+        },
+        "estouro": 0
+       }
+      }
+     },
+     {
+      "nome": "00F0 + 0020",
+      "visivel": false,
+      "dica": "falhou com 00F0h + 0020h: o vai-um passa do byte baixo para o alto",
+      "setup": {
+       "a": {
+        "w": 240
+       },
+       "b": {
+        "w": 32
+       },
+       "soma": {
+        "w": 0
+       },
+       "estouro": 9,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "soma": {
+         "w": 272
+        },
+        "estouro": 0
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 20,
+     "ciclos": 27,
+     "exigir": [
+      "ADC"
+     ]
+    }
+   },
+   {
+    "id": "6502-008-multiplicar-por-10",
+    "linguagem": "6502",
+    "titulo": "Multiplicar por 10",
+    "dificuldade": "facil",
+    "trilha": "aritmetica",
+    "tags": [
+     "asl",
+     "deslocamento",
+     "multiplicação",
+     "adc"
+    ],
+    "prerequisitos": [
+     "6502-005-somar-dois-bytes"
+    ],
+    "aula": null,
+    "enunciado": "Calcule `n x 10` e guarde em `res`. Não existe instrução de multiplicar no 6502: use **deslocamentos** e somas.\n\nDica de matemática: `10n = 8n + 2n`. Deslocar um número 1 bit à esquerda (`ASL`) dobra o valor.\n\n## Exemplos\n\n| n | res |\n|---|---|\n| 1 | 10 |\n| 0 | 0 |\n| 25 | 250 |\n| 7 | 70 |\n\n## Restrições\n\n- `n` vai de 0 a 25, então o resultado sempre cabe em um byte (no máximo 250).\n- Não use laços de soma repetida: a ideia é gastar poucos ciclos.",
+    "contrato": "Memória: `n` ($10) e `res` ($11). Os testes preenchem `n` e conferem `res`.",
+    "editorial": "Multiplicar por constantes é a especialidade dos deslocamentos. Cada `ASL` dobra o valor; a soma de potências de 2 monta qualquer multiplicador (`10 = 8 + 2`). Esse é o mesmo raciocínio que o desafio de multiplicar por 10 do 8086 usa com `SHL` e `LEA`/`ADD`.\n\nSó funciona sem perder bits porque a entrada é pequena. Se `n` pudesse chegar a 255, o resultado precisaria de 12 bits, e cada `ASL` teria que propagar o bit que sai (flag C) para um segundo byte com `ROL`.",
+    "codigoInicial": "; res = n x 10\nn   = $10\nres = $11\n\n    ; seu código aqui\n    BRK",
+    "solucao": "n   = $10\nres = $11\n\n    LDA n\n    ASL A          ; 2n\n    STA res\n    ASL A          ; 4n\n    ASL A          ; 8n\n    CLC\n    ADC res        ; 8n + 2n\n    STA res\n    BRK",
+    "dicas": [
+     "`ASL A` multiplica o acumulador por 2. Encadeando, você multiplica por 4 e por 8.",
+     "`10n = 8n + 2n`. Calcule `2n` e guarde (por exemplo, em `res`), continue deslocando até `8n` e some os dois.",
+     "Antes da soma final use `CLC`. Como `n <= 25`, os deslocamentos nunca perdem bits (8 x 25 = 200 cabe em um byte)."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "n = 1",
+      "visivel": true,
+      "setup": {
+       "n": 1,
+       "res": 0,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 10
+       }
+      }
+     },
+     {
+      "nome": "n = 0",
+      "visivel": true,
+      "setup": {
+       "n": 0,
+       "res": 0,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "n = 25",
+      "visivel": false,
+      "dica": "falhou com 25: o resultado é 250 e ainda cabe em um byte",
+      "setup": {
+       "n": 25,
+       "res": 0,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 250
+       }
+      }
+     },
+     {
+      "nome": "n = 10",
+      "visivel": false,
+      "dica": "falhou com 10",
+      "setup": {
+       "n": 10,
+       "res": 0,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 100
+       }
+      }
+     },
+     {
+      "nome": "n = 7",
+      "visivel": false,
+      "dica": "falhou com 7",
+      "setup": {
+       "n": 7,
+       "res": 0,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "res": 70
+       }
+      }
+     },
+     {
+      "nome": "n = 13",
+      "visivel": false,
+      "dica": "falhou com 13",
+      "setup": {
+       "n": 13,
+       "res": 0,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "res": 130
+       }
+      }
+     },
+     {
+      "nome": "n = 3",
+      "visivel": false,
+      "dica": "falhou com 3",
+      "setup": {
+       "n": 3,
+       "res": 0,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "res": 30
+       }
+      }
+     },
+     {
+      "nome": "n = 20",
+      "visivel": false,
+      "dica": "falhou com 20",
+      "setup": {
+       "n": 20,
+       "res": 0,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "res": 200
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 13,
+     "ciclos": 20,
+     "exigir": [
+      "ASL"
+     ]
+    }
+   },
+   {
+    "id": "6502-009-media-de-dois-bytes",
+    "linguagem": "6502",
+    "titulo": "Média de dois bytes",
+    "dificuldade": "facil",
+    "trilha": "aritmetica",
+    "tags": [
+     "adc",
+     "ror",
+     "carry",
+     "média"
+    ],
+    "prerequisitos": [
+     "6502-005-somar-dois-bytes"
+    ],
+    "aula": null,
+    "enunciado": "Calcule a **média inteira** de `a` e `b` (a soma dividida por 2, arredondando para baixo) e guarde em `media`.\n\nO problema: a soma de dois bytes pode chegar a 510, que **não cabe em 8 bits**. Se você somar e depois dividir, perde o bit 9. Há uma forma de não perder nada.\n\n## Exemplos\n\n| a | b | media |\n|---|---|---|\n| 10 | 20 | 15 |\n| 255 | 255 | 255 |\n| 255 | 0 | 127 |\n| 1 | 2 | 1 |\n\n## Restrições\n\n- Os números são sem sinal (0 a 255).\n- Use só A (sem X e Y) e nenhuma variável extra.",
+    "contrato": "Memória: `a` ($10), `b` ($11) e `media` ($12). Os testes preenchem `a` e `b` e conferem `media`.",
+    "editorial": "Depois do `ADC`, os 9 bits da soma estão em **C:A** (o carry é o bit mais alto). Um `ROR A` gira esses 9 bits uma posição à direita, e o resultado em A é exatamente `(a + b) / 2`, com o bit 9 entrando pelo bit 7. É a forma correta de calcular uma média sem estouro, e é por isso que o `ROR` (e o `ROL`) existem além dos deslocamentos simples.\n\nO erro mais comum é fazer `ADC` e depois `LSR A`: o `LSR` entra com 0 no bit 7 e **descarta o carry**, então `255 + 255` dá 254 em vez de 255.",
+    "codigoInicial": "; media = (a + b) / 2\na     = $10\nb     = $11\nmedia = $12\n\n    ; seu código aqui\n    BRK",
+    "solucao": "a     = $10\nb     = $11\nmedia = $12\n\n    CLC\n    LDA a\n    ADC b          ; o bit 9 da soma fica no carry\n    ROR A          ; entra pelo bit 7: divide por 2 sem perder o vai-um\n    STA media\n    BRK",
+    "dicas": [
+     "A soma de dois bytes tem até 9 bits. Onde o 6502 guarda o 9º bit? No flag **C**.",
+     "`ROR A` gira o acumulador para a direita **pelo carry**: o carry entra pelo bit 7 e o bit 0 sai para o carry. Isso é uma divisão por 2 que trata o carry como um 9º bit.",
+     "Faça `CLC`, `LDA a`, `ADC b`, `ROR A` e `STA media`. O `ROR` já faz a divisão e traz de volta o bit 9 que o `ADC` colocou no carry."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "média de 10 e 20",
+      "visivel": true,
+      "setup": {
+       "a": 10,
+       "b": 20,
+       "media": 0,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "media": 15
+       }
+      }
+     },
+     {
+      "nome": "média de 0 e 0",
+      "visivel": true,
+      "setup": {
+       "a": 0,
+       "b": 0,
+       "media": 0,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "media": 0
+       }
+      }
+     },
+     {
+      "nome": "média de 255 e 255",
+      "visivel": false,
+      "dica": "falhou com 255 e 255: a soma passa de 8 bits, e a média é 255",
+      "setup": {
+       "a": 255,
+       "b": 255,
+       "media": 0,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "media": 255
+       }
+      }
+     },
+     {
+      "nome": "média de 255 e 0",
+      "visivel": false,
+      "dica": "falhou com 255 e 0: a média é 127",
+      "setup": {
+       "a": 255,
+       "b": 0,
+       "media": 0,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "media": 127
+       }
+      }
+     },
+     {
+      "nome": "média de 1 e 2",
+      "visivel": false,
+      "dica": "falhou com 1 e 2: a média arredonda para baixo (1)",
+      "setup": {
+       "a": 1,
+       "b": 2,
+       "media": 0,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "media": 1
+       }
+      }
+     },
+     {
+      "nome": "média de 200 e 100",
+      "visivel": false,
+      "dica": "falhou com 200 e 100: a soma (300) não cabe em 8 bits",
+      "setup": {
+       "a": 200,
+       "b": 100,
+       "media": 0,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "media": 150
+       }
+      }
+     },
+     {
+      "nome": "média de 7 e 8",
+      "visivel": false,
+      "dica": "falhou com 7 e 8",
+      "setup": {
+       "a": 7,
+       "b": 8,
+       "media": 0,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "media": 7
+       }
+      }
+     },
+     {
+      "nome": "média de 254 e 255",
+      "visivel": false,
+      "dica": "falhou com 254 e 255",
+      "setup": {
+       "a": 254,
+       "b": 255,
+       "media": 0,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "media": 254
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 9,
+     "ciclos": 13,
+     "exigir": [
+      "ROR"
+     ],
+     "proibir": [
+      "LSR"
+     ]
+    }
+   },
+   {
+    "id": "6502-010-separar-os-nibbles",
+    "linguagem": "6502",
+    "titulo": "Separar os nibbles",
+    "dificuldade": "facil",
+    "trilha": "bits",
+    "tags": [
+     "and",
+     "lsr",
+     "nibble",
+     "máscara"
+    ],
+    "prerequisitos": [
+     "6502-001-guardar-o-valor"
+    ],
+    "aula": null,
+    "enunciado": "Separe o byte `valor` em seus dois **nibbles** (metades de 4 bits): grave em `baixo` o nibble de baixo (bits 0 a 3) e em `alto` o nibble de cima (bits 4 a 7), cada um como um número de 0 a 15.\n\n## Exemplos\n\n| valor | baixo | alto |\n|---|---|---|\n| `$AB` | `$0B` | `$0A` |\n| `$0F` | `$0F` | `$00` |\n| `$F0` | `$00` | `$0F` |\n\n## Restrições\n\n- `valor` não pode ser alterado.",
+    "contrato": "Memória: `valor` ($10), `baixo` ($11) e `alto` ($12). Os testes preenchem `valor` e conferem `baixo` e `alto`.",
+    "editorial": "Nibbles são a unidade natural do hexadecimal: um byte é dois dígitos hexa, e cada dígito é um nibble. A máscara `AND #$0F` mantém os bits onde a máscara tem 1 e zera os demais; o `LSR` quatro vezes descarta o nibble baixo e puxa o alto para a posição 0.\n\nO 6502 só desloca **um bit por instrução** (ao contrário do 8086, que desloca por `CL` ou por constante), então `LSR A` repetido 4 vezes é o idioma padrão. Uma tabela de 256 bytes seria mais rápida, mas gastaria 256 bytes de memória.",
+    "codigoInicial": "; baixo = valor & $0F; alto = valor >> 4\nvalor = $10\nbaixo = $11\nalto  = $12\n\n    ; seu código aqui\n    BRK",
+    "solucao": "valor = $10\nbaixo = $11\nalto  = $12\n\n    LDA valor\n    AND #$0F\n    STA baixo\n    LDA valor\n    LSR A\n    LSR A\n    LSR A\n    LSR A\n    STA alto\n    BRK",
+    "dicas": [
+     "O nibble baixo se isola com uma **máscara**: `AND #$0F` zera os 4 bits de cima e mantém os de baixo.",
+     "Para o nibble alto, desloque o valor 4 bits à direita com `LSR`: os 4 bits de cima descem para baixo, e entram zeros por cima.",
+     "Carregue `valor` duas vezes (a primeira instrução do bloco `AND` destrói o original em A): `LDA valor`, `AND #$0F`, `STA baixo`; depois `LDA valor`, quatro `LSR A` e `STA alto`."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "valor $AB",
+      "visivel": true,
+      "setup": {
+       "valor": 171,
+       "baixo": 99,
+       "alto": 99
+      },
+      "espera": {
+       "mem": {
+        "baixo": 11,
+        "alto": 10
+       }
+      }
+     },
+     {
+      "nome": "valor $00",
+      "visivel": true,
+      "setup": {
+       "valor": 0,
+       "baixo": 99,
+       "alto": 99
+      },
+      "espera": {
+       "mem": {
+        "baixo": 0,
+        "alto": 0
+       }
+      }
+     },
+     {
+      "nome": "valor $FF",
+      "visivel": false,
+      "dica": "falhou com FFh: os dois nibbles valem Fh",
+      "setup": {
+       "valor": 255,
+       "baixo": 99,
+       "alto": 99
+      },
+      "espera": {
+       "mem": {
+        "baixo": 15,
+        "alto": 15
+       }
+      }
+     },
+     {
+      "nome": "valor $0F",
+      "visivel": false,
+      "dica": "falhou com 0Fh: o alto é 0",
+      "setup": {
+       "valor": 15,
+       "baixo": 99,
+       "alto": 99
+      },
+      "espera": {
+       "mem": {
+        "baixo": 15,
+        "alto": 0
+       }
+      }
+     },
+     {
+      "nome": "valor $F0",
+      "visivel": false,
+      "dica": "falhou com F0h: o baixo é 0",
+      "setup": {
+       "valor": 240,
+       "baixo": 99,
+       "alto": 99
+      },
+      "espera": {
+       "mem": {
+        "baixo": 0,
+        "alto": 15
+       }
+      }
+     },
+     {
+      "nome": "valor $5A",
+      "visivel": false,
+      "dica": "falhou com 5Ah",
+      "setup": {
+       "valor": 90,
+       "baixo": 99,
+       "alto": 99
+      },
+      "espera": {
+       "mem": {
+        "baixo": 10,
+        "alto": 5
+       }
+      }
+     },
+     {
+      "nome": "valor $81",
+      "visivel": false,
+      "dica": "falhou com 81h",
+      "setup": {
+       "valor": 129,
+       "baixo": 99,
+       "alto": 99
+      },
+      "espera": {
+       "mem": {
+        "baixo": 1,
+        "alto": 8
+       }
+      }
+     },
+     {
+      "nome": "valor $12",
+      "visivel": false,
+      "dica": "falhou com 12h",
+      "setup": {
+       "valor": 18,
+       "baixo": 99,
+       "alto": 99
+      },
+      "espera": {
+       "mem": {
+        "baixo": 2,
+        "alto": 1
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 15,
+     "ciclos": 22,
+     "exigir": [
+      "AND",
+      "LSR"
+     ]
+    }
+   },
+   {
+    "id": "6502-011-ligar-desligar-inverter-bits",
+    "linguagem": "6502",
+    "titulo": "Ligar, desligar e inverter bits",
+    "dificuldade": "facil",
+    "trilha": "bits",
+    "tags": [
+     "ora",
+     "and",
+     "eor",
+     "máscara"
+    ],
+    "prerequisitos": [
+     "6502-010-separar-os-nibbles"
+    ],
+    "aula": null,
+    "enunciado": "No acumulador **A**, faça três operações de bit, nesta ordem:\n\n1. **ligar** o bit 3;\n2. **desligar** o bit 5;\n3. **inverter** o bit 7.\n\nOs outros bits não podem mudar. Os bits são numerados de 0 (o menos significativo) a 7.\n\n## Exemplos\n\n| A antes | A depois |\n|---|---|\n| `$00` | `$88` |\n| `$FF` | `$5F` |\n| `$AA` | `$0A` |\n\n## Restrições\n\n- Use as três instruções lógicas: `ORA` (liga), `AND` (desliga) e `EOR` (inverte).",
+    "contrato": "Registrador: A (entrada e saída). Os testes preenchem A e conferem A no final.",
+    "editorial": "As três instruções lógicas têm papéis complementares: `ORA` só liga bits (`x OR 0 = x`, `x OR 1 = 1`), `AND` só desliga (`x AND 1 = x`, `x AND 0 = 0`) e `EOR` inverte (`x XOR 1 = NOT x`, `x XOR 0 = x`). Escrever as máscaras em binário (`%...`) é a forma mais legível, porque o padrão de bits aparece no código.\n\nEssas três operações são a base de qualquer acesso a **registradores de hardware** em máquinas com 6502 (Apple II, C64, NES), onde cada bit controla algo diferente e mexer em um bit sem tocar nos outros é rotina.",
+    "codigoInicial": "; ligue o bit 3, desligue o bit 5 e inverta o bit 7 de A\n\n\n    ; seu código aqui\n    BRK",
+    "solucao": "    ORA #%00001000\n    AND #%11011111\n    EOR #%10000000\n    BRK",
+    "dicas": [
+     "Cada operação tem sua instrução: `ORA` liga bits (os que a máscara tem em 1), `AND` desliga (os que a máscara tem em 0) e `EOR` inverte (os que a máscara tem em 1).",
+     "Para ligar o bit 3 a máscara é `%00001000`; para inverter o bit 7 é `%10000000`; para **desligar** o bit 5 a máscara é o complemento: `%11011111`.",
+     "`ORA #%00001000`, `AND #%11011111` e `EOR #%10000000`. O prefixo `%` escreve o número em binário, o que deixa claro quais bits você está tocando."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "A = $00",
+      "visivel": true,
+      "setup": {
+       "A": 0
+      },
+      "espera": {
+       "A": 136
+      }
+     },
+     {
+      "nome": "A = $FF",
+      "visivel": true,
+      "setup": {
+       "A": 255
+      },
+      "espera": {
+       "A": 95
+      }
+     },
+     {
+      "nome": "A = $AA",
+      "visivel": false,
+      "dica": "falhou com FFh",
+      "setup": {
+       "A": 170
+      },
+      "espera": {
+       "A": 10
+      }
+     },
+     {
+      "nome": "A = $55",
+      "visivel": false,
+      "dica": "falhou com AAh",
+      "setup": {
+       "A": 85
+      },
+      "espera": {
+       "A": 221
+      }
+     },
+     {
+      "nome": "A = $08",
+      "visivel": false,
+      "dica": "falhou com 55h",
+      "setup": {
+       "A": 8
+      },
+      "espera": {
+       "A": 136
+      }
+     },
+     {
+      "nome": "A = $20",
+      "visivel": false,
+      "dica": "falhou com 08h: o bit 3 já estava ligado",
+      "setup": {
+       "A": 32
+      },
+      "espera": {
+       "A": 136
+      }
+     },
+     {
+      "nome": "A = $80",
+      "visivel": false,
+      "dica": "falhou com 20h: o bit 5 estava ligado e precisa ser desligado",
+      "setup": {
+       "A": 128
+      },
+      "espera": {
+       "A": 8
+      }
+     },
+     {
+      "nome": "A = $28",
+      "visivel": false,
+      "dica": "falhou com 80h: o bit 7 estava ligado e precisa ser desligado",
+      "setup": {
+       "A": 40
+      },
+      "espera": {
+       "A": 136
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 7,
+     "ciclos": 6,
+     "exigir": [
+      "ORA",
+      "AND",
+      "EOR"
+     ]
+    }
+   },
+   {
+    "id": "6502-012-trocar-os-nibbles",
+    "linguagem": "6502",
+    "titulo": "Trocar os nibbles",
+    "dificuldade": "facil",
+    "trilha": "bits",
+    "tags": [
+     "asl",
+     "lsr",
+     "ora",
+     "nibble"
+    ],
+    "prerequisitos": [
+     "6502-010-separar-os-nibbles"
+    ],
+    "aula": null,
+    "enunciado": "Troque os dois **nibbles** (metades de 4 bits) de `valor` e guarde em `res`: o nibble de cima vai para baixo e o de baixo vai para cima.\n\n## Exemplos\n\n| valor | res |\n|---|---|\n| `$AB` | `$BA` |\n| `$12` | `$21` |\n| `$F0` | `$0F` |\n\n## Restrições\n\n- `valor` não pode ser alterado.",
+    "contrato": "Memória: `valor` ($10) e `res` ($11). Os testes preenchem `valor` e conferem `res`.",
+    "editorial": "O 8086 tem `ROL`/`ROR` por quantidade (e `XCHG` de metades via `AL`/`AH`), mas o 6502 só gira **um bit por vez**, e o giro passa pelo carry. Trocar nibbles com 4 `ROL` daria um resultado errado (o carry entra no meio), por isso a solução usa **dois deslocamentos separados** e junta as peças com `ORA`.\n\nO mesmo idioma aparece em conversão hexadecimal e em gráficos com 2 pixels por byte, onde cada nibble guarda um pixel.",
+    "codigoInicial": "; res = valor com os nibbles trocados\nvalor = $10\nres   = $11\n\n    ; seu código aqui\n    BRK",
+    "solucao": "valor = $10\nres   = $11\n\n    LDA valor\n    ASL A\n    ASL A\n    ASL A\n    ASL A          ; o nibble baixo sobe\n    STA res\n    LDA valor\n    LSR A\n    LSR A\n    LSR A\n    LSR A          ; o nibble alto desce\n    ORA res\n    STA res\n    BRK",
+    "dicas": [
+     "Faça duas peças e junte: uma com o nibble baixo na posição de cima, outra com o nibble alto na posição de baixo.",
+     "`ASL A` quatro vezes empurra o nibble baixo para cima (o alto cai fora). `LSR A` quatro vezes desce o nibble alto (o baixo cai fora).",
+     "Guarde a primeira peça em `res`, recarregue `valor`, faça os quatro `LSR`, junte com `ORA res` e grave de novo em `res`."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "$AB",
+      "visivel": true,
+      "setup": {
+       "valor": 171,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 186
+       }
+      }
+     },
+     {
+      "nome": "$12",
+      "visivel": true,
+      "setup": {
+       "valor": 18,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 33
+       }
+      }
+     },
+     {
+      "nome": "$00",
+      "visivel": false,
+      "dica": "falhou com 00h",
+      "setup": {
+       "valor": 0,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "$FF",
+      "visivel": false,
+      "dica": "falhou com FFh",
+      "setup": {
+       "valor": 255,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "$F0",
+      "visivel": false,
+      "dica": "falhou com F0h: o nibble alto vira o baixo",
+      "setup": {
+       "valor": 240,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 15
+       }
+      }
+     },
+     {
+      "nome": "$0F",
+      "visivel": false,
+      "dica": "falhou com 0Fh: o nibble baixo vira o alto",
+      "setup": {
+       "valor": 15,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 240
+       }
+      }
+     },
+     {
+      "nome": "$81",
+      "visivel": false,
+      "dica": "falhou com 81h",
+      "setup": {
+       "valor": 129,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 24
+       }
+      }
+     },
+     {
+      "nome": "$3C",
+      "visivel": false,
+      "dica": "falhou com 3Ch",
+      "setup": {
+       "valor": 60,
+       "res": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 195
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 19,
+     "ciclos": 31,
+     "exigir": [
+      "ASL",
+      "LSR",
+      "ORA"
+     ]
+    }
+   },
+   {
+    "id": "6502-013-contar-bits-ligados",
+    "linguagem": "6502",
+    "titulo": "Contar bits ligados",
+    "dificuldade": "facil",
+    "trilha": "bits",
+    "tags": [
+     "lsr",
+     "carry",
+     "laço",
+     "popcount"
+    ],
+    "prerequisitos": [
+     "6502-010-separar-os-nibbles"
+    ],
+    "aula": null,
+    "enunciado": "Conte quantos bits valem **1** em `n` e guarde em `res`.\n\n## Exemplos\n\n| n | res |\n|---|---|\n| `$00` | 0 |\n| `$FF` | 8 |\n| `$55` | 4 |\n| `$80` | 1 |\n\n## Restrições\n\n- `n` não precisa ser preservado.",
+    "contrato": "Memória: `n` ($10) e `res` ($11). Os testes preenchem `n` e conferem `res`.",
+    "editorial": "Contar bits ligados (*population count*) é uma conta clássica: o 6502 resolve com um laço de até 8 voltas, olhando o carry. Uma tabela de 256 bytes responderia em 4 ciclos, mas gastaria 256 bytes de ROM: o clássico compromisso entre **memória e tempo**.\n\nNote como o laço reaproveita os flags: o `LSR` atualiza Z e C ao mesmo tempo, então o teste de fim (`BNE`) e o teste do bit (`BCC`) saem de graça, sem nenhum `CMP`.",
+    "codigoInicial": "; res = quantidade de bits 1 em n\nn   = $10\nres = $11\n\n    ; seu código aqui\n    BRK",
+    "solucao": "n   = $10\nres = $11\n\n    LDA n\n    LDX #0\nlaco:\n    LSR A          ; o bit que sai vai para o carry\n    BCC sem\n    INX\nsem:\n    BNE laco       ; para quando A chega a zero\n    STX res\n    BRK",
+    "dicas": [
+     "`LSR A` empurra o bit 0 para o **carry** e desloca o resto. Olhar o carry depois de cada `LSR` diz se aquele bit era 1.",
+     "Use `X` como contador. Depois de cada `LSR`, `BCC` pula o `INX` quando o bit era 0. Repita enquanto o acumulador não for zero.",
+     "O `LSR` também atualiza o flag Z: ele liga quando A chega a 0. Use `BNE laco` no fim para continuar enquanto sobrar bit. Grave o contador com `STX res`."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "n = $00",
+      "visivel": true,
+      "setup": {
+       "n": 0,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "n = $FF",
+      "visivel": true,
+      "setup": {
+       "n": 255,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 8
+       }
+      }
+     },
+     {
+      "nome": "n = $01",
+      "visivel": false,
+      "dica": "falhou com 1 (um bit só)",
+      "setup": {
+       "n": 1,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "n = $80",
+      "visivel": false,
+      "dica": "falhou com 80h: o bit 7 também conta",
+      "setup": {
+       "n": 128,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "n = $55",
+      "visivel": false,
+      "dica": "falhou com 55h",
+      "setup": {
+       "n": 85,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 4
+       }
+      }
+     },
+     {
+      "nome": "n = $AA",
+      "visivel": false,
+      "dica": "falhou com AAh",
+      "setup": {
+       "n": 170,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 4
+       }
+      }
+     },
+     {
+      "nome": "n = $07",
+      "visivel": false,
+      "dica": "falhou com 7",
+      "setup": {
+       "n": 7,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 3
+       }
+      }
+     },
+     {
+      "nome": "n = $F0",
+      "visivel": false,
+      "dica": "falhou com F0h",
+      "setup": {
+       "n": 240,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 4
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 13,
+     "ciclos": 87,
+     "exigir": [
+      "LSR"
+     ]
+    }
+   },
+   {
+    "id": "6502-014-maximo-de-dois",
+    "linguagem": "6502",
+    "titulo": "Máximo de dois",
+    "dificuldade": "facil",
+    "trilha": "decisoes",
+    "tags": [
+     "cmp",
+     "bcs",
+     "desvio",
+     "máximo"
+    ],
+    "prerequisitos": [
+     "6502-001-guardar-o-valor"
+    ],
+    "aula": null,
+    "enunciado": "Guarde em `max` o **maior** entre `a` e `b` (números de 8 bits **sem sinal**, de 0 a 255).\n\n## Exemplos\n\n| a | b | max |\n|---|---|---|\n| 5 | 9 | 9 |\n| 9 | 5 | 9 |\n| 7 | 7 | 7 |\n| 255 | 0 | 255 |\n\n## Restrições\n\n- A comparação é sem sinal: 128 é maior que 127.",
+    "contrato": "Memória: `a` ($10), `b` ($11) e `max` ($12). Os testes preenchem `a` e `b` e conferem `max`.",
+    "editorial": "No 6502, **C é o flag de \"maior ou igual\" sem sinal** depois de um `CMP`: `BCS` desvia quando `A >= valor` e `BCC` quando `A < valor`. Para igualdade há `BEQ`/`BNE` (flag Z). Não existe um \"menor ou igual\" direto: combina-se `BCC` com `BEQ`.\n\nPara comparações **com sinal** o 6502 não tem desvios prontos como o 8086 (`JG`, `JL`): é preciso olhar N e V juntos, ou somar `$80` aos dois lados para transformar sinal em ordem. A comparação sem sinal, como esta, é a mais simples e a mais usada.",
+    "codigoInicial": "; max = o maior entre a e b\na   = $10\nb   = $11\nmax = $12\n\n    ; seu código aqui\n    BRK",
+    "solucao": "a   = $10\nb   = $11\nmax = $12\n\n    LDA a\n    CMP b          ; compara A com b (sem guardar o resultado)\n    BCS grava      ; C ligado: a >= b, então A já é o maior\n    LDA b\ngrava:\n    STA max\n    BRK",
+    "dicas": [
+     "`CMP` subtrai sem guardar o resultado, só ajusta os flags. Para números sem sinal, o flag **C** fica ligado quando `A >= valor`.",
+     "Carregue `a`, compare com `b` e use `BCS` (desvia se C ligado) para pular o carregamento de `b` quando `a` já for o maior.",
+     "Termine em um rótulo comum que faz `STA max`: assim os dois caminhos gravam o resultado no mesmo lugar."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "5 e 9",
+      "visivel": true,
+      "setup": {
+       "a": 5,
+       "b": 9,
+       "max": 77
+      },
+      "espera": {
+       "mem": {
+        "max": 9
+       }
+      }
+     },
+     {
+      "nome": "9 e 5",
+      "visivel": true,
+      "setup": {
+       "a": 9,
+       "b": 5,
+       "max": 77
+      },
+      "espera": {
+       "mem": {
+        "max": 9
+       }
+      }
+     },
+     {
+      "nome": "7 e 7",
+      "visivel": false,
+      "dica": "falhou com valores iguais",
+      "setup": {
+       "a": 7,
+       "b": 7,
+       "max": 77
+      },
+      "espera": {
+       "mem": {
+        "max": 7
+       }
+      }
+     },
+     {
+      "nome": "0 e 255",
+      "visivel": false,
+      "dica": "falhou com 0 e 255",
+      "setup": {
+       "a": 0,
+       "b": 255,
+       "max": 77
+      },
+      "espera": {
+       "mem": {
+        "max": 255
+       }
+      }
+     },
+     {
+      "nome": "255 e 0",
+      "visivel": false,
+      "dica": "falhou com 255 e 0 (o maior é o primeiro)",
+      "setup": {
+       "a": 255,
+       "b": 0,
+       "max": 77
+      },
+      "espera": {
+       "mem": {
+        "max": 255
+       }
+      }
+     },
+     {
+      "nome": "128 e 127",
+      "visivel": false,
+      "dica": "falhou com 128 e 127: a comparação é sem sinal",
+      "setup": {
+       "a": 128,
+       "b": 127,
+       "max": 77
+      },
+      "espera": {
+       "mem": {
+        "max": 128
+       }
+      }
+     },
+     {
+      "nome": "0 e 0",
+      "visivel": false,
+      "dica": "falhou com 0 e 0",
+      "setup": {
+       "a": 0,
+       "b": 0,
+       "max": 77
+      },
+      "espera": {
+       "mem": {
+        "max": 0
+       }
+      }
+     },
+     {
+      "nome": "100 e 200",
+      "visivel": false,
+      "dica": "falhou com 100 e 200",
+      "setup": {
+       "a": 100,
+       "b": 200,
+       "max": 77
+      },
+      "espera": {
+       "mem": {
+        "max": 200
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 11,
+     "ciclos": 14,
+     "exigir": [
+      "CMP"
+     ]
+    }
+   },
+   {
+    "id": "6502-015-sinal-do-numero",
+    "linguagem": "6502",
+    "titulo": "Sinal do número",
+    "dificuldade": "facil",
+    "trilha": "decisoes",
+    "tags": [
+     "beq",
+     "bmi",
+     "sinal",
+     "flag n"
+    ],
+    "prerequisitos": [
+     "6502-014-maximo-de-dois"
+    ],
+    "aula": null,
+    "enunciado": "Trate `valor` como um número **com sinal** de 8 bits (-128 a 127) e grave em `res`:\n\n- `0` se `valor` for zero;\n- `1` se for positivo;\n- `$FF` (que vale -1) se for negativo.\n\n## Exemplos\n\n| valor | res |\n|---|---|\n| 5 | `$01` |\n| 0 | `$00` |\n| 255 (`$FF`, vale -1) | `$FF` |\n| 128 (`$80`, vale -128) | `$FF` |\n\n## Restrições\n\n- Um byte é negativo quando o **bit 7** está ligado.",
+    "contrato": "Memória: `valor` ($10) e `res` ($11). Os testes preenchem `valor` e conferem `res`.",
+    "editorial": "O flag **N** é uma cópia do bit 7 do último resultado, e é o que o 6502 usa para \"negativo\" em aritmética de complemento de dois. Como quase toda instrução que escreve em A ou nos índices atualiza N e Z, muitos testes viram um simples desvio, sem `CMP`: `LDA valor` e `BMI` são a forma barata de perguntar \"esse byte é negativo?\".\n\nO truque `LDA #1` + `BNE` imita um `JMP` curto: o 6502 não tem desvio incondicional relativo (só `JMP` absoluto, de 3 bytes), então um `BNE` depois de carregar um valor diferente de zero economiza 1 byte.",
+    "codigoInicial": "; res = sinal de valor (0, 1 ou $FF)\nvalor = $10\nres   = $11\n\n    ; seu código aqui\n    BRK",
+    "solucao": "valor = $10\nres   = $11\n\n    LDA valor\n    BEQ grava      ; zero: A já vale 0\n    BMI neg        ; bit 7 ligado: negativo\n    LDA #1\n    BNE grava      ; A = 1, o desvio sempre acontece\nneg:\n    LDA #$FF\ngrava:\n    STA res\n    BRK",
+    "dicas": [
+     "O `LDA` já atualiza dois flags: **Z** (resultado zero) e **N** (bit 7 ligado). Você não precisa de `CMP` para perguntar se o valor é zero ou negativo.",
+     "Depois de `LDA valor`: `BEQ` trata o zero (A já vale 0, pode gravar) e `BMI` trata o negativo. O que sobrar é positivo.",
+     "Em cada caminho deixe o valor certo em A (0, 1 ou $FF) e termine em um `STA res` comum. Para pular com um desvio incondicional, use `BNE` logo depois de `LDA #1` (o Z fica desligado)."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "5 (positivo)",
+      "visivel": true,
+      "setup": {
+       "valor": 5,
+       "res": 55
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "0 (zero)",
+      "visivel": true,
+      "setup": {
+       "valor": 0,
+       "res": 55
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "255 (negativo)",
+      "visivel": false,
+      "dica": "falhou com 255 (que vale -1 com sinal)",
+      "setup": {
+       "valor": 255,
+       "res": 55
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "128 (negativo)",
+      "visivel": false,
+      "dica": "falhou com 128 (o menor número negativo, -128)",
+      "setup": {
+       "valor": 128,
+       "res": 55
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "127 (positivo)",
+      "visivel": false,
+      "dica": "falhou com 127 (o maior positivo)",
+      "setup": {
+       "valor": 127,
+       "res": 55
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "1 (positivo)",
+      "visivel": false,
+      "dica": "falhou com 1",
+      "setup": {
+       "valor": 1,
+       "res": 55
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "200 (negativo)",
+      "visivel": false,
+      "dica": "falhou com 200 (negativo: -56)",
+      "setup": {
+       "valor": 200,
+       "res": 55
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "100 (positivo)",
+      "visivel": false,
+      "dica": "falhou com 100",
+      "setup": {
+       "valor": 100,
+       "res": 55
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 15,
+     "ciclos": 15,
+     "exigir": [
+      "BMI"
+     ]
+    }
+   },
+   {
+    "id": "6502-016-dentro-do-intervalo",
+    "linguagem": "6502",
+    "titulo": "Dentro do intervalo",
+    "dificuldade": "facil",
+    "trilha": "decisoes",
+    "tags": [
+     "cmp",
+     "bcc",
+     "intervalo",
+     "limites"
+    ],
+    "prerequisitos": [
+     "6502-014-maximo-de-dois"
+    ],
+    "aula": null,
+    "enunciado": "Grave em `res` o valor **1** se `valor` estiver entre **10 e 20, inclusive**, e **0** caso contrário. `valor` é sem sinal (0 a 255).\n\n## Exemplos\n\n| valor | res |\n|---|---|\n| 15 | 1 |\n| 9 | 0 |\n| 10 | 1 |\n| 20 | 1 |\n| 21 | 0 |\n\n## Restrições\n\n- Os dois limites (10 e 20) valem: são \"dentro\".",
+    "contrato": "Memória: `valor` ($10) e `res` ($11). Os testes preenchem `valor` e conferem `res`.",
+    "editorial": "Para testar um intervalo fechado `[baixo, cima]` com sinais sem sinal, o idioma mais curto é usar **dois** `CMP`: `A < baixo` (BCC) e `A >= cima + 1` (BCS). Não há \"maior que\" no 6502, apenas \"maior ou igual\" (`BCS`); por isso o limite de cima vira `cima + 1`.\n\nHá ainda uma forma sem desvios duplos: `SEC; SBC #10; CMP #11; BCC dentro`, que subtrai o limite de baixo e compara uma única vez (o \"truque do intervalo sem sinal\"). Aqui, a versão com dois `CMP` é mais legível.",
+    "codigoInicial": "; res = 1 se 10 <= valor <= 20, senão 0\nvalor = $10\nres   = $11\n\n    ; seu código aqui\n    BRK",
+    "solucao": "valor = $10\nres   = $11\n\n    LDA valor\n    CMP #10\n    BCC fora       ; valor < 10\n    CMP #21\n    BCS fora       ; valor >= 21, ou seja, valor > 20\n    LDA #1\n    BNE grava\nfora:\n    LDA #0\ngrava:\n    STA res\n    BRK",
+    "dicas": [
+     "Dois testes seguidos: um para o limite de baixo e outro para o de cima. Um `CMP` não destrói o acumulador, então pode ser repetido.",
+     "\"Menor que 10\" é `CMP #10` + `BCC`. \"Maior que 20\" não tem desvio direto, mas \"maior ou igual a 21\" tem: `CMP #21` + `BCS`.",
+     "Se nenhum dos dois desvios acontecer, está dentro: `LDA #1`. Os dois desvios apontam para o caminho que faz `LDA #0`. Termine em um `STA res` comum."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "15",
+      "visivel": true,
+      "setup": {
+       "valor": 15,
+       "res": 55
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "9",
+      "visivel": true,
+      "setup": {
+       "valor": 9,
+       "res": 55
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "10",
+      "visivel": false,
+      "dica": "falhou com 10 (o limite de baixo vale)",
+      "setup": {
+       "valor": 10,
+       "res": 55
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "20",
+      "visivel": false,
+      "dica": "falhou com 20 (o limite de cima vale)",
+      "setup": {
+       "valor": 20,
+       "res": 55
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "21",
+      "visivel": false,
+      "dica": "falhou com 21 (já passou do limite)",
+      "setup": {
+       "valor": 21,
+       "res": 55
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "0",
+      "visivel": false,
+      "dica": "falhou com 0",
+      "setup": {
+       "valor": 0,
+       "res": 55
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "255",
+      "visivel": false,
+      "dica": "falhou com 255",
+      "setup": {
+       "valor": 255,
+       "res": 55
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "100",
+      "visivel": false,
+      "dica": "falhou com 100",
+      "setup": {
+       "valor": 100,
+       "res": 55
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 19,
+     "ciclos": 19,
+     "exigir": [
+      "CMP"
+     ]
+    }
+   },
+   {
+    "id": "6502-017-soma-do-vetor",
+    "linguagem": "6502",
+    "titulo": "Soma do vetor",
+    "dificuldade": "facil",
+    "trilha": "vetores",
+    "tags": [
+     "laço",
+     "indexado",
+     "adc",
+     "cpx"
+    ],
+    "prerequisitos": [
+     "6502-005-somar-dois-bytes"
+    ],
+    "aula": null,
+    "enunciado": "Some os `n` bytes de `vetor` e guarde o resultado de **8 bits** (módulo 256) em `res`.\n\n## Exemplos\n\n| vetor | n | res |\n|---|---|---|\n| 1, 2, 3, 4 | 4 | 10 |\n| (vazio) | 0 | 0 |\n| 200, 100 | 2 | 44 |\n| 255, 1 | 2 | 0 |\n\n## Restrições\n\n- `n` vai de 0 a 20.\n- A soma é módulo 256: o que passar de 255 é descartado.",
+    "contrato": "Memória: `vetor` ($0200, 20 bytes), `n` ($20) e `res` ($21). Os testes preenchem `vetor` e `n` e conferem `res`.",
+    "editorial": "O acumulador guarda o total, e o registrador X faz o papel do índice: o modo `vetor,X` (absoluto indexado) soma o conteúdo de X ao endereço-base. O teste de fim é um `CPX n` + `BEQ`: comparar no começo do laço trata `n = 0` sem nenhum código extra.\n\nO ponto traiçoeiro é o carry: o `ADC` **sempre** soma o carry da conta anterior, e como aqui a soma é de 8 bits (módulo 256), cada estouro seria contado de novo na iteração seguinte. O `CLC` dentro do laço resolve. Para somar de verdade além de 255, o certo seria acumular em 16 bits e propagar o carry para um segundo byte.",
+    "codigoInicial": "; res = soma dos n bytes de vetor\nvetor = $0200   ; até 20 bytes\nn     = $20\nres   = $21\n\n    ; seu código aqui\n    BRK",
+    "solucao": "vetor = $0200\nn     = $20\nres   = $21\n\n    LDX #0\n    LDA #0\nlaco:\n    CPX n\n    BEQ fim\n    CLC            ; a cada soma, o vai-um anterior não entra\n    ADC vetor,X\n    INX\n    BNE laco       ; X nunca chega a 0 com n <= 20\nfim:\n    STA res\n    BRK",
+    "dicas": [
+     "Use `X` como índice. O endereçamento **indexado** `vetor,X` lê o byte `vetor + X`.",
+     "Um laço: compare `X` com `n` (`CPX n`) e saia quando forem iguais (`BEQ`). Dentro, some `vetor,X` ao acumulador e incremente `X`.",
+     "Cuidado com o carry: se uma soma passar de 255, o flag C fica ligado e o próximo `ADC` soma 1 a mais. Coloque `CLC` **dentro** do laço, antes de cada `ADC`."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "soma de 1, 2, 3, 4",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        1,
+        2,
+        3,
+        4
+       ],
+       "n": 4,
+       "res": 77,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 10
+       }
+      }
+     },
+     {
+      "nome": "soma de 10",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        10
+       ],
+       "n": 1,
+       "res": 77,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 10
+       }
+      }
+     },
+     {
+      "nome": "soma de vetor vazio",
+      "visivel": false,
+      "dica": "falhou com n = 0: a soma é 0",
+      "setup": {
+       "vetor": [],
+       "n": 0,
+       "res": 77,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "soma de 200, 100",
+      "visivel": false,
+      "dica": "falhou com 200 + 100: o resultado é 44 (8 bits)",
+      "setup": {
+       "vetor": [
+        200,
+        100
+       ],
+       "n": 2,
+       "res": 77,
+       "C": 1
+      },
+      "espera": {
+       "mem": {
+        "res": 44
+       }
+      }
+     },
+     {
+      "nome": "soma de 255, 1",
+      "visivel": false,
+      "dica": "falhou com 255 + 1",
+      "setup": {
+       "vetor": [
+        255,
+        1
+       ],
+       "n": 2,
+       "res": 77,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "soma de 5, 5, 5, 5, 5...",
+      "visivel": false,
+      "dica": "falhou com 20 elementos iguais a 5 (100)",
+      "setup": {
+       "vetor": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+       ],
+       "n": 20,
+       "res": 77,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 100
+       }
+      }
+     },
+     {
+      "nome": "soma de 100, 100, 100, 100",
+      "visivel": false,
+      "dica": "falhou com 4 x 100 (400 mod 256 = 144)",
+      "setup": {
+       "vetor": [
+        100,
+        100,
+        100,
+        100
+       ],
+       "n": 4,
+       "res": 77,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 144
+       }
+      }
+     },
+     {
+      "nome": "soma de 1, 2, 3, 4, 5...",
+      "visivel": false,
+      "dica": "falhou com 12 elementos",
+      "setup": {
+       "vetor": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+       ],
+       "n": 12,
+       "res": 77,
+       "C": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 78
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 18,
+     "ciclos": 333,
+     "exigir": [
+      "ADC",
+      "CPX"
+     ]
+    }
+   },
+   {
+    "id": "6502-018-maior-elemento",
+    "linguagem": "6502",
+    "titulo": "Maior elemento",
+    "dificuldade": "facil",
+    "trilha": "vetores",
+    "tags": [
+     "laço",
+     "cmp",
+     "máximo",
+     "indexado"
+    ],
+    "prerequisitos": [
+     "6502-014-maximo-de-dois",
+     "6502-017-soma-do-vetor"
+    ],
+    "aula": null,
+    "enunciado": "Guarde em `res` o **maior** elemento de `vetor`. Os `n` elementos são bytes **sem sinal** e `n` vai de **1** a 20 (o vetor nunca é vazio).\n\n## Exemplos\n\n| vetor | res |\n|---|---|\n| 3, 9, 2 | 9 |\n| 7 | 7 |\n| 5, 4, 3, 2, 1 | 5 |\n| 255, 0, 128 | 255 |\n\n## Restrições\n\n- A comparação é sem sinal.",
+    "contrato": "Memória: `vetor` ($0200, 20 bytes), `n` ($20) e `res` ($21). Os testes preenchem `vetor` e `n` e conferem `res`.",
+    "editorial": "É a busca de máximo mais curta possível: o acumulador guarda o **melhor até agora**, e o `CMP` com o elemento decide se ele é substituído. Nenhuma variável extra, nenhum desvio duplo.\n\nO desvio de saída usa `BCS` em vez de `BEQ` porque a condição é \"X **maior ou igual** a n\": se `n` fosse 0 (fora do enunciado), `BEQ` não pararia nunca, enquanto `BCS` pararia na primeira volta. Preferir a comparação mais ampla é um hábito que protege o laço contra entradas inesperadas.",
+    "codigoInicial": "; res = o maior elemento de vetor\nvetor = $0200\nn     = $20\nres   = $21\n\n    ; seu código aqui\n    BRK",
+    "solucao": "vetor = $0200\nn     = $20\nres   = $21\n\n    LDA vetor      ; começa com o primeiro\n    LDX #1\nlaco:\n    CPX n\n    BCS fim        ; X >= n: acabou\n    CMP vetor,X\n    BCS segue      ; A >= elemento: A continua o maior\n    LDA vetor,X\nsegue:\n    INX\n    BNE laco\nfim:\n    STA res\n    BRK",
+    "dicas": [
+     "Comece supondo que o **primeiro** elemento é o maior; depois examine os demais, do segundo em diante.",
+     "Em cada volta: `CMP vetor,X` compara A com o elemento. Se `A >= elemento` (carry ligado), siga; senão carregue o elemento com `LDA vetor,X`.",
+     "O índice começa em 1 (`LDX #1`) e o laço termina quando `X >= n` (`CPX n` + `BCS`). Assim `n = 1` não faz nenhuma volta e `res` fica com o primeiro elemento."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "maior de 3, 9, 2",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        3,
+        9,
+        2
+       ],
+       "n": 3,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 9
+       }
+      }
+     },
+     {
+      "nome": "maior de 7",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        7
+       ],
+       "n": 1,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 7
+       }
+      }
+     },
+     {
+      "nome": "maior de 1, 2, 3, 4, 5",
+      "visivel": false,
+      "dica": "falhou com o maior no começo",
+      "setup": {
+       "vetor": [
+        1,
+        2,
+        3,
+        4,
+        5
+       ],
+       "n": 5,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 5
+       }
+      }
+     },
+     {
+      "nome": "maior de 5, 4, 3, 2, 1",
+      "visivel": false,
+      "dica": "falhou com todos zero",
+      "setup": {
+       "vetor": [
+        5,
+        4,
+        3,
+        2,
+        1
+       ],
+       "n": 5,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 5
+       }
+      }
+     },
+     {
+      "nome": "maior de 0, 0, 0",
+      "visivel": false,
+      "dica": "falhou com 255 no começo",
+      "setup": {
+       "vetor": [
+        0,
+        0,
+        0
+       ],
+       "n": 3,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "maior de 255, 0, 128",
+      "visivel": false,
+      "dica": "falhou com 128, 127, 126: a comparação é sem sinal",
+      "setup": {
+       "vetor": [
+        255,
+        0,
+        128
+       ],
+       "n": 3,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "maior de 128, 127, 126",
+      "visivel": false,
+      "dica": "falhou com o maior no meio",
+      "setup": {
+       "vetor": [
+        128,
+        127,
+        126
+       ],
+       "n": 3,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 128
+       }
+      }
+     },
+     {
+      "nome": "maior de 10, 200, 30, 200, 20",
+      "visivel": false,
+      "dica": "falhou com repetidos",
+      "setup": {
+       "vetor": [
+        10,
+        200,
+        30,
+        200,
+        20
+       ],
+       "n": 5,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 200
+       }
+      }
+     },
+     {
+      "nome": "maior de 78, 91, 231, 187, 98...",
+      "visivel": false,
+      "dica": "falhou com 20 elementos aleatórios",
+      "setup": {
+       "vetor": [
+        78,
+        91,
+        231,
+        187,
+        98,
+        138,
+        63,
+        234,
+        165,
+        186,
+        105,
+        129,
+        208,
+        35,
+        211,
+        239,
+        197,
+        139,
+        37,
+        195
+       ],
+       "n": 20,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 239
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 23,
+     "ciclos": 350,
+     "exigir": [
+      "CMP"
+     ]
+    }
+   },
+   {
+    "id": "6502-019-preencher-o-vetor",
+    "linguagem": "6502",
+    "titulo": "Preencher o vetor",
+    "dificuldade": "facil",
+    "trilha": "vetores",
+    "tags": [
+     "laço",
+     "sta",
+     "indexado",
+     "dex"
+    ],
+    "prerequisitos": [
+     "6502-017-soma-do-vetor"
+    ],
+    "aula": null,
+    "enunciado": "Preencha os `n` primeiros bytes de `vetor` com o byte `valor`. Os demais elementos **não podem ser tocados**.\n\n## Exemplos\n\n| n | valor | vetor no final |\n|---|---|---|\n| 5 | 9 | 9, 9, 9, 9, 9, (o resto igual) |\n| 3 | 0 | 0, 0, 0, (o resto igual) |\n| 0 | 99 | (nada muda) |\n\n## Restrições\n\n- `n` vai de 0 a 20.\n- Vale a estrela de ciclos para quem fizer o laço sem `CPX`: contar para baixo poupa um teste por volta.",
+    "contrato": "Memória: `vetor` ($0200, 20 bytes), `n` ($20) e `valor` ($21). Os testes enchem o vetor de 7, preenchem `n` e `valor`, e conferem o vetor inteiro.",
+    "editorial": "Percorrer o vetor **de trás para frente** é o idioma do 6502: o fim do laço é \"X chegou a zero\", e o flag Z já diz isso depois de qualquer `DEX`. Compare com o laço crescente do desafio anterior: ele precisa de um `CPX` e um `BEQ`/`BCS` (2 instruções e 5 a 6 ciclos) em cada volta; este gasta só o `BNE` (3 ciclos). Com 20 elementos, são dezenas de ciclos poupados.\n\nO `STA` não mexe nos flags, e é isso que permite que o `BNE` olhe o resultado do `DEX` mesmo com um `STA` no meio. O caso `n = 0` precisa de proteção porque `DEX` de 0 dá 255, e o laço escreveria em 256 posições.",
+    "codigoInicial": "; vetor[0 .. n-1] = valor\nvetor = $0200\nn     = $20\nvalor = $21\n\n    ; seu código aqui\n    BRK",
+    "solucao": "vetor = $0200\nn     = $20\nvalor = $21\n\n    LDX n\n    BEQ fim\n    LDA valor\nlaco:\n    DEX\n    STA vetor,X    ; grava de trás para frente\n    BNE laco       ; o DEX deixou Z desligado enquanto X > 0\nfim:\n    BRK",
+    "dicas": [
+     "O jeito curto é contar **para baixo**: o `DEX` já atualiza o flag Z, então o desvio `BNE` usa o próprio `DEX` como teste de fim, sem `CPX`.",
+     "Comece com `X = n`. Em cada volta: `DEX` e depois `STA vetor,X`. O `STA` não altera flags, então o `BNE` seguinte olha o resultado do `DEX`.",
+     "Trate `n = 0` antes do laço (`LDX n` + `BEQ fim`), senão o primeiro `DEX` daria 255 e o programa sobrescreveria a memória."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "5 vezes o valor 9",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+       ],
+       "n": 5,
+       "valor": 9
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         9,
+         9,
+         9,
+         9,
+         9,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "nome": "3 vezes o valor 0",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+       ],
+       "n": 3,
+       "valor": 0
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         0,
+         0,
+         0,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "nome": "20 vezes o valor 255",
+      "visivel": false,
+      "dica": "falhou com 20 elementos (vetor cheio): preencha todos",
+      "setup": {
+       "vetor": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+       ],
+       "n": 20,
+       "valor": 255
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255
+        ]
+       }
+      }
+     },
+     {
+      "nome": "1 vezes o valor 42",
+      "visivel": false,
+      "dica": "falhou com 1 elemento",
+      "setup": {
+       "vetor": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+       ],
+       "n": 1,
+       "valor": 42
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         42,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "nome": "0 vezes o valor 99",
+      "visivel": false,
+      "dica": "falhou com n = 0: não mexa em nada",
+      "setup": {
+       "vetor": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+       ],
+       "n": 0,
+       "valor": 99
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "nome": "10 vezes o valor 128",
+      "visivel": false,
+      "dica": "falhou com 10 elementos",
+      "setup": {
+       "vetor": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+       ],
+       "n": 10,
+       "valor": 128
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         128,
+         128,
+         128,
+         128,
+         128,
+         128,
+         128,
+         128,
+         128,
+         128,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "nome": "19 vezes o valor 1",
+      "visivel": false,
+      "dica": "falhou com 19 elementos: o último (vetor[19]) não pode ser tocado",
+      "setup": {
+       "vetor": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+       ],
+       "n": 19,
+       "valor": 1
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         1,
+         1,
+         1,
+         1,
+         1,
+         1,
+         1,
+         1,
+         1,
+         1,
+         1,
+         1,
+         1,
+         1,
+         1,
+         1,
+         1,
+         1,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "nome": "8 vezes o valor 200",
+      "visivel": false,
+      "dica": "falhou com 8 elementos",
+      "setup": {
+       "vetor": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+       ],
+       "n": 8,
+       "valor": 200
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         200,
+         200,
+         200,
+         200,
+         200,
+         200,
+         200,
+         200,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7,
+         7
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 13,
+     "ciclos": 207,
+     "exigir": [
+      "DEX"
+     ],
+     "proibir": [
+      "CPX"
+     ]
+    }
+   },
+   {
+    "id": "6502-020-copiar-bloco",
+    "linguagem": "6502",
+    "titulo": "Copiar bloco",
+    "dificuldade": "facil",
+    "trilha": "vetores",
+    "tags": [
+     "laço",
+     "lda",
+     "sta",
+     "indexado"
+    ],
+    "prerequisitos": [
+     "6502-017-soma-do-vetor"
+    ],
+    "aula": null,
+    "enunciado": "Copie os `n` primeiros bytes de `origem` para `destino`. Os outros bytes do destino **não podem mudar**, e a origem não pode ser alterada.\n\n## Exemplos\n\n| origem | n | destino no final |\n|---|---|---|\n| 1, 2, 3 | 3 | 1, 2, 3, (o resto igual) |\n| 9 | 1 | 9, (o resto igual) |\n| (vazio) | 0 | (nada muda) |\n\n## Restrições\n\n- `n` vai de 0 a 20.",
+    "contrato": "Memória: `origem` ($0200), `destino` ($0220) e `n` ($20). Os testes enchem o destino com 99, preenchem a origem e conferem o destino e a origem.",
+    "editorial": "Copiar blocos de memória é a operação mais frequente em qualquer programa de 8 bits (telas, tabelas, cópias de fontes). O 6502 não tem instrução de bloco como o `MOVSB` do 8086: o laço `LDA origem,X` / `STA destino,X` é o idioma, gastando 9 ciclos por byte copiado (4 + 5).\n\nDois detalhes: o índice de 8 bits limita a cópia a 256 bytes por laço (blocos maiores precisam de um ponteiro de 16 bits e o endereçamento `(zp),Y`, que o desafio de ponteiros mostra), e o laço **crescente** costuma ser a escolha segura quando origem e destino se sobrepõem na direção certa.",
+    "codigoInicial": "; destino[0 .. n-1] = origem[0 .. n-1]\norigem  = $0200\ndestino = $0220\nn       = $20\n\n    ; seu código aqui\n    BRK",
+    "solucao": "origem  = $0200\ndestino = $0220\nn       = $20\n\n    LDX #0\nlaco:\n    CPX n\n    BEQ fim\n    LDA origem,X\n    STA destino,X\n    INX\n    BNE laco\nfim:\n    BRK",
+    "dicas": [
+     "É o padrão \"carrega e guarda\" do primeiro desafio, repetido `n` vezes com um índice.",
+     "Use `X` de 0 até `n - 1`: `LDA origem,X` e `STA destino,X`. Compare `X` com `n` no começo do laço, para tratar `n = 0`.",
+     "Cada volta é: `CPX n`, `BEQ fim`, `LDA origem,X`, `STA destino,X`, `INX`, `BNE laco`."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "copiar 3 bytes",
+      "visivel": true,
+      "setup": {
+       "origem": [
+        1,
+        2,
+        3
+       ],
+       "destino": [
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99
+       ],
+       "n": 3
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         1,
+         2,
+         3,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99
+        ],
+        "origem": [
+         1,
+         2,
+         3
+        ]
+       }
+      }
+     },
+     {
+      "nome": "copiar 1 bytes",
+      "visivel": true,
+      "setup": {
+       "origem": [
+        9
+       ],
+       "destino": [
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99
+       ],
+       "n": 1
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         9,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99
+        ],
+        "origem": [
+         9
+        ]
+       }
+      }
+     },
+     {
+      "nome": "copiar 0 bytes",
+      "visivel": false,
+      "dica": "falhou com n = 0: o destino não muda",
+      "setup": {
+       "origem": [],
+       "destino": [
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99
+       ],
+       "n": 0
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99
+        ],
+        "origem": []
+       }
+      }
+     },
+     {
+      "nome": "copiar 6 bytes",
+      "visivel": false,
+      "dica": "falhou com 6 bytes",
+      "setup": {
+       "origem": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0
+       ],
+       "destino": [
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99
+       ],
+       "n": 6
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         5,
+         4,
+         3,
+         2,
+         1,
+         0,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99
+        ],
+        "origem": [
+         5,
+         4,
+         3,
+         2,
+         1,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "copiar 20 bytes",
+      "visivel": false,
+      "dica": "falhou com 20 bytes (vetor cheio)",
+      "setup": {
+       "origem": [
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255
+       ],
+       "destino": [
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99
+       ],
+       "n": 20
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255
+        ],
+        "origem": [
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255,
+         255
+        ]
+       }
+      }
+     },
+     {
+      "nome": "copiar 10 bytes",
+      "visivel": false,
+      "dica": "falhou com 10 bytes",
+      "setup": {
+       "origem": [
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        70,
+        80,
+        90,
+        100
+       ],
+       "destino": [
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99
+       ],
+       "n": 10
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         10,
+         20,
+         30,
+         40,
+         50,
+         60,
+         70,
+         80,
+         90,
+         100,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99
+        ],
+        "origem": [
+         10,
+         20,
+         30,
+         40,
+         50,
+         60,
+         70,
+         80,
+         90,
+         100
+        ]
+       }
+      }
+     },
+     {
+      "nome": "copiar 3 bytes",
+      "visivel": false,
+      "dica": "falhou com zeros e um 7",
+      "setup": {
+       "origem": [
+        0,
+        0,
+        7
+       ],
+       "destino": [
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99
+       ],
+       "n": 3
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         0,
+         0,
+         7,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99,
+         99
+        ],
+        "origem": [
+         0,
+         0,
+         7
+        ]
+       }
+      }
+     },
+     {
+      "nome": "copiar 15 bytes",
+      "visivel": false,
+      "dica": "falhou com 15 bytes aleatórios",
+      "setup": {
+       "origem": [
+        4,
+        112,
+        177,
+        31,
+        189,
+        165,
+        122,
+        154,
+        14,
+        209,
+        143,
+        52,
+        64,
+        78,
+        97
+       ],
+       "destino": [
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99,
+        99
+       ],
+       "n": 15
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         4,
+         112,
+         177,
+         31,
+         189,
+         165,
+         122,
+         154,
+         14,
+         209,
+         143,
+         52,
+         64,
+         78,
+         97,
+         99,
+         99,
+         99,
+         99,
+         99
+        ],
+        "origem": [
+         4,
+         112,
+         177,
+         31,
+         189,
+         165,
+         122,
+         154,
+         14,
+         209,
+         143,
+         52,
+         64,
+         78,
+         97
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 16,
+     "ciclos": 388,
+     "exigir": [
+      "LDA",
+      "STA"
+     ]
+    }
+   },
+   {
+    "id": "6502-021-inverter-o-vetor",
+    "linguagem": "6502",
+    "titulo": "Inverter o vetor",
+    "dificuldade": "facil",
+    "trilha": "vetores",
+    "tags": [
+     "laço",
+     "troca",
+     "pilha",
+     "dois índices"
+    ],
+    "prerequisitos": [
+     "6502-020-copiar-bloco"
+    ],
+    "aula": null,
+    "enunciado": "Inverta a ordem dos `n` primeiros bytes de `vetor`, **no próprio vetor** (sem usar um segundo vetor). O primeiro vira o último, o segundo o penúltimo etc.\n\n`n` vai de **1** a 20.\n\n## Exemplos\n\n| vetor | vetor no final |\n|---|---|\n| 1, 2, 3, 4 | 4, 3, 2, 1 |\n| 5 | 5 |\n| 1, 2, 3 | 3, 2, 1 |\n\n## Restrições\n\n- Não pode usar outro vetor como apoio. Variáveis soltas na zero page (`tmp`) e a pilha estão liberadas.",
+    "contrato": "Memória: `vetor` ($0200, 20 bytes), `n` ($20) e `tmp` ($22) livre para uso. Os testes preenchem `vetor` e `n` e conferem o vetor invertido.",
+    "editorial": "Duas idéias combinadas: o laço com **dois índices que se encontram no meio** (só `n / 2` voltas) e a **troca sem `XCHG`**. A pilha serve de memória temporária, e aqui ela sai de graça: `PHA` e `PLA` custam 3 + 4 ciclos e não gastam nenhuma posição de memória fixa.\n\nA comparação entre os índices passa por memória porque o 6502 só compara registrador com **memória ou constante**, nunca registrador com registrador. É uma limitação comum: sempre que precisar comparar X com Y, escreva um deles em uma posição livre.",
+    "codigoInicial": "; inverta vetor[0 .. n-1]\nvetor = $0200\nn     = $20\ntmp   = $22\n\n    ; seu código aqui\n    BRK",
+    "solucao": "vetor = $0200\nn     = $20\ntmp   = $22\n\n    LDY n\n    DEY            ; Y aponta para o último\n    LDX #0         ; X aponta para o primeiro\nlaco:\n    STY tmp\n    CPX tmp\n    BCS fim        ; os índices se cruzaram: terminou\n    LDA vetor,X\n    PHA            ; guarda o da esquerda\n    LDA vetor,Y\n    STA vetor,X\n    PLA\n    STA vetor,Y    ; o da esquerda vai para a direita\n    INX\n    DEY\n    JMP laco\nfim:\n    BRK",
+    "dicas": [
+     "Use **dois índices**: `X` começa no primeiro elemento e `Y` no último. A cada volta, troque os dois e aproxime-os (`INX` e `DEY`), até se cruzarem.",
+     "O 6502 não tem `XCHG`. Para trocar `vetor,X` com `vetor,Y`, guarde um dos dois (na pilha com `PHA`, ou em `tmp`), copie o outro e recupere o guardado.",
+     "Não existe `CPX` com `Y`: guarde o `Y` em `tmp` (`STY tmp`) e compare `CPX tmp`. Pare quando `X >= Y` (`BCS`). Com `n = 1`, `X = Y = 0`: não troca nada."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "inverter 4 elementos",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        1,
+        2,
+        3,
+        4
+       ],
+       "n": 4
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         4,
+         3,
+         2,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "nome": "inverter 1 elementos",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        5
+       ],
+       "n": 1
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         5
+        ]
+       }
+      }
+     },
+     {
+      "nome": "inverter 2 elementos",
+      "visivel": false,
+      "dica": "falhou com dois elementos: a troca precisa acontecer",
+      "setup": {
+       "vetor": [
+        1,
+        2
+       ],
+       "n": 2
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         2,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "nome": "inverter 3 elementos",
+      "visivel": false,
+      "dica": "falhou com três elementos: o do meio fica no lugar",
+      "setup": {
+       "vetor": [
+        1,
+        2,
+        3
+       ],
+       "n": 3
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         3,
+         2,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "nome": "inverter 10 elementos",
+      "visivel": false,
+      "dica": "falhou com 10 elementos",
+      "setup": {
+       "vetor": [
+        9,
+        8,
+        7,
+        6,
+        5,
+        4,
+        3,
+        2,
+        1,
+        0
+       ],
+       "n": 10
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         0,
+         1,
+         2,
+         3,
+         4,
+         5,
+         6,
+         7,
+         8,
+         9
+        ]
+       }
+      }
+     },
+     {
+      "nome": "inverter 20 elementos",
+      "visivel": false,
+      "dica": "falhou com 20 elementos (vetor cheio)",
+      "setup": {
+       "vetor": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+       ],
+       "n": 20
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         20,
+         19,
+         18,
+         17,
+         16,
+         15,
+         14,
+         13,
+         12,
+         11,
+         10,
+         9,
+         8,
+         7,
+         6,
+         5,
+         4,
+         3,
+         2,
+         1
+        ]
+       }
+      }
+     },
+     {
+      "nome": "inverter 3 elementos",
+      "visivel": false,
+      "dica": "falhou com zeros e um 1",
+      "setup": {
+       "vetor": [
+        0,
+        0,
+        1
+       ],
+       "n": 3
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "inverter 13 elementos",
+      "visivel": false,
+      "dica": "falhou com 13 elementos (quantidade ímpar)",
+      "setup": {
+       "vetor": [
+        46,
+        97,
+        204,
+        112,
+        175,
+        177,
+        99,
+        159,
+        125,
+        119,
+        129,
+        179,
+        113
+       ],
+       "n": 13
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         113,
+         179,
+         129,
+         119,
+         125,
+         159,
+         99,
+         177,
+         175,
+         112,
+         204,
+         97,
+         46
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 31,
+     "ciclos": 416,
+     "exigir": [
+      "PHA",
+      "PLA"
+     ]
+    }
+   },
+   {
+    "id": "6502-022-procedimento-que-dobra",
+    "linguagem": "6502",
+    "titulo": "Procedimento que dobra",
+    "dificuldade": "facil",
+    "trilha": "procedimentos",
+    "tags": [
+     "jsr",
+     "rts",
+     "sub-rotina",
+     "pilha"
+    ],
+    "prerequisitos": [
+     "6502-008-multiplicar-por-10"
+    ],
+    "aula": null,
+    "enunciado": "Multiplique **A por 4** chamando **duas vezes** um procedimento chamado `dobra`, que multiplica A por 2 e retorna.\n\nO programa principal chama `dobra` com `JSR` e termina com `BRK`. O procedimento fica **depois** do `BRK`, termina com `RTS` e a pilha deve voltar ao estado inicial.\n\n## Exemplos\n\n| A antes | A depois |\n|---|---|\n| 1 | 4 |\n| 5 | 20 |\n| 64 | 0 |\n| 100 | 144 |\n\n## Restrições\n\n- O resultado é de 8 bits (módulo 256).\n- Use `JSR` para chamar e `RTS` para voltar.",
+    "contrato": "Registrador: A (entrada e saída). Os testes preenchem A e conferem A e a pilha equilibrada.",
+    "editorial": "`JSR` empilha o endereço da **última** instrução do `JSR` (e não da próxima: o 6502 guarda `endereço - 1`, e o `RTS` soma 1 ao desempilhar), e `RTS` volta. É por isso que sub-rotinas chamadas várias vezes não custam código extra: o `ASL A` fica escrito **uma vez**, e cada chamada gasta só 3 bytes e 6 ciclos de `JSR` mais 6 do `RTS`.\n\nPara algo tão pequeno, dois `ASL A` seguidos (2 bytes, 4 ciclos) vencem as duas chamadas (6 bytes e 24 ciclos). Procedimentos compensam quando o corpo é grande ou usado em muitos lugares. O juiz confere que a pilha termina equilibrada: um `JSR` sem `RTS` (ou o contrário) deixa o SP errado.",
+    "codigoInicial": "; A = A x 4, com um procedimento dobra chamado duas vezes\n\n\n    ; seu código aqui\n    BRK",
+    "solucao": "    JSR dobra\n    JSR dobra\n    BRK\n\ndobra:\n    ASL A\n    RTS",
+    "dicas": [
+     "`JSR rotulo` salva na pilha o endereço de retorno e salta; `RTS` tira da pilha e volta para a instrução seguinte ao `JSR`.",
+     "O procedimento fica **depois do `BRK`** (o programa principal acaba antes de chegar nele). Defina um rótulo `dobra:` e dentro dele faça `ASL A` e `RTS`.",
+     "Chame duas vezes: `JSR dobra` e `JSR dobra`, e termine com `BRK`. Se o `RTS` faltar, a execução cai em bytes que não são código."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "A = 1",
+      "visivel": true,
+      "setup": {
+       "A": 1
+      },
+      "espera": {
+       "A": 4,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 5",
+      "visivel": true,
+      "setup": {
+       "A": 5
+      },
+      "espera": {
+       "A": 20,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 0",
+      "visivel": false,
+      "dica": "falhou com A = 0",
+      "setup": {
+       "A": 0
+      },
+      "espera": {
+       "A": 0,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 63",
+      "visivel": false,
+      "dica": "falhou com A = 63: o resultado é 252",
+      "setup": {
+       "A": 63
+      },
+      "espera": {
+       "A": 252,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 64",
+      "visivel": false,
+      "dica": "falhou com A = 64: o resultado dá a volta (256 vira 0)",
+      "setup": {
+       "A": 64
+      },
+      "espera": {
+       "A": 0,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 100",
+      "visivel": false,
+      "dica": "falhou com A = 100: o resultado é 144",
+      "setup": {
+       "A": 100
+      },
+      "espera": {
+       "A": 144,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 200",
+      "visivel": false,
+      "dica": "falhou com A = 200",
+      "setup": {
+       "A": 200
+      },
+      "espera": {
+       "A": 32,
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A = 255",
+      "visivel": false,
+      "dica": "falhou com A = 255",
+      "setup": {
+       "A": 255
+      },
+      "espera": {
+       "A": 252,
+       "pilhaEquilibrada": true
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 9,
+     "ciclos": 28,
+     "exigir": [
+      "JSR",
+      "RTS"
+     ]
+    }
+   },
+   {
+    "id": "6502-023-preservar-os-registradores",
+    "linguagem": "6502",
+    "titulo": "Preservar os registradores",
+    "dificuldade": "facil",
+    "trilha": "procedimentos",
+    "tags": [
+     "jsr",
+     "pha",
+     "pla",
+     "preservar"
+    ],
+    "prerequisitos": [
+     "6502-022-procedimento-que-dobra"
+    ],
+    "aula": null,
+    "enunciado": "O procedimento `limpa` zera os 4 bytes de `bloco`. Ele precisa de A e de X para trabalhar, mas quem o chamou espera que **A, X e Y voltem com os mesmos valores**.\n\nComplete o procedimento: salve o que for alterar, faça o trabalho e restaure tudo antes do `RTS`.\n\n## Exemplos\n\n| A, X, Y antes | depois do JSR | bloco |\n|---|---|---|\n| 5, 6, 7 | 5, 6, 7 | 0, 0, 0, 0 |\n| 255, 255, 255 | 255, 255, 255 | 0, 0, 0, 0 |\n\n## Restrições\n\n- Salve e restaure com a **pilha** (`PHA` / `PLA`). Para guardar o X, passe por A.\n- A pilha deve terminar equilibrada.",
+    "contrato": "Memória: `bloco` ($0300, 4 bytes). Registradores: A, X e Y devem sair iguais ao que entraram. Os testes põem 9 em `bloco` e conferem os zeros, os registradores e a pilha.",
+    "editorial": "Não existem `PHX` e `PHY` no 6502 original (só no 65C02), então salvar X ou Y exige passar pelo acumulador: `TXA`, `PHA`. Na volta, a ordem é **inversa** (a pilha é LIFO): o último a entrar é o primeiro a sair. Trocar a ordem restaura os valores trocados, um erro típico.\n\nPreservar registradores é uma **convenção** (cada linguagem e cada sistema define a sua), e não uma regra do chip: a ROM do Apple II, por exemplo, documenta quais rotinas preservam o quê. O laço com `BPL` também é útil: ele termina quando X passa de 0 para 255 (bit 7 ligado), e assim processa o índice 0 sem precisar de `CPX`.",
+    "codigoInicial": "; limpa os 4 bytes de bloco e preserva A, X e Y\nbloco = $0300\n\n    JSR limpa\n    BRK\n\nlimpa:\n    ; seu código aqui\n    RTS",
+    "solucao": "bloco = $0300\n\n    JSR limpa\n    BRK\n\nlimpa:\n    PHA            ; salva A\n    TXA\n    PHA            ; salva X (passando por A)\n    LDA #0\n    LDX #3\nzera:\n    STA bloco,X\n    DEX\n    BPL zera       ; repete enquanto X não ficou negativo\n    PLA\n    TAX            ; restaura X\n    PLA            ; restaura A\n    RTS",
+    "dicas": [
+     "Quem chama não sabe o que a sub-rotina faz por dentro: ela tem a obrigação de devolver os registradores como encontrou. A pilha é o lugar natural para guardar.",
+     "No começo do procedimento: `PHA` guarda o A; `TXA` e `PHA` guardam o X. No fim, restaure em **ordem inversa**: `PLA` e `TAX` devolvem o X; depois `PLA` devolve o A.",
+     "O Y não é alterado pelo trabalho, então não precisa ser salvo. O laço `LDX #3` / `STA bloco,X` / `DEX` / `BPL` zera os 4 bytes, de X = 3 a 0."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "A, X, Y = 5, 6, 7",
+      "visivel": true,
+      "setup": {
+       "A": 5,
+       "X": 6,
+       "Y": 7,
+       "bloco": [
+        9,
+        9,
+        9,
+        9
+       ]
+      },
+      "espera": {
+       "A": 5,
+       "X": 6,
+       "Y": 7,
+       "mem": {
+        "bloco": [
+         0,
+         0,
+         0,
+         0
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A, X, Y = 0, 0, 0",
+      "visivel": true,
+      "setup": {
+       "A": 0,
+       "X": 0,
+       "Y": 0,
+       "bloco": [
+        9,
+        9,
+        9,
+        9
+       ]
+      },
+      "espera": {
+       "A": 0,
+       "X": 0,
+       "Y": 0,
+       "mem": {
+        "bloco": [
+         0,
+         0,
+         0,
+         0
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A, X, Y = 255, 255, 255",
+      "visivel": false,
+      "dica": "falhou com tudo zero",
+      "setup": {
+       "A": 255,
+       "X": 255,
+       "Y": 255,
+       "bloco": [
+        9,
+        9,
+        9,
+        9
+       ]
+      },
+      "espera": {
+       "A": 255,
+       "X": 255,
+       "Y": 255,
+       "mem": {
+        "bloco": [
+         0,
+         0,
+         0,
+         0
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A, X, Y = 1, 2, 3",
+      "visivel": false,
+      "dica": "falhou com todos 255: os registradores não podem mudar",
+      "setup": {
+       "A": 1,
+       "X": 2,
+       "Y": 3,
+       "bloco": [
+        9,
+        9,
+        9,
+        9
+       ]
+      },
+      "espera": {
+       "A": 1,
+       "X": 2,
+       "Y": 3,
+       "mem": {
+        "bloco": [
+         0,
+         0,
+         0,
+         0
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A, X, Y = 128, 64, 32",
+      "visivel": false,
+      "dica": "falhou com 1, 2 e 3",
+      "setup": {
+       "A": 128,
+       "X": 64,
+       "Y": 32,
+       "bloco": [
+        9,
+        9,
+        9,
+        9
+       ]
+      },
+      "espera": {
+       "A": 128,
+       "X": 64,
+       "Y": 32,
+       "mem": {
+        "bloco": [
+         0,
+         0,
+         0,
+         0
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A, X, Y = 9, 0, 200",
+      "visivel": false,
+      "dica": "falhou com 128, 64 e 32",
+      "setup": {
+       "A": 9,
+       "X": 0,
+       "Y": 200,
+       "bloco": [
+        9,
+        9,
+        9,
+        9
+       ]
+      },
+      "espera": {
+       "A": 9,
+       "X": 0,
+       "Y": 200,
+       "mem": {
+        "bloco": [
+         0,
+         0,
+         0,
+         0
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A, X, Y = 0, 77, 0",
+      "visivel": false,
+      "dica": "falhou com Y alto: o procedimento não pode alterar Y",
+      "setup": {
+       "A": 0,
+       "X": 77,
+       "Y": 0,
+       "bloco": [
+        9,
+        9,
+        9,
+        9
+       ]
+      },
+      "espera": {
+       "A": 0,
+       "X": 77,
+       "Y": 0,
+       "mem": {
+        "bloco": [
+         0,
+         0,
+         0,
+         0
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "A, X, Y = 100, 200, 50",
+      "visivel": false,
+      "dica": "falhou com X diferente de zero e A, Y zero",
+      "setup": {
+       "A": 100,
+       "X": 200,
+       "Y": 50,
+       "bloco": [
+        9,
+        9,
+        9,
+        9
+       ]
+      },
+      "espera": {
+       "A": 100,
+       "X": 200,
+       "Y": 50,
+       "mem": {
+        "bloco": [
+         0,
+         0,
+         0,
+         0
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 21,
+     "ciclos": 73,
+     "exigir": [
+      "PHA",
+      "PLA",
+      "RTS"
+     ]
+    }
+   },
+   {
+    "id": "6502-024-inverter-com-a-pilha",
+    "linguagem": "6502",
+    "titulo": "Inverter com a pilha",
+    "dificuldade": "facil",
+    "trilha": "pilha",
+    "tags": [
+     "pha",
+     "pla",
+     "lifo",
+     "inverter"
+    ],
+    "prerequisitos": [
+     "6502-021-inverter-o-vetor"
+    ],
+    "aula": null,
+    "enunciado": "Inverta a ordem dos 4 bytes de `dados` usando **a pilha**: empilhe os quatro, na ordem, e depois desempilhe de volta no mesmo lugar. A pilha é *LIFO* (o último a entrar é o primeiro a sair), então a ordem se inverte sozinha.\n\n## Exemplos\n\n| dados antes | dados depois |\n|---|---|\n| 1, 2, 3, 4 | 4, 3, 2, 1 |\n| 10, 20, 30, 40 | 40, 30, 20, 10 |\n\n## Restrições\n\n- Use `PHA` e `PLA`. A pilha deve terminar equilibrada.",
+    "contrato": "Memória: `dados` ($10, 4 bytes). Os testes preenchem `dados` e conferem os bytes invertidos e a pilha equilibrada.",
+    "editorial": "A pilha do 6502 mora na página 1 (`$0100` a `$01FF`) e tem só 256 bytes, mas é o jeito mais curto de inverter uma seqüência pequena: nenhuma variável temporária, nenhum cálculo de índices. `PHA` grava em `$0100 + SP` e decrementa o SP; `PLA` faz o contrário.\n\nO limite de 256 bytes de pilha é uma restrição real: um programa que empilha demais ou aninha muitas chamadas sobrescreve a si mesmo (o SP dá a volta dentro da página 1). Para blocos grandes, o certo é inverter com dois índices, como no desafio do vetor.",
+    "codigoInicial": "; inverta dados[0 .. 3] com a pilha\ndados = $10   ; 4 bytes\n\n    ; seu código aqui\n    BRK",
+    "solucao": "dados = $10\n\n    LDX #0\nempilha:\n    LDA dados,X\n    PHA\n    INX\n    CPX #4\n    BNE empilha\n    LDX #0\ndesempilha:\n    PLA\n    STA dados,X\n    INX\n    CPX #4\n    BNE desempilha\n    BRK",
+    "dicas": [
+     "A pilha devolve os bytes **na ordem contrária** da que entraram. Isso é exatamente a inversão que o enunciado pede.",
+     "Primeiro laço: para X de 0 a 3, `LDA dados,X` e `PHA`. Segundo laço: para X de 0 a 3, `PLA` e `STA dados,X`.",
+     "Os dois laços usam `CPX #4` para parar. O `STA` não altera os flags, então o `PLA` e o `INX` podem vir logo antes do `CPX`."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "dados = 1, 2, 3, 4",
+      "visivel": true,
+      "setup": {
+       "dados": [
+        1,
+        2,
+        3,
+        4
+       ]
+      },
+      "espera": {
+       "mem": {
+        "dados": [
+         4,
+         3,
+         2,
+         1
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "dados = 4, 3, 2, 1",
+      "visivel": true,
+      "setup": {
+       "dados": [
+        4,
+        3,
+        2,
+        1
+       ]
+      },
+      "espera": {
+       "mem": {
+        "dados": [
+         1,
+         2,
+         3,
+         4
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "dados = 0, 0, 0, 0",
+      "visivel": false,
+      "dica": "falhou com tudo zero",
+      "setup": {
+       "dados": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "dados": [
+         0,
+         0,
+         0,
+         0
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "dados = 255, 0, 255, 0",
+      "visivel": false,
+      "dica": "falhou com 255, 0, 255, 0",
+      "setup": {
+       "dados": [
+        255,
+        0,
+        255,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "dados": [
+         0,
+         255,
+         0,
+         255
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "dados = 10, 20, 30, 40",
+      "visivel": false,
+      "dica": "falhou com 10, 20, 30, 40",
+      "setup": {
+       "dados": [
+        10,
+        20,
+        30,
+        40
+       ]
+      },
+      "espera": {
+       "mem": {
+        "dados": [
+         40,
+         30,
+         20,
+         10
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "dados = 7, 7, 8, 8",
+      "visivel": false,
+      "dica": "falhou com repetidos em pares",
+      "setup": {
+       "dados": [
+        7,
+        7,
+        8,
+        8
+       ]
+      },
+      "espera": {
+       "mem": {
+        "dados": [
+         8,
+         8,
+         7,
+         7
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "dados = 1, 0, 0, 0",
+      "visivel": false,
+      "dica": "falhou com só o primeiro diferente de zero",
+      "setup": {
+       "dados": [
+        1,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "dados": [
+         0,
+         0,
+         0,
+         1
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "dados = 0, 0, 0, 1",
+      "visivel": false,
+      "dica": "falhou com só o último diferente de zero",
+      "setup": {
+       "dados": [
+        0,
+        0,
+        0,
+        1
+       ]
+      },
+      "espera": {
+       "mem": {
+        "dados": [
+         1,
+         0,
+         0,
+         0
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 21,
+     "ciclos": 118,
+     "exigir": [
+      "PHA",
+      "PLA"
+     ]
+    }
+   },
+   {
+    "id": "6502-025-ler-pelo-ponteiro",
+    "linguagem": "6502",
+    "titulo": "Ler pelo ponteiro",
+    "dificuldade": "facil",
+    "trilha": "enderecamento",
+    "tags": [
+     "ponteiro",
+     "indireto",
+     "ldy",
+     "zero page"
+    ],
+    "prerequisitos": [
+     "6502-001-guardar-o-valor"
+    ],
+    "aula": null,
+    "enunciado": "`ptr` guarda um **endereço** de 16 bits (byte baixo em `ptr`, alto em `ptr + 1`). Leia o byte que está nesse endereço e guarde em `res`.\n\n## Exemplos\n\n| ptr | byte em ptr | res |\n|---|---|---|\n| `$0300` | 42 | 42 |\n| `$0345` | 7 | 7 |\n| `$0040` | 128 | 128 |\n\n## Restrições\n\n- O endereço apontado muda em cada teste, então o programa precisa **usar** `ptr` (não pode fixar um endereço).",
+    "contrato": "Memória: `ptr` ($20-$21, o endereço), `res` ($22). Os testes colocam um endereço em `ptr`, um valor nesse endereço, e conferem `res`.",
+    "editorial": "O modo `(zp),Y` é o que o 6502 oferece no lugar dos registradores de 16 bits que ele não tem: um par de bytes na zero page vira um **ponteiro**, e `Y` serve de deslocamento (0 a 255). Percorrer um bloco maior que 256 bytes é só atualizar o byte alto do ponteiro.\n\nOs parênteses importam: `LDA ptr,Y` leria `ptr + Y` como endereço **do dado** (e o 6502 não tem esse modo para zero page), enquanto `LDA (ptr),Y` lê o endereço **guardado** em `ptr`. É a diferença entre uma variável e um ponteiro, em qualquer linguagem.",
+    "codigoInicial": "; res = o byte apontado por ptr\nptr = $20   ; endereço de 16 bits (baixo, alto)\nres = $22\n\n    ; seu código aqui\n    BRK",
+    "solucao": "ptr = $20\nres = $22\n\n    LDY #0\n    LDA (ptr),Y\n    STA res\n    BRK",
+    "dicas": [
+     "O 6502 acessa um endereço guardado na **zero page** com o modo **indireto indexado**: `LDA (ptr),Y`. Os parênteses indicam que `ptr` é o endereço do ponteiro, e não do dado.",
+     "O modo exige o registrador Y (some Y ao endereço lido do ponteiro). Para ler exatamente o byte apontado, deixe `Y = 0`: `LDY #0`.",
+     "`LDY #0`, `LDA (ptr),Y` e `STA res`. O ponteiro precisa estar na zero page: só lá o modo funciona."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "ler de $0300",
+      "visivel": true,
+      "setup": {
+       "ptr": {
+        "w": 768
+       },
+       "res": 77,
+       "$0300": 42
+      },
+      "espera": {
+       "mem": {
+        "res": 42
+       }
+      }
+     },
+     {
+      "nome": "ler de $0345",
+      "visivel": true,
+      "setup": {
+       "ptr": {
+        "w": 837
+       },
+       "res": 77,
+       "$0345": 7
+      },
+      "espera": {
+       "mem": {
+        "res": 7
+       }
+      }
+     },
+     {
+      "nome": "ler de $0200",
+      "visivel": false,
+      "dica": "falhou com o valor zero",
+      "setup": {
+       "ptr": {
+        "w": 512
+       },
+       "res": 77,
+       "$0200": 0
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "ler de $04FF",
+      "visivel": false,
+      "dica": "falhou com 255 no fim da página",
+      "setup": {
+       "ptr": {
+        "w": 1279
+       },
+       "res": 77,
+       "$04FF": 255
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "ler de $0040",
+      "visivel": false,
+      "dica": "falhou lendo da zero page ($0040)",
+      "setup": {
+       "ptr": {
+        "w": 64
+       },
+       "res": 77,
+       "$0040": 128
+      },
+      "espera": {
+       "mem": {
+        "res": 128
+       }
+      }
+     },
+     {
+      "nome": "ler de $0300",
+      "visivel": false,
+      "dica": "falhou com valor 1",
+      "setup": {
+       "ptr": {
+        "w": 768
+       },
+       "res": 77,
+       "$0300": 1
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "ler de $0500",
+      "visivel": false,
+      "dica": "falhou lendo de $0500",
+      "setup": {
+       "ptr": {
+        "w": 1280
+       },
+       "res": 77,
+       "$0500": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 99
+       }
+      }
+     },
+     {
+      "nome": "ler de $0301",
+      "visivel": false,
+      "dica": "falhou lendo de $0301",
+      "setup": {
+       "ptr": {
+        "w": 769
+       },
+       "res": 77,
+       "$0301": 200
+      },
+      "espera": {
+       "mem": {
+        "res": 200
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 7,
+     "ciclos": 10,
+     "exigir": [
+      "LDY"
+     ]
+    }
+   },
+   {
+    "id": "6502-026-tabela-de-quadrados",
+    "linguagem": "6502",
+    "titulo": "Tabela de quadrados",
+    "dificuldade": "facil",
+    "trilha": "enderecamento",
+    "tags": [
+     "tabela",
+     "consulta",
+     ".byte",
+     "indexado"
+    ],
+    "prerequisitos": [
+     "6502-017-soma-do-vetor"
+    ],
+    "aula": null,
+    "enunciado": "Grave em `res` o **quadrado** de `n` (de 0 a 15), **consultando uma tabela** em vez de multiplicar. A tabela é escrita por você no código, com a diretiva `.byte`.\n\n## Exemplos\n\n| n | res |\n|---|---|\n| 3 | 9 |\n| 0 | 0 |\n| 15 | 225 |\n| 9 | 81 |\n\n## Restrições\n\n- Não use laços nem somas: uma consulta à tabela basta.\n- A tabela deve ficar **depois** do `BRK`, para não ser executada como código.",
+    "contrato": "Memória: `n` ($10) e `res` ($11). Os testes preenchem `n` e conferem `res`.",
+    "editorial": "Tabelas de consulta são o truque mais usado em 8 bits: seno, cosseno, quadrados, conversões de caracteres, cores... A CPU não faz nenhuma conta; só **indexa**. Aqui são 16 bytes de dados para economizar uma multiplicação que, sem instrução de `MUL`, custaria um laço de somas ou de deslocamentos.\n\nO custo é memória: a solução ocupa 7 bytes de código mais 16 de tabela. É o clássico compromisso entre **tempo** e **espaço**, e a escolha certa depende do que está escasso (num C64, havia RAM de sobra; num Atari 2600, havia 128 bytes). Os dados ficam depois do `BRK` porque o juiz, como a CPU, executa na ordem em que estão escritos.",
+    "codigoInicial": "; res = n x n, por tabela\nn   = $10\nres = $11\n\n    ; seu código aqui\n    BRK",
+    "solucao": "n   = $10\nres = $11\n\n    LDX n\n    LDA quadrados,X\n    STA res\n    BRK\n\nquadrados:\n    .byte 0, 1, 4, 9, 16, 25, 36, 49\n    .byte 64, 81, 100, 121, 144, 169, 196, 225",
+    "dicas": [
+     "Uma **tabela de consulta** troca cálculo por memória: o quadrado de `n` é o byte número `n` de uma lista pronta.",
+     "Escreva depois do `BRK` um rótulo e a lista com `.byte`: `0, 1, 4, 9, ...` (16 valores, de 0² a 15²). Carregue `n` em X e leia `tabela,X`.",
+     "`LDX n`, `LDA quadrados,X`, `STA res`. A tabela precisa ficar depois do `BRK`; se ficasse antes, a CPU tentaria executar os números como instruções."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "n = 3",
+      "visivel": true,
+      "setup": {
+       "n": 3,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 9
+       }
+      }
+     },
+     {
+      "nome": "n = 0",
+      "visivel": true,
+      "setup": {
+       "n": 0,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "n = 15",
+      "visivel": false,
+      "dica": "falhou com n = 15: 225 é o maior quadrado da tabela",
+      "setup": {
+       "n": 15,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 225
+       }
+      }
+     },
+     {
+      "nome": "n = 1",
+      "visivel": false,
+      "dica": "falhou com n = 1",
+      "setup": {
+       "n": 1,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "n = 9",
+      "visivel": false,
+      "dica": "falhou com n = 9",
+      "setup": {
+       "n": 9,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 81
+       }
+      }
+     },
+     {
+      "nome": "n = 12",
+      "visivel": false,
+      "dica": "falhou com n = 12",
+      "setup": {
+       "n": 12,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 144
+       }
+      }
+     },
+     {
+      "nome": "n = 7",
+      "visivel": false,
+      "dica": "falhou com n = 7",
+      "setup": {
+       "n": 7,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 49
+       }
+      }
+     },
+     {
+      "nome": "n = 10",
+      "visivel": false,
+      "dica": "falhou com n = 10",
+      "setup": {
+       "n": 10,
+       "res": 77
+      },
+      "espera": {
+       "mem": {
+        "res": 100
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 24,
+     "ciclos": 10,
+     "exigir": [
+      "LDX"
+     ]
+    }
+   },
+   {
+    "id": "6502-027-soma-pelo-ponteiro",
+    "linguagem": "6502",
+    "titulo": "Soma pelo ponteiro",
+    "dificuldade": "facil",
+    "trilha": "enderecamento",
+    "tags": [
+     "ponteiro",
+     "indireto",
+     "laço",
+     "adc"
+    ],
+    "prerequisitos": [
+     "6502-025-ler-pelo-ponteiro",
+     "6502-017-soma-do-vetor"
+    ],
+    "aula": null,
+    "enunciado": "`ptr` guarda o endereço de um bloco de `n` bytes. Some os `n` bytes e grave o resultado de **8 bits** (módulo 256) em `res`. O endereço do bloco muda em cada teste.\n\n## Exemplos\n\n| bloco | n | res |\n|---|---|---|\n| 1, 2, 3 | 3 | 6 |\n| (vazio) | 0 | 0 |\n| 200, 100 | 2 | 44 |\n\n## Restrições\n\n- `n` vai de 0 a 20.\n- O bloco pode estar em qualquer endereço de 16 bits.",
+    "contrato": "Memória: `ptr` ($20-$21), `n` ($22) e `res` ($23). Os testes colocam um endereço em `ptr`, bytes nesse endereço, e conferem `res`.",
+    "editorial": "Mesmo laço do desafio de soma do vetor, com um ponto de vista mais geral: o programa **não conhece o endereço** do bloco, recebe-o em `ptr`. É o formato de qualquer rotina de biblioteca (copiar, somar, procurar, escrever texto), em que o chamador informa onde estão os dados.\n\nCom `Y` como índice de 8 bits, cada chamada vai até 256 bytes. Para blocos maiores, o laço percorre uma página e, ao terminar, soma 1 ao byte alto do ponteiro (`INC ptr+1`) e recomeça com `Y = 0`: é assim que as rotinas de cópia de tela do Apple II e do C64 funcionam.",
+    "codigoInicial": "; res = soma dos n bytes apontados por ptr\nptr = $20   ; endereço do bloco (baixo, alto)\nn   = $22\nres = $23\n\n    ; seu código aqui\n    BRK",
+    "solucao": "ptr = $20\nn   = $22\nres = $23\n\n    LDY #0\n    LDA #0\nlaco:\n    CPY n\n    BEQ fim\n    CLC\n    ADC (ptr),Y\n    INY\n    BNE laco\nfim:\n    STA res\n    BRK",
+    "dicas": [
+     "É a soma do vetor, mas o endereço agora vem de um **ponteiro**: troque `vetor,X` por `(ptr),Y`.",
+     "O modo `(ptr),Y` usa `Y` como índice dentro do bloco. Conte com `Y` de 0 até `n - 1` (`CPY n` + `BEQ`).",
+     "Lembre do `CLC` dentro do laço (o carry de uma soma não pode entrar na seguinte) e do `STA res` fora do laço, depois do rótulo de saída."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Nick Morgan, *Easy 6502* (online e gratuito): introdução prática ao 6502."
+    ],
+    "testes": [
+     {
+      "nome": "somar 3 bytes em $0300",
+      "visivel": true,
+      "setup": {
+       "ptr": {
+        "w": 768
+       },
+       "n": 3,
+       "res": 77,
+       "C": 0,
+       "$0300": [
+        1,
+        2,
+        3
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 6
+       }
+      }
+     },
+     {
+      "nome": "somar 1 bytes em $0340",
+      "visivel": true,
+      "setup": {
+       "ptr": {
+        "w": 832
+       },
+       "n": 1,
+       "res": 77,
+       "C": 0,
+       "$0340": [
+        10
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 10
+       }
+      }
+     },
+     {
+      "nome": "somar 0 bytes em $0300",
+      "visivel": false,
+      "dica": "falhou com n = 0: a soma é 0",
+      "setup": {
+       "ptr": {
+        "w": 768
+       },
+       "n": 0,
+       "res": 77,
+       "C": 0,
+       "$0300": []
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "somar 2 bytes em $0400",
+      "visivel": false,
+      "dica": "falhou com 200 + 100: o resultado é 44 (8 bits)",
+      "setup": {
+       "ptr": {
+        "w": 1024
+       },
+       "n": 2,
+       "res": 77,
+       "C": 1,
+       "$0400": [
+        200,
+        100
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 44
+       }
+      }
+     },
+     {
+      "nome": "somar 2 bytes em $0300",
+      "visivel": false,
+      "dica": "falhou com 255 + 1",
+      "setup": {
+       "ptr": {
+        "w": 768
+       },
+       "n": 2,
+       "res": 77,
+       "C": 0,
+       "$0300": [
+        255,
+        1
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "somar 20 bytes em $0480",
+      "visivel": false,
+      "dica": "falhou com 20 bytes iguais a 5",
+      "setup": {
+       "ptr": {
+        "w": 1152
+       },
+       "n": 20,
+       "res": 77,
+       "C": 0,
+       "$0480": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 100
+       }
+      }
+     },
+     {
+      "nome": "somar 3 bytes em $0200",
+      "visivel": false,
+      "dica": "falhou lendo da página 2 ($0200)",
+      "setup": {
+       "ptr": {
+        "w": 512
+       },
+       "n": 3,
+       "res": 77,
+       "C": 0,
+       "$0200": [
+        0,
+        0,
+        9
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 9
+       }
+      }
+     },
+     {
+      "nome": "somar 14 bytes em $0500",
+      "visivel": false,
+      "dica": "falhou com 14 bytes aleatórios",
+      "setup": {
+       "ptr": {
+        "w": 1280
+       },
+       "n": 14,
+       "res": 77,
+       "C": 0,
+       "$0500": [
+        66,
+        235,
+        82,
+        10,
+        97,
+        95,
+        68,
+        179,
+        20,
+        168,
+        132,
+        241,
+        28,
+        189
+       ]
+      },
+      "espera": {
+       "mem": {
+        "res": 74
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 17,
+     "ciclos": 353,
+     "exigir": [
+      "ADC",
+      "CPY"
+     ]
+    }
    }
   ];
   if (typeof module === 'object' && module.exports) module.exports = root.DESAFIOS;
