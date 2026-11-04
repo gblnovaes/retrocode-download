@@ -12,6 +12,7 @@
   const node = typeof require === 'function' && typeof module === 'object';
   const Asm = node ? require('../core/asm.js') : root.Asm8086;
   const M = node ? require('../core/cpu.js') : root.Machine8086;
+  const Recursao = node ? require('./recursao.js') : root.Recursao;
   const Verificador = node ? require('../core/verificador.js') : root.Verificador;
 
   const MAX_PASSOS = 200000; // pega laço infinito sem travar a tela
@@ -44,7 +45,9 @@
 
     const alvo = desafio.testes.filter(t => enviar || t.visivel);
     const ver = Verificador.verificar({ testes: alvo, proibir: metas.proibir, exigir: metas.exigir, maxPassos: MAX_PASSOS }, codigo);
-    r.regras = ver.estatico;
+    r.regras = ver.estatico.slice();
+    // meta "recursao": o procedimento precisa chamar a si mesmo (direta ou indiretamente)
+    if (metas.recursao && !Recursao.temRecursao(prog)) r.regras.push({ ok: false, msg: 'O exercício exige recursão: um procedimento precisa chamar a si mesmo com CALL.' });
 
     alvo.forEach((teste, i) => {
       const v = ver.testes[i];
