@@ -27698,6 +27698,7117 @@
     }
    },
    {
+    "id": "104-copiar-string-com-lodsb-e-stosb",
+    "linguagem": "8086",
+    "titulo": "Copiar string com LODSB e STOSB",
+    "dificuldade": "medio",
+    "trilha": "strings",
+    "tags": [
+     "strings",
+     "lodsb",
+     "stosb",
+     "cld"
+    ],
+    "prerequisitos": [
+     "005-tamanho-da-string",
+     "034-copia-de-bloco"
+    ],
+    "aula": 13,
+    "enunciado": "Copie a string ASCIIZ `origem` para `destino`, **inclusive o terminador 0**, usando `LODSB` (lê o byte em `DS:SI` para `AL` e avança `SI`) e `STOSB` (grava `AL` em `ES:DI` e avança `DI`). Pare quando o byte copiado for 0. Não copie nada depois do terminador.\n\n## Exemplos\n\n| origem | destino |\n|---|---|\n| `abc` | `abc` e o 0 |\n| (vazia) | só o 0 |\n\n## Restrições\n\n- A string tem até 20 caracteres mais o terminador.\n- Sem `MOVSB` nem `MOVSW`: use o par `LODSB` e `STOSB`.\n- Use `CLD` para garantir que `SI` e `DI` avancem.",
+    "contrato": "Memória: `origem` (DB, 21 bytes) e `destino` (DB, 21 bytes, chega cheio de `$EE`). O código inicial já aponta `ES` para o segmento de dados, que `STOSB` usa. Os testes conferem `destino` inteiro.",
+    "editorial": "`LODSB` e `STOSB` são as peças básicas das instruções de string: cada uma lê ou grava **um byte** e move o ponteiro na direção do flag `DF` (`CLD` = para frente, `STD` = para trás). Entre as duas dá para colocar qualquer transformação em `AL`, como converter para maiúsculas, o que `MOVSB` não permite.\n\nCopiar o byte antes de testar o zero é o jeito usual de levar o terminador junto. Quem testa antes precisa lembrar de gravar o 0 no fim, e é um esquecimento comum.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\norigem  DB 21 DUP(0)   ; string ASCIIZ de entrada\ndestino DB 21 DUP(0)   ; para onde copiar\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV ES,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\norigem  DB 21 DUP(0)\ndestino DB 21 DUP(0)\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV ES,AX\n    CLD\n    MOV SI,OFFSET origem\n    MOV DI,OFFSET destino\ncopia:\n    LODSB              ; AL = [DS:SI], SI avança\n    STOSB              ; [ES:DI] = AL, DI avança\n    OR AL,AL\n    JNZ copia          ; o 0 também foi copiado\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "`LODSB` lê o byte apontado por `DS:SI` para `AL` e já avança `SI`; `STOSB` grava `AL` em `ES:DI` e avança `DI`. Juntas, copiam um byte e deixam os dois ponteiros prontos para o próximo.",
+     "Prepare `SI` com `OFFSET origem`, `DI` com `OFFSET destino` e use `CLD` (limpa o flag de direção, para os ponteiros crescerem). O código inicial já deixou `ES = DS`.",
+     "Copie **antes** de testar: `LODSB`, `STOSB`, `OR AL,AL` e `JNZ`. Assim o terminador 0 também vai para `destino`, e o laço para logo depois dele."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 13 (instruções de string).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Peter Norton e John Socha, *Peter Norton's Assembly Language Book for the IBM PC*: seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "\"abc\"",
+      "visivel": true,
+      "setup": {
+       "origem": "abc",
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         97,
+         98,
+         99,
+         0,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "\"Z80\"",
+      "visivel": true,
+      "setup": {
+       "origem": "Z80",
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         90,
+         56,
+         48,
+         0,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "\"\"",
+      "visivel": false,
+      "dica": "falhou com a string vazia: só o terminador é copiado",
+      "setup": {
+       "origem": "",
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         0,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "\"a\"",
+      "visivel": false,
+      "dica": "falhou com um caractere",
+      "setup": {
+       "origem": "a",
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         97,
+         0,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "\"RetroCode\"",
+      "visivel": false,
+      "dica": "falhou com \"RetroCode\"",
+      "setup": {
+       "origem": "RetroCode",
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         82,
+         101,
+         116,
+         114,
+         111,
+         67,
+         111,
+         100,
+         101,
+         0,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "\"xxxxxxxxxxxxxxxxxxxx\"",
+      "visivel": false,
+      "dica": "falhou com 20 caracteres (o limite)",
+      "setup": {
+       "origem": "xxxxxxxxxxxxxxxxxxxx",
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         120,
+         120,
+         120,
+         120,
+         120,
+         120,
+         120,
+         120,
+         120,
+         120,
+         120,
+         120,
+         120,
+         120,
+         120,
+         120,
+         120,
+         120,
+         120,
+         120,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "\"Hello, World!\"",
+      "visivel": false,
+      "dica": "falhou com vírgula e espaço",
+      "setup": {
+       "origem": "Hello, World!",
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         72,
+         101,
+         108,
+         108,
+         111,
+         44,
+         32,
+         87,
+         111,
+         114,
+         108,
+         100,
+         33,
+         0,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "\"um dois tres\"",
+      "visivel": false,
+      "dica": "falhou com espaços no meio",
+      "setup": {
+       "origem": "um dois tres",
+       "destino": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "destino": [
+         117,
+         109,
+         32,
+         100,
+         111,
+         105,
+         115,
+         32,
+         116,
+         114,
+         101,
+         115,
+         0,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 25,
+     "ciclos": 943
+    }
+   },
+   {
+    "id": "105-procurar-com-repne-scasb",
+    "linguagem": "8086",
+    "titulo": "Procurar com REPNE SCASB",
+    "dificuldade": "medio",
+    "trilha": "strings",
+    "tags": [
+     "strings",
+     "scasb",
+     "repne",
+     "busca"
+    ],
+    "prerequisitos": [
+     "067-procurar-um-caractere",
+     "104-copiar-string-com-lodsb-e-stosb"
+    ],
+    "aula": 13,
+    "enunciado": "Procure o caractere `alvo` entre os `n` primeiros bytes de `buf` (`n` de 0 a 20). Grave em `indice` a posição da **primeira** ocorrência (o primeiro byte tem posição 0) ou **0FFFFh** se não existir. Só os `n` primeiros bytes contam.\n\n## Exemplos\n\n| buf | n | alvo | indice |\n|---|---|---|---|\n| `abcde` | 5 | `c` | 2 |\n| `abcde` | 5 | `z` | 0FFFFh |\n| `abcde` | 3 | `e` | 0FFFFh |\n\n## Restrições\n\n- Use `REPNE SCASB`, a busca em bloco do 8086.",
+    "contrato": "Memória: `buf` (DB, 20 bytes), `n` (DW), `alvo` (DB) e `indice` (DW). O código inicial já aponta `ES` para o segmento de dados, que `SCASB` usa. Os testes conferem `indice`.",
+    "editorial": "`REPNE SCASB` é o `strchr` de uma instrução. A saída dupla do laço (achou ou acabou o bloco) só se distingue pelo flag ZF, e por isso o teste certo é `JNE`/`JE` depois da instrução, nunca `CX`.\n\nO caso `CX = 0` é a armadilha clássica das instruções com prefixo `REP`: sem iterações, os flags ficam como estavam. O `JCXZ` antes do laço resolve de graça e é o idioma recomendado.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\nbuf    DB 20 DUP(0)   ; os bytes\nn      DW 0           ; quantos valem\nalvo   DB 0           ; o caractere procurado\nindice DW 0           ; posição achada, ou 0FFFFh\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV ES,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\nbuf    DB 20 DUP(0)\nn      DW 0\nalvo   DB 0\nindice DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV ES,AX\n    CLD\n    MOV CX,n\n    JCXZ nao           ; CX = 0: o REPNE não faria nada e ZF ficaria velho\n    MOV DI,OFFSET buf\n    MOV AL,alvo\n    REPNE SCASB        ; compara AL com [ES:DI] até achar ou CX = 0\n    JNE nao\n    DEC DI             ; DI parou uma posição depois do achado\n    SUB DI,OFFSET buf\n    MOV indice,DI\n    JMP fim\nnao:\n    MOV indice,0FFFFh\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "`SCASB` compara `AL` com o byte em `ES:DI` e avança `DI`. Com o prefixo `REPNE`, repete até **achar um igual** (ZF ligado) ou `CX` chegar a 0. Prepare `AL` (o alvo), `DI` (o começo) e `CX` (quantos bytes olhar).",
+     "Depois do `REPNE SCASB`, `JNE nao` diz se esgotou sem achar. Se achou, `DI` já está **uma posição depois** do byte: o índice é `DI - 1 - OFFSET buf`.",
+     "Armadilha: com `CX = 0` o `REPNE` não executa nada e **não altera ZF**, então o `JNE` olharia um flag antigo. Trate `n = 0` antes (`JCXZ`). Quando o alvo é o último byte, o `REPNE` também termina com `CX = 0`, mas com ZF ligado: teste ZF, não CX."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 13 (instruções de string).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Randall Hyde, *The Art of Assembly Language* (edição 16 bits, gratuita): seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "procurar \"c\" em \"abcde\" (n = 5)",
+      "visivel": true,
+      "setup": {
+       "buf": "abcde",
+       "n": 5,
+       "alvo": 99,
+       "indice": 77
+      },
+      "espera": {
+       "mem": {
+        "indice": 2
+       }
+      }
+     },
+     {
+      "nome": "procurar \"a\" em \"abcde\" (n = 5)",
+      "visivel": true,
+      "setup": {
+       "buf": "abcde",
+       "n": 5,
+       "alvo": 97,
+       "indice": 77
+      },
+      "espera": {
+       "mem": {
+        "indice": 0
+       }
+      }
+     },
+     {
+      "nome": "procurar \"e\" em \"abcde\" (n = 5)",
+      "visivel": false,
+      "dica": "falhou com o caractere no último elemento (o REPNE termina com CX = 0 e ZF ligado)",
+      "setup": {
+       "buf": "abcde",
+       "n": 5,
+       "alvo": 101,
+       "indice": 77
+      },
+      "espera": {
+       "mem": {
+        "indice": 4
+       }
+      }
+     },
+     {
+      "nome": "procurar \"z\" em \"abcde\" (n = 5)",
+      "visivel": false,
+      "dica": "falhou com um caractere que não existe: indice deve ser 0FFFFh",
+      "setup": {
+       "buf": "abcde",
+       "n": 5,
+       "alvo": 122,
+       "indice": 77
+      },
+      "espera": {
+       "mem": {
+        "indice": 65535
+       }
+      }
+     },
+     {
+      "nome": "procurar \"a\" em \"aaa\" (n = 0)",
+      "visivel": false,
+      "dica": "falhou com n = 0: nenhuma posição vale, mesmo que o caractere esteja no buffer",
+      "setup": {
+       "buf": "aaa",
+       "n": 0,
+       "alvo": 97,
+       "indice": 77
+      },
+      "espera": {
+       "mem": {
+        "indice": 65535
+       }
+      }
+     },
+     {
+      "nome": "procurar \"X\" em \"aXbXc\" (n = 5)",
+      "visivel": false,
+      "dica": "falhou com repetidos: deve achar o primeiro",
+      "setup": {
+       "buf": "aXbXc",
+       "n": 5,
+       "alvo": 88,
+       "indice": 77
+      },
+      "espera": {
+       "mem": {
+        "indice": 1
+       }
+      }
+     },
+     {
+      "nome": "procurar \"e\" em \"abcde\" (n = 3)",
+      "visivel": false,
+      "dica": "falhou: o caractere existe, mas depois do fim dos n elementos",
+      "setup": {
+       "buf": "abcde",
+       "n": 3,
+       "alvo": 101,
+       "indice": 77
+      },
+      "espera": {
+       "mem": {
+        "indice": 65535
+       }
+      }
+     },
+     {
+      "nome": "procurar \"y\" em \"xxxxxxxx\" (n = 20)",
+      "visivel": false,
+      "dica": "falhou com 20 elementos",
+      "setup": {
+       "buf": "xxxxxxxxxxxxxxxxxxxy",
+       "n": 20,
+       "alvo": 121,
+       "indice": 77
+      },
+      "espera": {
+       "mem": {
+        "indice": 19
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 46,
+     "ciclos": 452
+    }
+   },
+   {
+    "id": "106-comparar-blocos-com-repe-cmpsb",
+    "linguagem": "8086",
+    "titulo": "Comparar blocos com REPE CMPSB",
+    "dificuldade": "medio",
+    "trilha": "strings",
+    "tags": [
+     "strings",
+     "cmpsb",
+     "repe",
+     "comparação"
+    ],
+    "prerequisitos": [
+     "066-comparar-duas-strings",
+     "105-procurar-com-repne-scasb"
+    ],
+    "aula": 13,
+    "enunciado": "Compare os `n` primeiros bytes de `bloco1` e `bloco2` (`n` de 0 a 20). Grave em `diferenca` a posição do **primeiro byte diferente** (o primeiro byte tem posição 0) ou **0FFFFh** se os `n` bytes forem todos iguais. Dois blocos de tamanho 0 são iguais.\n\n## Exemplos\n\n| bloco1 | bloco2 | n | diferenca |\n|---|---|---|---|\n| `abcde` | `abcde` | 5 | 0FFFFh |\n| `abcde` | `abXde` | 5 | 2 |\n| `abcXY` | `abcZZ` | 3 | 0FFFFh |\n\n## Restrições\n\n- Use `REPE CMPSB`, a comparação em bloco do 8086.",
+    "contrato": "Memória: `bloco1` e `bloco2` (DB, 20 bytes cada), `n` (DW) e `diferenca` (DW). O código inicial já aponta `ES` para o segmento de dados, que `CMPSB` usa. Os testes conferem `diferenca`.",
+    "editorial": "`REPE CMPSB` é o `memcmp` de uma instrução, e o par com `REPNE SCASB` cobre quase toda comparação de blocos. O ponto delicado é o mesmo: o laço sai por dois motivos (diferença ou fim do bloco), e só o flag ZF diz qual.\n\nComo `CMPSB` já avançou `SI` e `DI` além do byte diferente, o índice é `SI - 1 - início`. Esse \"uma posição a mais\" é o erro de índice mais comum nas instruções de string, e a boa notícia é que o valor é sempre o mesmo.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\nbloco1    DB 20 DUP(0)\nbloco2    DB 20 DUP(0)\nn         DW 0\ndiferenca DW 0           ; posição da primeira diferença, ou 0FFFFh\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV ES,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\nbloco1    DB 20 DUP(0)\nbloco2    DB 20 DUP(0)\nn         DW 0\ndiferenca DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV ES,AX\n    CLD\n    MOV CX,n\n    JCXZ igual         ; CX = 0: nada a comparar\n    MOV SI,OFFSET bloco1\n    MOV DI,OFFSET bloco2\n    REPE CMPSB         ; compara [DS:SI] com [ES:DI] enquanto forem iguais\n    JE igual           ; esgotou sem achar diferença\n    DEC SI             ; SI parou uma posição depois do byte diferente\n    SUB SI,OFFSET bloco1\n    MOV diferenca,SI\n    JMP fim\nigual:\n    MOV diferenca,0FFFFh\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "`CMPSB` compara `[DS:SI]` com `[ES:DI]` e avança os dois. Com `REPE`, repete **enquanto forem iguais** (ZF ligado) e `CX` não chegar a 0. Prepare `SI`, `DI` e `CX = n`.",
+     "Depois do `REPE CMPSB`, ZF ligado quer dizer que todos os bytes foram iguais. Se ZF está desligado, parou numa diferença, e `SI` já passou dela: o índice é `SI - 1 - OFFSET bloco1`.",
+     "Trate `n = 0` antes (`JCXZ`), porque sem iterações ZF fica com o valor antigo. Quando a diferença está no último byte, `CX` chega a 0, mas ZF fica desligado: o teste é `JE`/`JNE`, não `CX`."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 13 (instruções de string).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Kip Irvine, *Assembly Language for x86 Processors*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "\"abcde\" e \"abcde\" (n = 5)",
+      "visivel": true,
+      "setup": {
+       "bloco1": "abcde",
+       "bloco2": "abcde",
+       "n": 5,
+       "diferenca": 77
+      },
+      "espera": {
+       "mem": {
+        "diferenca": 65535
+       }
+      }
+     },
+     {
+      "nome": "\"abcde\" e \"abXde\" (n = 5)",
+      "visivel": true,
+      "setup": {
+       "bloco1": "abcde",
+       "bloco2": "abXde",
+       "n": 5,
+       "diferenca": 77
+      },
+      "espera": {
+       "mem": {
+        "diferenca": 2
+       }
+      }
+     },
+     {
+      "nome": "\"abcde\" e \"abcdX\" (n = 5)",
+      "visivel": false,
+      "dica": "falhou com a diferença no último byte (REPE termina com CX = 0 e ZF desligado)",
+      "setup": {
+       "bloco1": "abcde",
+       "bloco2": "abcdX",
+       "n": 5,
+       "diferenca": 77
+      },
+      "espera": {
+       "mem": {
+        "diferenca": 4
+       }
+      }
+     },
+     {
+      "nome": "\"Xbcde\" e \"abcde\" (n = 5)",
+      "visivel": false,
+      "dica": "falhou com a diferença no primeiro byte",
+      "setup": {
+       "bloco1": "Xbcde",
+       "bloco2": "abcde",
+       "n": 5,
+       "diferenca": 77
+      },
+      "espera": {
+       "mem": {
+        "diferenca": 0
+       }
+      }
+     },
+     {
+      "nome": "\"abc\" e \"xyz\" (n = 0)",
+      "visivel": false,
+      "dica": "falhou com n = 0: blocos vazios são iguais",
+      "setup": {
+       "bloco1": "abc",
+       "bloco2": "xyz",
+       "n": 0,
+       "diferenca": 77
+      },
+      "espera": {
+       "mem": {
+        "diferenca": 65535
+       }
+      }
+     },
+     {
+      "nome": "\"abcXY\" e \"abcZZ\" (n = 3)",
+      "visivel": false,
+      "dica": "falhou: os blocos diferem, mas só depois dos n primeiros bytes",
+      "setup": {
+       "bloco1": "abcXY",
+       "bloco2": "abcZZ",
+       "n": 3,
+       "diferenca": 77
+      },
+      "espera": {
+       "mem": {
+        "diferenca": 65535
+       }
+      }
+     },
+     {
+      "nome": "\"aaaaaaaa\" e \"aaaaaaaa\" (n = 20)",
+      "visivel": false,
+      "dica": "falhou com 20 bytes iguais",
+      "setup": {
+       "bloco1": "aaaaaaaaaaaaaaaaaaaa",
+       "bloco2": "aaaaaaaaaaaaaaaaaaaa",
+       "n": 20,
+       "diferenca": 77
+      },
+      "espera": {
+       "mem": {
+        "diferenca": 65535
+       }
+      }
+     },
+     {
+      "nome": "\"aaaaaaaa\" e \"aaaaaaaa\" (n = 20)",
+      "visivel": false,
+      "dica": "falhou com a diferença no byte 19",
+      "setup": {
+       "bloco1": "aaaaaaaaaaaaaaaaaaab",
+       "bloco2": "aaaaaaaaaaaaaaaaaaac",
+       "n": 20,
+       "diferenca": 77
+      },
+      "espera": {
+       "mem": {
+        "diferenca": 19
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 46,
+     "ciclos": 582
+    }
+   },
+   {
+    "id": "107-deslocar-o-vetor-para-tras",
+    "linguagem": "8086",
+    "titulo": "Deslocar o vetor para a direita",
+    "dificuldade": "medio",
+    "trilha": "enderecamento",
+    "tags": [
+     "strings",
+     "std",
+     "movsb",
+     "sobreposição"
+    ],
+    "prerequisitos": [
+     "034-copia-de-bloco",
+     "104-copiar-string-com-lodsb-e-stosb"
+    ],
+    "aula": 13,
+    "enunciado": "Desloque os `n` primeiros bytes de `vetor` **duas posições para a direita**, no próprio vetor: o byte da posição `i` vai para a posição `i + 2`. As duas primeiras posições ficam como estavam. Os blocos de origem e destino **se sobrepõem**.\n\n## Exemplos\n\n| antes (n = 5) | depois |\n|---|---|\n| 1, 2, 3, 4, 5, EE, EE | 1, 2, **1, 2, 3, 4, 5** |\n| n = 0 | nada muda |\n\n## Restrições\n\n- `n` vai de 0 a 20 e `vetor` tem 24 bytes.\n- Use `REP MOVSB` com o flag de direção ligado (`STD`), copiando de trás para a frente. Depois, volte com `CLD`.",
+    "contrato": "Memória: `vetor` (DB, 24 bytes) e `n` (DW). O código inicial já aponta `ES` para o segmento de dados, que `MOVSB` usa. Os testes conferem o vetor inteiro.",
+    "editorial": "O `memmove` da biblioteca C decide a direção comparando os endereços; no 8086, quem decide é o programador, com `CLD` ou `STD`. Regra prática: se o destino fica **depois** da origem e os blocos se sobrepõem, copie de trás para a frente; se fica **antes**, de frente para trás.\n\nDeixar `STD` ligado depois da rotina é um clássico. Quase todo código (inclusive as rotinas do DOS) supõe `DF = 0`, e a falha só aparece bem depois, em outro lugar. Por isso a solução fecha com `CLD`.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\nvetor DB 24 DUP(0)   ; n bytes, mais 2 de folga\nn     DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV ES,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\nvetor DB 24 DUP(0)\nn     DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV ES,AX\n    MOV CX,n\n    JCXZ fim\n    STD                ; copia de trás para a frente\n    MOV SI,OFFSET vetor\n    ADD SI,CX\n    DEC SI             ; SI = último byte\n    MOV DI,SI\n    ADD DI,2           ; DI = 2 posições adiante\n    REP MOVSB\n    CLD\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "Quando origem e destino se sobrepõem, a **direção** da cópia decide tudo. Copiar para a frente por cima de si mesmo repetiria os dois primeiros bytes pelo vetor inteiro. Para deslocar para a direita, comece pelo **último** byte.",
+     "`STD` liga o flag de direção, e `MOVSB` passa a decrementar `SI` e `DI`. Aponte `SI` para o último byte (`vetor + n - 1`) e `DI` duas posições depois, e use `REP MOVSB` com `CX = n`.",
+     "Trate `n = 0` com `JCXZ`. Termine com `CLD`: o resto do programa (e das bibliotecas) conta com a direção para frente, e esquecer um `STD` ligado é um bug difícil de achar."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 13 (instruções de string).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Peter Norton e John Socha, *Peter Norton's Assembly Language Book for the IBM PC*: seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "n = 5",
+      "visivel": true,
+      "setup": {
+       "n": 5,
+       "vetor": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         1,
+         2,
+         3,
+         4,
+         5,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "n = 2",
+      "visivel": true,
+      "setup": {
+       "n": 2,
+       "vetor": [
+        9,
+        8,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         9,
+         8,
+         9,
+         8,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "n = 1",
+      "visivel": false,
+      "dica": "falhou com um elemento",
+      "setup": {
+       "n": 1,
+       "vetor": [
+        7,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         7,
+         238,
+         7,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "n = 0",
+      "visivel": false,
+      "dica": "falhou com n = 0: nada deve mudar",
+      "setup": {
+       "n": 0,
+       "vetor": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "n = 20",
+      "visivel": false,
+      "dica": "falhou com 20 elementos: os blocos se sobrepõem em 18 bytes",
+      "setup": {
+       "n": 20,
+       "vetor": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         10,
+         11,
+         10,
+         11,
+         12,
+         13,
+         14,
+         15,
+         16,
+         17,
+         18,
+         19,
+         20,
+         21,
+         22,
+         23,
+         24,
+         25,
+         26,
+         27,
+         28,
+         29,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "n = 3",
+      "visivel": false,
+      "dica": "falhou com 3 elementos (cópia para a frente repetiria o primeiro valor)",
+      "setup": {
+       "n": 3,
+       "vetor": [
+        1,
+        2,
+        3,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         1,
+         2,
+         3,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "n = 4",
+      "visivel": false,
+      "dica": "falhou com valores iguais",
+      "setup": {
+       "n": 4,
+       "vetor": [
+        5,
+        5,
+        5,
+        5,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         5,
+         5,
+         5,
+         5,
+         5,
+         5,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "n = 8",
+      "visivel": false,
+      "dica": "falhou com 8 elementos",
+      "setup": {
+       "n": 8,
+       "vetor": [
+        255,
+        0,
+        128,
+        64,
+        32,
+        16,
+        8,
+        4,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         255,
+         0,
+         255,
+         0,
+         128,
+         64,
+         32,
+         16,
+         8,
+         4,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 33,
+     "ciclos": 451
+    }
+   },
+   {
+    "id": "108-dividir-por-8-com-sinal",
+    "linguagem": "8086",
+    "titulo": "Dividir por 8 com sinal",
+    "dificuldade": "medio",
+    "trilha": "bits",
+    "tags": [
+     "bits",
+     "sar",
+     "complemento de dois",
+     "arredondamento"
+    ],
+    "prerequisitos": [
+     "022-quociente-e-resto",
+     "012-valor-absoluto"
+    ],
+    "aula": 4,
+    "enunciado": "`valor` é uma palavra **com sinal** (complemento de dois). Grave em `res` o resultado de `valor / 8` **truncado em direção a zero**, o mesmo que `IDIV` daria, mas **sem usar `IDIV` nem `DIV`**.\n\n## Exemplos\n\n| valor | res |\n|---|---|\n| 100 | 12 |\n| -16 | -2 |\n| -9 | -1 |\n| -1 | 0 |\n\n## Restrições\n\n- `SAR` (deslocamento aritmético) divide por 8 arredondando para **baixo**: -9 viraria -2. É preciso corrigir os negativos.\n- Sem `DIV` e sem `IDIV`.",
+    "contrato": "Memória: `valor` (DW) e `res` (DW). Os testes preenchem `valor` e conferem `res`.",
+    "editorial": "Dividir por uma potência de dois com sinal é o caso em que `SAR` e `IDIV` **discordam**: o deslocamento arredonda para menos infinito, e a divisão, para zero. Compiladores corrigem somando `2^k - 1` aos negativos antes do deslocamento, exatamente como aqui, e `CWD` + `AND` gera essa correção sem nenhum desvio.\n\nPara positivos e múltiplos exatos, `SAR` já está certo. A diferença só aparece nos negativos que não são múltiplos de 8, e é por isso que o -9 é o teste que pega o erro.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\nvalor DW 0   ; número com sinal\nres   DW 0   ; valor / 8, truncado em direção a zero\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\nvalor DW 0\nres   DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV AX,valor\n    CWD                ; DX = 0FFFFh se negativo, 0 se não\n    AND DX,7           ; 7 se negativo, 0 se não\n    ADD AX,DX          ; sozinho, SAR arredonda para baixo; somar 7 corrige\n    MOV CL,3\n    SAR AX,CL\n    MOV res,AX\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "`SAR` desloca à direita **preservando o sinal**, então `SAR AX,CL` com `CL = 3` divide por 8. Mas ele arredonda para **baixo** (em direção a menos infinito): `-9 SAR 3` dá -2, e o `IDIV` daria -1.",
+     "Para os negativos, some 7 (`8 - 1`) antes de deslocar: `-9 + 7 = -2`, e `-2 SAR 3` dá -1. Para os positivos, não some nada.",
+     "`CWD` espalha o sinal de AX em DX (DX = 0FFFFh se negativo, 0 se não). `AND DX,7` transforma isso em 7 ou 0, e `ADD AX,DX` aplica a correção sem desvio. No 8086 o contador de deslocamento diferente de 1 precisa estar em `CL`."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 4 (deslocamentos e rotações).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Randall Hyde, *The Art of Assembly Language* (edição 16 bits, gratuita): seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "-1 / 8",
+      "visivel": true,
+      "setup": {
+       "valor": 65535,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "-8 / 8",
+      "visivel": true,
+      "setup": {
+       "valor": 65528,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 65535
+       }
+      }
+     },
+     {
+      "nome": "-9 / 8",
+      "visivel": false,
+      "dica": "falhou com -9 / 8: o quociente truncado é -1, não -2",
+      "setup": {
+       "valor": 65527,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 65535
+       }
+      }
+     },
+     {
+      "nome": "-15 / 8",
+      "visivel": false,
+      "dica": "falhou com -15 / 8: o quociente truncado é -1",
+      "setup": {
+       "valor": 65521,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 65535
+       }
+      }
+     },
+     {
+      "nome": "-16 / 8",
+      "visivel": false,
+      "dica": "falhou com -16 / 8: divisão exata",
+      "setup": {
+       "valor": 65520,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 65534
+       }
+      }
+     },
+     {
+      "nome": "7 / 8",
+      "visivel": false,
+      "dica": "falhou com 7 / 8: o quociente é 0",
+      "setup": {
+       "valor": 7,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "8 / 8",
+      "visivel": false,
+      "dica": "falhou com 8 / 8",
+      "setup": {
+       "valor": 8,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "100 / 8",
+      "visivel": false,
+      "dica": "falhou com 100 / 8",
+      "setup": {
+       "valor": 100,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 12
+       }
+      }
+     },
+     {
+      "nome": "-32768 / 8",
+      "visivel": false,
+      "dica": "falhou com -32768 / 8",
+      "setup": {
+       "valor": 32768,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 61440
+       }
+      }
+     },
+     {
+      "nome": "32767 / 8",
+      "visivel": false,
+      "dica": "falhou com 32767 / 8",
+      "setup": {
+       "valor": 32767,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 4095
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 26,
+     "ciclos": 117
+    }
+   },
+   {
+    "id": "109-dividir-com-sinal",
+    "linguagem": "8086",
+    "titulo": "Dividir com sinal",
+    "dificuldade": "medio",
+    "trilha": "aritmetica",
+    "tags": [
+     "aritmética",
+     "idiv",
+     "cwd",
+     "sinal"
+    ],
+    "prerequisitos": [
+     "022-quociente-e-resto"
+    ],
+    "aula": 3,
+    "enunciado": "Divida `a` por `b` (palavras **com sinal**, `b` nunca é zero) e grave o **quociente** em `quoc` e o **resto** em `resto`, ambos com sinal. A divisão trunca em direção a zero, e o resto tem o sinal do dividendo.\n\n## Exemplos\n\n| a | b | quoc | resto |\n|---|---|---|---|\n| 17 | 5 | 3 | 2 |\n| -17 | 5 | -3 | -2 |\n| 17 | -5 | -3 | 2 |\n| -17 | -5 | 3 | -2 |\n\n## Restrições\n\n- Use `IDIV`. O quociente sempre cabe em -32767..32767 (o 8086 não aceita -32768 como quociente).",
+    "contrato": "Memória: `a`, `b`, `quoc` e `resto` (todas DW). Os testes conferem `quoc` e `resto`.",
+    "editorial": "`DIV` e `IDIV` têm o mesmo formato (dividendo de 32 bits em `DX:AX`), mas a preparação de `DX` é diferente. Para sem sinal, `XOR DX,DX`; para com sinal, `CWD`. Trocar uma pela outra é o bug mais comum: funciona com positivos e quebra com o primeiro negativo.\n\nO resto com o sinal do dividendo é a convenção do C e do hardware (`-17 % 5 = -2`). Outras linguagens, como Python, usam resto com o sinal do divisor, e quem migra de uma para a outra costuma se surpreender.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\na     DW 0\nb     DW 0\nquoc  DW 0\nresto DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\na     DW 0\nb     DW 0\nquoc  DW 0\nresto DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV AX,a\n    CWD                ; DX:AX = a com o sinal estendido\n    IDIV b\n    MOV quoc,AX\n    MOV resto,DX\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "`IDIV` divide `DX:AX` (32 bits com sinal) pelo operando e deixa o quociente em `AX` e o resto em `DX`. Precisa de uma entrada de 32 bits, mesmo quando `a` cabe em 16.",
+     "Para estender `a` de 16 para 32 bits **com sinal**, use `CWD` (copia o bit de sinal de AX para todo DX). Zerar DX com `XOR DX,DX` só serve para números sem sinal: com `a` negativo, o dividendo viraria um número positivo gigante.",
+     "`MOV AX,a`, `CWD`, `IDIV b`, e grave `AX` em `quoc` e `DX` em `resto`. Nenhuma correção é necessária: `IDIV` já trunca em direção a zero e dá ao resto o sinal do dividendo."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 3 (aritmética e divisão).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Peter Norton e John Socha, *Peter Norton's Assembly Language Book for the IBM PC*: seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "17 / 5",
+      "visivel": true,
+      "setup": {
+       "a": 17,
+       "b": 5,
+       "quoc": 30583,
+       "resto": 30583
+      },
+      "espera": {
+       "mem": {
+        "quoc": 3,
+        "resto": 2
+       }
+      }
+     },
+     {
+      "nome": "-17 / 5",
+      "visivel": true,
+      "setup": {
+       "a": 65519,
+       "b": 5,
+       "quoc": 30583,
+       "resto": 30583
+      },
+      "espera": {
+       "mem": {
+        "quoc": 65533,
+        "resto": 65534
+       }
+      }
+     },
+     {
+      "nome": "17 / -5",
+      "visivel": false,
+      "dica": "falhou com divisor negativo: o resto tem o sinal do dividendo",
+      "setup": {
+       "a": 17,
+       "b": 65531,
+       "quoc": 30583,
+       "resto": 30583
+      },
+      "espera": {
+       "mem": {
+        "quoc": 65533,
+        "resto": 2
+       }
+      }
+     },
+     {
+      "nome": "-17 / -5",
+      "visivel": false,
+      "dica": "falhou com os dois negativos",
+      "setup": {
+       "a": 65519,
+       "b": 65531,
+       "quoc": 30583,
+       "resto": 30583
+      },
+      "espera": {
+       "mem": {
+        "quoc": 3,
+        "resto": 65534
+       }
+      }
+     },
+     {
+      "nome": "0 / 5",
+      "visivel": false,
+      "dica": "falhou com dividendo zero",
+      "setup": {
+       "a": 0,
+       "b": 5,
+       "quoc": 30583,
+       "resto": 30583
+      },
+      "espera": {
+       "mem": {
+        "quoc": 0,
+        "resto": 0
+       }
+      }
+     },
+     {
+      "nome": "100 / 7",
+      "visivel": false,
+      "dica": "falhou com 100 / 7",
+      "setup": {
+       "a": 100,
+       "b": 7,
+       "quoc": 30583,
+       "resto": 30583
+      },
+      "espera": {
+       "mem": {
+        "quoc": 14,
+        "resto": 2
+       }
+      }
+     },
+     {
+      "nome": "-32767 / 1",
+      "visivel": false,
+      "dica": "falhou com -32767 / 1",
+      "setup": {
+       "a": 32769,
+       "b": 1,
+       "quoc": 30583,
+       "resto": 30583
+      },
+      "espera": {
+       "mem": {
+        "quoc": 32769,
+        "resto": 0
+       }
+      }
+     },
+     {
+      "nome": "-1 / 3",
+      "visivel": false,
+      "dica": "falhou com -1 / 3: quociente 0 e resto -1",
+      "setup": {
+       "a": 65535,
+       "b": 3,
+       "quoc": 30583,
+       "resto": 30583
+      },
+      "espera": {
+       "mem": {
+        "quoc": 0,
+        "resto": 65535
+       }
+      }
+     },
+     {
+      "nome": "32767 / -2",
+      "visivel": false,
+      "dica": "falhou com 32767 / -2",
+      "setup": {
+       "a": 32767,
+       "b": 65534,
+       "quoc": 30583,
+       "resto": 30583
+      },
+      "espera": {
+       "mem": {
+        "quoc": 49153,
+        "resto": 1
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 25,
+     "ciclos": 288
+    }
+   },
+   {
+    "id": "110-somar-em-bcd",
+    "linguagem": "8086",
+    "titulo": "Somar em BCD",
+    "dificuldade": "medio",
+    "trilha": "aritmetica",
+    "tags": [
+     "bcd",
+     "daa",
+     "decimal",
+     "carry"
+    ],
+    "prerequisitos": [
+     "023-media-de-dois"
+    ],
+    "aula": 3,
+    "enunciado": "`x` e `y` são números de dois dígitos decimais em **BCD empacotado** (um dígito por nibble: `47h` é o número 47). Grave a soma, também em BCD, em `res`, e em `vaium` grave **1** se a soma passou de 99 (e **0** se não).\n\n## Exemplos\n\n| x | y | res | vaium |\n|---|---|---|---|\n| 12h | 34h | 46h | 0 |\n| 19h | 01h | 20h | 0 |\n| 99h | 01h | 00h | 1 |\n\n## Restrições\n\n- Use `DAA`, a instrução de ajuste decimal.",
+    "contrato": "Memória: `x`, `y`, `res` e `vaium` (todas DB). Os testes conferem `res` e `vaium`.",
+    "editorial": "BCD guarda um dígito decimal por nibble e evita a conversão binário-decimal em relógios, caixas registradoras e placares. O 8086 corrige as contas com `DAA` (depois de soma) e `DAS` (depois de subtração), que olham os flags **AF** (vai-um entre nibbles) e **CF**.\n\nExistem também as variantes desempacotadas (um dígito por byte): `AAA`, `AAS`, `AAM` e `AAD`. A diferença prática é espaço: o empacotado usa metade da memória, e o desempacotado simplifica a multiplicação e a divisão.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\nx     DB 0\ny     DB 0\nres   DB 0\nvaium DB 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\nx     DB 0\ny     DB 0\nres   DB 0\nvaium DB 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV AL,x\n    ADD AL,y\n    DAA                ; corrige o resultado para BCD\n    MOV res,AL         ; MOV não altera flags\n    MOV AL,0\n    ADC AL,0           ; AL = CF\n    MOV vaium,AL\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "A soma binária de dois BCD quase nunca é BCD válido: `19h + 01h = 1Ah`. Faça `ADD AL,y` e corrija o resultado com `DAA` logo em seguida: ele soma 6 em cada nibble que passou de 9 e acerta o carry.",
+     "`DAA` trabalha sempre em `AL` e usa os flags **AF** e **CF** que a soma deixou. Não ponha nenhuma instrução que mude flags entre o `ADD` e o `DAA`.",
+     "Depois do `DAA`, o carry diz se passou de 99. `MOV` não altera flags, então grave o resultado, zere um registrador com `MOV AL,0` e use `ADC AL,0` para transformar CF em 0 ou 1."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 3 (aritmética e flags).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Peter Norton e John Socha, *Peter Norton's Assembly Language Book for the IBM PC*: seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "12 + 34",
+      "visivel": true,
+      "setup": {
+       "x": 18,
+       "y": 52,
+       "res": 119,
+       "vaium": 119
+      },
+      "espera": {
+       "mem": {
+        "res": 70,
+        "vaium": 0
+       }
+      }
+     },
+     {
+      "nome": "45 + 55",
+      "visivel": true,
+      "setup": {
+       "x": 69,
+       "y": 85,
+       "res": 119,
+       "vaium": 119
+      },
+      "espera": {
+       "mem": {
+        "res": 0,
+        "vaium": 1
+       }
+      }
+     },
+     {
+      "nome": "19 + 01",
+      "visivel": false,
+      "dica": "falhou com 19 + 1: o nibble baixo passa de 9 e o DAA precisa corrigi-lo",
+      "setup": {
+       "x": 25,
+       "y": 1,
+       "res": 119,
+       "vaium": 119
+      },
+      "espera": {
+       "mem": {
+        "res": 32,
+        "vaium": 0
+       }
+      }
+     },
+     {
+      "nome": "00 + 00",
+      "visivel": false,
+      "dica": "falhou com 00 + 00",
+      "setup": {
+       "x": 0,
+       "y": 0,
+       "res": 119,
+       "vaium": 119
+      },
+      "espera": {
+       "mem": {
+        "res": 0,
+        "vaium": 0
+       }
+      }
+     },
+     {
+      "nome": "99 + 99",
+      "visivel": false,
+      "dica": "falhou com 99 + 99",
+      "setup": {
+       "x": 153,
+       "y": 153,
+       "res": 119,
+       "vaium": 119
+      },
+      "espera": {
+       "mem": {
+        "res": 152,
+        "vaium": 1
+       }
+      }
+     },
+     {
+      "nome": "58 + 67",
+      "visivel": false,
+      "dica": "falhou com 58 + 67: sem DAA o resultado seria $B5 + ...",
+      "setup": {
+       "x": 88,
+       "y": 103,
+       "res": 119,
+       "vaium": 119
+      },
+      "espera": {
+       "mem": {
+        "res": 37,
+        "vaium": 1
+       }
+      }
+     },
+     {
+      "nome": "09 + 09",
+      "visivel": false,
+      "dica": "falhou com 09 + 09",
+      "setup": {
+       "x": 9,
+       "y": 9,
+       "res": 119,
+       "vaium": 119
+      },
+      "espera": {
+       "mem": {
+        "res": 24,
+        "vaium": 0
+       }
+      }
+     },
+     {
+      "nome": "99 + 01",
+      "visivel": false,
+      "dica": "falhou com 99 + 1: o resultado é 00 com vai-um",
+      "setup": {
+       "x": 153,
+       "y": 1,
+       "res": 119,
+       "vaium": 119
+      },
+      "espera": {
+       "mem": {
+        "res": 0,
+        "vaium": 1
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 28,
+     "ciclos": 118
+    }
+   },
+   {
+    "id": "111-conta-com-lea",
+    "linguagem": "8086",
+    "titulo": "Conta com LEA",
+    "dificuldade": "medio",
+    "trilha": "enderecamento",
+    "tags": [
+     "lea",
+     "endereçamento",
+     "otimização"
+    ],
+    "prerequisitos": [
+     "036-tabela-de-quadrados"
+    ],
+    "aula": 6,
+    "enunciado": "Calcule `res = 2 * x + 7` (módulo 65536) usando **uma única instrução `LEA`** para a conta. `x` é uma palavra sem sinal.\n\n## Exemplos\n\n| x | res |\n|---|---|\n| 0 | 7 |\n| 5 | 17 |\n| 40000 | 14 (a conta dá a volta em 16 bits) |\n\n## Restrições\n\n- Sem `ADD`, `SHL`, `MUL`, `IMUL` e `INC`: a conta toda sai do `LEA`.\n- Lembre: no 8086 o endereço efetivo usa **no máximo** uma base (`BX`/`BP`), um índice (`SI`/`DI`) e um deslocamento.",
+    "contrato": "Memória: `x` e `res` (DW). Os testes conferem `res`.",
+    "editorial": "`LEA` não lê a memória: ela só **calcula** o endereço e entrega o resultado. É por isso que virou truque de aritmética: soma dois registradores e uma constante numa só instrução, sem tocar nos flags. Nos processadores mais novos há fator de escala (`[BX+SI*4]`), e `LEA` substitui multiplicações pequenas.\n\nNo 8086, só valem as combinações base (`BX`/`BP`) + índice (`SI`/`DI`) + deslocamento, e o resultado é truncado em 16 bits, exatamente como a soma.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\nx   DW 0\nres DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\nx   DW 0\nres DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV BX,x\n    MOV SI,BX\n    LEA AX,[BX+SI+7]   ; base + índice + deslocamento = 2x + 7\n    MOV res,AX\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "`LEA reg,[expr]` calcula o **endereço efetivo** `expr` e o guarda no registrador, **sem acessar a memória**. Como o cálculo é só aritmética de 16 bits, vale como uma soma disfarçada.",
+     "O 8086 aceita `[BX+SI+desloc]`. Ponha `x` em `BX` **e** em `SI`: a soma `BX + SI` já dá `2x`, e o deslocamento é o 7.",
+     "`MOV BX,x`, `MOV SI,BX`, `LEA AX,[BX+SI+7]` e `MOV res,AX`. Não existe fator de escala (`*2`) no 8086, e é por isso que o mesmo valor entra nos dois registradores. A soma dá a volta em 16 bits, como no `ADD`."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 6 (modos de endereçamento).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Randall Hyde, *The Art of Assembly Language* (edição 16 bits, gratuita): seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "x = 0",
+      "visivel": true,
+      "setup": {
+       "x": 0,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 7
+       }
+      }
+     },
+     {
+      "nome": "x = 1",
+      "visivel": true,
+      "setup": {
+       "x": 1,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 9
+       }
+      }
+     },
+     {
+      "nome": "x = 5",
+      "visivel": false,
+      "dica": "falhou com x = 5",
+      "setup": {
+       "x": 5,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 17
+       }
+      }
+     },
+     {
+      "nome": "x = 100",
+      "visivel": false,
+      "dica": "falhou com x = 100",
+      "setup": {
+       "x": 100,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 207
+       }
+      }
+     },
+     {
+      "nome": "x = 1000",
+      "visivel": false,
+      "dica": "falhou com x = 1000",
+      "setup": {
+       "x": 1000,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 2007
+       }
+      }
+     },
+     {
+      "nome": "x = 20000",
+      "visivel": false,
+      "dica": "falhou com x = 20000",
+      "setup": {
+       "x": 20000,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 40007
+       }
+      }
+     },
+     {
+      "nome": "x = 32767",
+      "visivel": false,
+      "dica": "falhou com x = 32767: 2x+7 passa de 16 bits como com sinal, mas o resultado é só mod 65536",
+      "setup": {
+       "x": 32767,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 5
+       }
+      }
+     },
+     {
+      "nome": "x = 40000",
+      "visivel": false,
+      "dica": "falhou com x = 40000: o resultado dá a volta em 16 bits",
+      "setup": {
+       "x": 40000,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 14471
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 22,
+     "ciclos": 100,
+     "proibir": [
+      "ADD",
+      "SHL",
+      "MUL",
+      "IMUL",
+      "INC"
+     ]
+    }
+   },
+   {
+    "id": "112-maior-com-sinal",
+    "linguagem": "8086",
+    "titulo": "Maior de dois com sinal",
+    "dificuldade": "medio",
+    "trilha": "decisoes",
+    "tags": [
+     "decisões",
+     "jg",
+     "jl",
+     "overflow",
+     "complemento de dois"
+    ],
+    "prerequisitos": [
+     "028-trocar-com-push-e-pop"
+    ],
+    "aula": 5,
+    "enunciado": "`a` e `b` são palavras **com sinal** (complemento de dois, de -32768 a 32767). Grave em `maior` o maior dos dois **como números com sinal**.\n\n## Exemplos\n\n| a | b | maior |\n|---|---|---|\n| 5 | 3 | 5 |\n| -1 | 1 | 1 |\n| -5 | -3 | -3 |\n| 32767 | -32768 | 32767 |\n\n## Restrições\n\n- Use os saltos **com sinal** (`JG`, `JGE`, `JL`, `JLE`). Os saltos `JA`, `JAE`, `JB` e `JBE` comparam como números sem sinal e ficam proibidos.",
+    "contrato": "Memória: `a`, `b` e `maior` (DW). Os testes conferem `maior`.",
+    "editorial": "A mesma comparação (`CMP`) serve para números com e sem sinal; o que muda é **qual salto** lê o resultado. Sem sinal: `JA`, `JB` e família (usam CF). Com sinal: `JG`, `JL` e família (usam SF, OF e ZF).\n\nTestar só o sinal do resultado da subtração (por exemplo `SUB` e `JS`) é um erro clássico: ele falha quando a conta estoura. `JG`/`JL` já incorporam o OF, e é por isso que `32767` contra `-32768` é o teste que separa os dois jeitos.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\na     DW 0\nb     DW 0\nmaior DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\na     DW 0\nb     DW 0\nmaior DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV AX,a\n    CMP AX,b\n    JGE grava          ; com sinal: SF = OF (leva em conta o overflow)\n    MOV AX,b\ngrava:\n    MOV maior,AX\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "`CMP` faz uma subtração e só guarda os flags. Para **com sinal** a decisão certa é `SF = OF` (o resultado é positivo, ou o sinal foi invertido por um estouro). Os saltos `JG`, `JGE`, `JL` e `JLE` já testam isso.",
+     "Os saltos `JA`/`JB` olham o **carry**, que serve para números sem sinal. Para `-1` e `1` eles diriam que `-1` (que vale `0FFFFh`) é o maior.",
+     "`MOV AX,a`, `CMP AX,b`, `JGE` (a >= b) pula direto para a gravação; senão, `MOV AX,b`. Teste `32767` contra `-32768`: a subtração estoura e muda o sinal, e `JGE` acerta por olhar também o OF."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 5 (saltos condicionais).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Kip Irvine, *Assembly Language for x86 Processors*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "5 e 3",
+      "visivel": true,
+      "setup": {
+       "a": 5,
+       "b": 3,
+       "maior": 30583
+      },
+      "espera": {
+       "mem": {
+        "maior": 5
+       }
+      }
+     },
+     {
+      "nome": "3 e 5",
+      "visivel": true,
+      "setup": {
+       "a": 3,
+       "b": 5,
+       "maior": 30583
+      },
+      "espera": {
+       "mem": {
+        "maior": 5
+       }
+      }
+     },
+     {
+      "nome": "-1 e 1",
+      "visivel": false,
+      "dica": "falhou com um negativo e um positivo: -1 é menor que 1 (JA/JB comparam sem sinal)",
+      "setup": {
+       "a": 65535,
+       "b": 1,
+       "maior": 30583
+      },
+      "espera": {
+       "mem": {
+        "maior": 1
+       }
+      }
+     },
+     {
+      "nome": "1 e -1",
+      "visivel": false,
+      "dica": "falhou com 1 e -1",
+      "setup": {
+       "a": 1,
+       "b": 65535,
+       "maior": 30583
+      },
+      "espera": {
+       "mem": {
+        "maior": 1
+       }
+      }
+     },
+     {
+      "nome": "-5 e -3",
+      "visivel": false,
+      "dica": "falhou com dois negativos: -3 é maior que -5",
+      "setup": {
+       "a": 65531,
+       "b": 65533,
+       "maior": 30583
+      },
+      "espera": {
+       "mem": {
+        "maior": 65533
+       }
+      }
+     },
+     {
+      "nome": "-3 e -5",
+      "visivel": false,
+      "dica": "falhou com dois negativos na outra ordem",
+      "setup": {
+       "a": 65533,
+       "b": 65531,
+       "maior": 30583
+      },
+      "espera": {
+       "mem": {
+        "maior": 65533
+       }
+      }
+     },
+     {
+      "nome": "32767 e -32768",
+      "visivel": false,
+      "dica": "falhou com 32767 e -32768: a subtração estoura (OF), e só JG/JL tratam isso",
+      "setup": {
+       "a": 32767,
+       "b": 32768,
+       "maior": 30583
+      },
+      "espera": {
+       "mem": {
+        "maior": 32767
+       }
+      }
+     },
+     {
+      "nome": "-32768 e 32767",
+      "visivel": false,
+      "dica": "falhou com -32768 e 32767",
+      "setup": {
+       "a": 32768,
+       "b": 32767,
+       "maior": 30583
+      },
+      "espera": {
+       "mem": {
+        "maior": 32767
+       }
+      }
+     },
+     {
+      "nome": "-32768 e -1",
+      "visivel": false,
+      "dica": "falhou com -32768 e -1",
+      "setup": {
+       "a": 32768,
+       "b": 65535,
+       "maior": 30583
+      },
+      "espera": {
+       "mem": {
+        "maior": 65535
+       }
+      }
+     },
+     {
+      "nome": "7 e 7",
+      "visivel": false,
+      "dica": "falhou com valores iguais",
+      "setup": {
+       "a": 7,
+       "b": 7,
+       "maior": 30583
+      },
+      "espera": {
+       "mem": {
+        "maior": 7
+       }
+      }
+     },
+     {
+      "nome": "30000 e -30000",
+      "visivel": false,
+      "dica": "falhou com 30000 e -30000 (a diferença estoura 16 bits)",
+      "setup": {
+       "a": 30000,
+       "b": 35536,
+       "maior": 30583
+      },
+      "espera": {
+       "mem": {
+        "maior": 30000
+       }
+      }
+     },
+     {
+      "nome": "-30000 e 30000",
+      "visivel": false,
+      "dica": "falhou com -30000 e 30000",
+      "setup": {
+       "a": 35536,
+       "b": 30000,
+       "maior": 30583
+      },
+      "espera": {
+       "mem": {
+        "maior": 30000
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 25,
+     "ciclos": 112,
+     "proibir": [
+      "JA",
+      "JAE",
+      "JB",
+      "JBE",
+      "JNA",
+      "JNAE",
+      "JNB",
+      "JNBE",
+      "JC",
+      "JNC"
+     ]
+    }
+   },
+   {
+    "id": "113-troca-por-referencia",
+    "linguagem": "8086",
+    "titulo": "Troca por referência",
+    "dificuldade": "medio",
+    "trilha": "procedimentos",
+    "tags": [
+     "procedimentos",
+     "ponteiros",
+     "call",
+     "passagem por referência"
+    ],
+    "prerequisitos": [
+     "030-procedimento-que-dobra",
+     "034-copia-de-bloco"
+    ],
+    "aula": 10,
+    "enunciado": "Escreva o procedimento `troca`, que recebe em `SI` e `DI` os **endereços** de duas palavras e **troca** o conteúdo delas. Use-o para trocar `a` com `b` e depois `c` com `d`.\n\n## Exemplos\n\n| antes | depois |\n|---|---|\n| a = 1, b = 2 | a = 2, b = 1 |\n| c = 3, d = 4 | c = 4, d = 3 |\n\n## Restrições\n\n- Chame o procedimento com `CALL` duas vezes e termine-o com `RET`.\n- O procedimento deve **devolver** `SI`, `DI` e `AX` como estavam. A pilha deve terminar equilibrada.",
+    "contrato": "Memória: `a`, `b`, `c` e `d` (DW). Os testes conferem os quatro valores e o equilíbrio da pilha.",
+    "editorial": "O endereço é o jeito de um procedimento mexer em variáveis do chamador: sem ponteiros, só dá para devolver valores em registradores. `SI` e `DI` são as escolhas tradicionais para ponteiros (os de \"fonte\" e \"destino\").\n\nSalvar e restaurar o que se usa (aqui, `AX`) é um contrato: quem chama pode contar que os registradores não mudam. Sem `PUSH` e `POP` casados, a pilha se desequilibra e o `RET` volta para o lugar errado.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\na DW 0\nb DW 0\nc DW 0\nd DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\n    ; (defina o procedimento troca depois do MOV AX,4C00h/INT 21h, ou antes do inicio)\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\na DW 0\nb DW 0\nc DW 0\nd DW 0\n.CODE\ntroca PROC\n    PUSH AX\n    MOV AX,[SI]\n    XCHG AX,[DI]       ; AX = [DI], [DI] = antigo [SI]\n    MOV [SI],AX\n    POP AX\n    RET\ntroca ENDP\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV SI,OFFSET a\n    MOV DI,OFFSET b\n    CALL troca\n    MOV SI,OFFSET c\n    MOV DI,OFFSET d\n    CALL troca\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "Passar por **referência** é passar o endereço: em `SI` vai `OFFSET a` e em `DI` vai `OFFSET b`. Dentro do procedimento, `[SI]` é o conteúdo de `a` e `[DI]`, o de `b`.",
+     "O 8086 não tem troca memória-memória. Leia um lado para um registrador, use `XCHG reg,[DI]` (que troca o registrador com a memória) e grave o outro lado: três movimentos.",
+     "Use `PUSH AX` no começo e `POP AX` no fim, para devolver `AX` como estava. Procedimentos bem-comportados não deixam rastro em registradores que o chamador não espera que mudem. Defina o `troca PROC ... RET ... ENDP` antes do rótulo `inicio`, para a execução não cair nele."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 10 (parâmetros e procedimentos).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Peter Norton e John Socha, *Peter Norton's Assembly Language Book for the IBM PC*: seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "(1,2) e (3,4)",
+      "visivel": true,
+      "setup": {
+       "a": 1,
+       "b": 2,
+       "c": 3,
+       "d": 4
+      },
+      "espera": {
+       "mem": {
+        "a": 2,
+        "b": 1,
+        "c": 4,
+        "d": 3
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "(10,20) e (30,40)",
+      "visivel": true,
+      "setup": {
+       "a": 10,
+       "b": 20,
+       "c": 30,
+       "d": 40
+      },
+      "espera": {
+       "mem": {
+        "a": 20,
+        "b": 10,
+        "c": 40,
+        "d": 30
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "(0,65535) e (7,7)",
+      "visivel": false,
+      "dica": "falhou com o valor 65535",
+      "setup": {
+       "a": 0,
+       "b": 65535,
+       "c": 7,
+       "d": 7
+      },
+      "espera": {
+       "mem": {
+        "a": 65535,
+        "b": 0,
+        "c": 7,
+        "d": 7
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "(4660,22136) e (39612,57072)",
+      "visivel": false,
+      "dica": "falhou com valores de 16 bits distintos nos dois pares",
+      "setup": {
+       "a": 4660,
+       "b": 22136,
+       "c": 39612,
+       "d": 57072
+      },
+      "espera": {
+       "mem": {
+        "a": 22136,
+        "b": 4660,
+        "c": 57072,
+        "d": 39612
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "(100,100) e (5,6)",
+      "visivel": false,
+      "dica": "falhou com um par de valores iguais",
+      "setup": {
+       "a": 100,
+       "b": 100,
+       "c": 5,
+       "d": 6
+      },
+      "espera": {
+       "mem": {
+        "a": 100,
+        "b": 100,
+        "c": 6,
+        "d": 5
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "(65535,0) e (1,0)",
+      "visivel": false,
+      "dica": "falhou com 65535 e 0",
+      "setup": {
+       "a": 65535,
+       "b": 0,
+       "c": 1,
+       "d": 0
+      },
+      "espera": {
+       "mem": {
+        "a": 0,
+        "b": 65535,
+        "c": 0,
+        "d": 1
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "(42,7) e (0,99)",
+      "visivel": false,
+      "dica": "falhou com um dos valores igual a 0",
+      "setup": {
+       "a": 42,
+       "b": 7,
+       "c": 0,
+       "d": 99
+      },
+      "espera": {
+       "mem": {
+        "a": 7,
+        "b": 42,
+        "c": 99,
+        "d": 0
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "(1,1) e (1,1)",
+      "visivel": false,
+      "dica": "falhou com todos iguais",
+      "setup": {
+       "a": 1,
+       "b": 1,
+       "c": 1,
+       "d": 1
+      },
+      "espera": {
+       "mem": {
+        "a": 1,
+        "b": 1,
+        "c": 1,
+        "d": 1
+       },
+       "pilhaEquilibrada": true
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 37,
+     "ciclos": 267,
+     "exigir": [
+      "CALL",
+      "RET"
+     ]
+    }
+   },
+   {
+    "id": "114-parametros-na-pilha",
+    "linguagem": "8086",
+    "titulo": "Parâmetros na pilha",
+    "dificuldade": "medio",
+    "trilha": "procedimentos",
+    "tags": [
+     "procedimentos",
+     "pilha",
+     "bp",
+     "convenção de chamada"
+    ],
+    "prerequisitos": [
+     "030-procedimento-que-dobra",
+     "031-maximo-por-parametro"
+    ],
+    "aula": 10,
+    "enunciado": "Escreva o procedimento `soma3`, que recebe **três palavras pela pilha** (empilhadas na ordem `x`, `y`, `z`), devolve a soma em `AX` e **retira os parâmetros da pilha** ao voltar (`RET 6`). Chame-o com `x`, `y` e `z` e guarde o resultado em `res`.\n\n## Exemplos\n\n| x | y | z | res |\n|---|---|---|---|\n| 1 | 2 | 3 | 6 |\n| 65535 | 1 | 0 | 0 |\n\n## Restrições\n\n- Os parâmetros vão pela pilha (`PUSH`), não por registradores.\n- Dentro do procedimento, acesse-os por `BP`: monte o quadro com `PUSH BP` e `MOV BP,SP`.\n- A pilha deve terminar equilibrada.",
+    "contrato": "Memória: `x`, `y`, `z` e `res` (DW). Os testes conferem `res` e o equilíbrio da pilha.",
+    "editorial": "Passar parâmetros pela pilha é a base das convenções de chamada de C e Pascal. `BP` aponta para o quadro e dá endereços **fixos** aos parâmetros, ao contrário de `SP`, que se mexe a cada `PUSH`.\n\n`RET n` é a convenção \"o chamado limpa\" (Pascal e `stdcall`): o procedimento remove os parâmetros. Em C, o chamador limpa com `ADD SP,n` depois do `CALL`, o que permite funções com número variável de argumentos (`printf`).",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\nx   DW 0\ny   DW 0\nz   DW 0\nres DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\n    ; (defina o procedimento soma3 antes do rótulo inicio)\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\nx   DW 0\ny   DW 0\nz   DW 0\nres DW 0\n.CODE\nsoma3 PROC\n    PUSH BP\n    MOV BP,SP          ; quadro: [BP] = BP salvo, [BP+2] = retorno\n    MOV AX,[BP+8]      ; x (empilhado primeiro, fica mais longe)\n    ADD AX,[BP+6]      ; y\n    ADD AX,[BP+4]      ; z\n    POP BP\n    RET 6              ; volta e descarta os 3 parâmetros\nsoma3 ENDP\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    PUSH x\n    PUSH y\n    PUSH z\n    CALL soma3\n    MOV res,AX\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "A pilha cresce para baixo e o `CALL` empilha o endereço de retorno **por último**. Se o chamador empilhou `x`, `y`, `z` e o `CALL` empilhou o retorno, e o procedimento empilhou `BP`, então com `MOV BP,SP` fica: `[BP]` = BP salvo, `[BP+2]` = retorno, `[BP+4]` = `z`, `[BP+6]` = `y`, `[BP+8]` = `x`.",
+     "`PUSH BP` / `MOV BP,SP` monta o **quadro** (stack frame); `BP` guarda a posição fixa de referência, mesmo que `SP` mude depois. Somar `[BP+4]`, `[BP+6]` e `[BP+8]` em `AX` dá o resultado.",
+     "Desmonte com `POP BP` e volte com `RET 6`: ele retira o endereço de retorno e **descarta 6 bytes** (os 3 parâmetros). Assim o chamador não precisa de `ADD SP,6`. Chame com `PUSH x`, `PUSH y`, `PUSH z`, `CALL soma3`, e grave `AX` em `res`."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 10 (parâmetros e quadro de pilha).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Kip Irvine, *Assembly Language for x86 Processors*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "soma3(1, 2, 3)",
+      "visivel": true,
+      "setup": {
+       "x": 1,
+       "y": 2,
+       "z": 3,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 6
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "soma3(10, 20, 30)",
+      "visivel": true,
+      "setup": {
+       "x": 10,
+       "y": 20,
+       "z": 30,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 60
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "soma3(0, 0, 0)",
+      "visivel": false,
+      "dica": "falhou com zeros",
+      "setup": {
+       "x": 0,
+       "y": 0,
+       "z": 0,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "soma3(100, 200, 300)",
+      "visivel": false,
+      "dica": "falhou com 100, 200 e 300",
+      "setup": {
+       "x": 100,
+       "y": 200,
+       "z": 300,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 600
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "soma3(5, 0, 9)",
+      "visivel": false,
+      "dica": "falhou com um dos parâmetros 0",
+      "setup": {
+       "x": 5,
+       "y": 0,
+       "z": 9,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 14
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "soma3(1000, 2000, 3000)",
+      "visivel": false,
+      "dica": "falhou com valores maiores",
+      "setup": {
+       "x": 1000,
+       "y": 2000,
+       "z": 3000,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 6000
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "soma3(65535, 1, 0)",
+      "visivel": false,
+      "dica": "falhou com 65535 + 1: o resultado dá a volta em 16 bits",
+      "setup": {
+       "x": 65535,
+       "y": 1,
+       "z": 0,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "soma3(7, 7, 7)",
+      "visivel": false,
+      "dica": "falhou com valores iguais",
+      "setup": {
+       "x": 7,
+       "y": 7,
+       "z": 7,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 21
+       },
+       "pilhaEquilibrada": true
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 44,
+     "ciclos": 242,
+     "exigir": [
+      "CALL",
+      "RET"
+     ]
+    }
+   },
+   {
+    "id": "115-variavel-local-no-quadro",
+    "linguagem": "8086",
+    "titulo": "Variável local no quadro",
+    "dificuldade": "medio",
+    "trilha": "procedimentos",
+    "tags": [
+     "procedimentos",
+     "pilha",
+     "variável local",
+     "bp"
+    ],
+    "prerequisitos": [
+     "030-procedimento-que-dobra",
+     "031-maximo-por-parametro"
+    ],
+    "aula": 10,
+    "enunciado": "Escreva o procedimento `somaq`, que recebe `n` em `CX` e devolve em `AX` a soma `1² + 2² + ... + n²` (0 para `n = 0`). O acumulador **deve ficar numa variável local**, na pilha, e não num registrador. Grave o resultado em `res`.\n\n## Exemplos\n\n| n | res |\n|---|---|\n| 3 | 14 |\n| 10 | 385 |\n| 0 | 0 |\n\n## Restrições\n\n- Reserve a variável local com `SUB SP,2` e acesse-a por `[BP-2]`. No fim, devolva o espaço com `MOV SP,BP`.\n- `n` vai até 30.\n- A pilha deve terminar equilibrada.",
+    "contrato": "Memória: `n` e `res` (DW). Os testes conferem `res` e o equilíbrio da pilha.",
+    "editorial": "O padrão `PUSH BP / MOV BP,SP / SUB SP,n ... MOV SP,BP / POP BP / RET` é o quadro de pilha de qualquer compilador de 16 bits. Os parâmetros ficam em `[BP+4...]` e as locais em `[BP-2...]`.\n\nVariáveis locais na pilha permitem **recursão e reentrância**: cada chamada tem as suas. Um acumulador em variável global quebraria uma chamada recursiva. `MOV SP,BP` é o jeito mais seguro de desfazer o quadro, porque funciona mesmo que haja `PUSH` sobrando.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\nn   DW 0\nres DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\n    ; (defina o procedimento somaq antes do rótulo inicio)\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\nn   DW 0\nres DW 0\n.CODE\nsomaq PROC\n    PUSH BP\n    MOV BP,SP\n    SUB SP,2           ; local: [BP-2] = acumulador\n    MOV WORD PTR [BP-2],0\n    PUSH CX\n    JCXZ pronto\nsoma:\n    MOV AX,CX\n    MUL CX             ; DX:AX = CX * CX\n    ADD [BP-2],AX\n    LOOP soma\npronto:\n    POP CX\n    MOV AX,[BP-2]\n    MOV SP,BP          ; devolve o espaço da variável local\n    POP BP\n    RET\nsomaq ENDP\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV CX,n\n    CALL somaq\n    MOV res,AX\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "Variáveis locais moram **na pilha, abaixo de `BP`**. Monte o quadro (`PUSH BP`, `MOV BP,SP`) e reserve espaço com `SUB SP,2`: a local vira `[BP-2]`, um endereço fixo que não muda com os `PUSH` seguintes.",
+     "Zere o acumulador (`MOV WORD PTR [BP-2],0`) e some cada quadrado nele. O quadrado de `CX` sai de `MOV AX,CX` e `MUL CX` (resultado em `DX:AX`; aqui só `AX` interessa). Use `LOOP` contando `CX` para baixo: de `n` a 1 dá os mesmos termos.",
+     "Trate `n = 0` com `JCXZ`, porque `LOOP` com `CX = 0` daria 65536 voltas. Na saída, `MOV SP,BP` joga fora a local (e qualquer `PUSH` esquecido), `POP BP` restaura o quadro do chamador e `RET` volta. `PUSH CX` / `POP CX` devolve o contador, já que o laço o consome."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 10 (quadro de pilha).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Peter Norton e John Socha, *Peter Norton's Assembly Language Book for the IBM PC*: seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "n = 1",
+      "visivel": true,
+      "setup": {
+       "n": 1,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "n = 2",
+      "visivel": true,
+      "setup": {
+       "n": 2,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 5
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "n = 3",
+      "visivel": false,
+      "dica": "falhou com n = 3",
+      "setup": {
+       "n": 3,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 14
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "n = 5",
+      "visivel": false,
+      "dica": "falhou com n = 5",
+      "setup": {
+       "n": 5,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 55
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "n = 10",
+      "visivel": false,
+      "dica": "falhou com n = 10",
+      "setup": {
+       "n": 10,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 385
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "n = 20",
+      "visivel": false,
+      "dica": "falhou com n = 20",
+      "setup": {
+       "n": 20,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 2870
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "n = 30",
+      "visivel": false,
+      "dica": "falhou com n = 30",
+      "setup": {
+       "n": 30,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 9455
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "n = 0",
+      "visivel": false,
+      "dica": "falhou com n = 0: a soma vazia vale 0",
+      "setup": {
+       "n": 0,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       },
+       "pilhaEquilibrada": true
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 51,
+     "ciclos": 5288,
+     "exigir": [
+      "CALL",
+      "RET",
+      "SUB"
+     ]
+    }
+   },
+   {
+    "id": "116-ler-numero-e-imprimir-o-dobro",
+    "linguagem": "8086",
+    "titulo": "Ler um número e imprimir o dobro",
+    "dificuldade": "medio",
+    "trilha": "dos",
+    "tags": [
+     "dos",
+     "int 21h",
+     "conversão",
+     "entrada"
+    ],
+    "prerequisitos": [
+     "089-imprimir-numero-decimal",
+     "090-contar-letras-digitadas"
+    ],
+    "aula": 14,
+    "enunciado": "Leia um número decimal digitado (de 0 a 9999, terminado por **Enter**) e **imprima o dobro** dele em decimal, sem espaços nem quebra de linha.\n\n## Exemplos\n\n| entrada | saída |\n|---|---|\n| `21` + Enter | `42` |\n| `0` + Enter | `0` |\n| `9999` + Enter | `19998` |\n\n## Restrições\n\n- Leia com `INT 21h`, função `08h` (lê uma tecla **sem eco**, para a saída só ter o resultado).\n- Imprima com `INT 21h`, função `02h` (um caractere por vez).",
+    "contrato": "Não há variáveis: a entrada vem do teclado e a saída vai para a tela. Os testes conferem o texto impresso.",
+    "editorial": "Converter entre texto e número é o miolo de toda interação por teclado: ler é `acumulado*10 + dígito`, e imprimir é dividir por 10 e **inverter** os restos, o que a pilha faz de graça (último a entrar, primeiro a sair).\n\nO laço de impressão deve ser *do-while*: divide primeiro, testa depois. Assim, o valor 0 produz um dígito. Testar antes do laço faria o zero não imprimir nada, um erro frequente.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\n; sem variáveis\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\n\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    XOR BX,BX          ; BX = número lido\nle:\n    MOV AH,08h\n    INT 21h            ; AL = tecla, sem eco\n    CMP AL,13\n    JE lido\n    SUB AL,'0'\n    XOR AH,AH\n    MOV CX,AX          ; CX = dígito\n    MOV AX,10\n    MUL BX             ; AX = BX * 10\n    ADD AX,CX\n    MOV BX,AX\n    JMP le\nlido:\n    ADD BX,BX          ; dobra\n    MOV AX,BX\n    XOR CX,CX          ; CX = quantos dígitos\n    MOV BX,10\ndivide:\n    XOR DX,DX\n    DIV BX\n    PUSH DX            ; empilha o resto (dígito)\n    INC CX\n    OR AX,AX\n    JNZ divide\nimprime:\n    POP DX\n    ADD DL,'0'\n    MOV AH,02h\n    INT 21h\n    LOOP imprime\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "Dois trabalhos: **ler** (cada tecla vem em `AL` como caractere) e **imprimir** (o número vira caracteres). Leia com `INT 21h`/`AH=08h` em laço até `AL = 13` (Enter): para cada dígito, `número = número * 10 + (AL - '0')`.",
+     "Dobre o número com `ADD BX,BX`. Para imprimir, divida por 10 repetidamente: o **resto** é o dígito, mas sai de trás para frente. Empilhe cada resto (`PUSH DX`) e conte quantos foram em `CX`.",
+     "Depois, `POP DX` desfaz a inversão: some `'0'` (30h) em `DL` e imprima com `AH=02h`/`INT 21h`, `CX` vezes (`LOOP`). Repare que `0` precisa imprimir um dígito: faça a divisão **antes** de testar `AX = 0` (laço do-while). O resultado chega a 19998, que cabe em 16 bits."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 14 (serviços do DOS).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Peter Norton e John Socha, *Peter Norton's Assembly Language Book for the IBM PC*: seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "entrada 21",
+      "visivel": true,
+      "entrada": "21\r",
+      "setup": {},
+      "espera": {
+       "saida": "42"
+      }
+     },
+     {
+      "nome": "entrada 0",
+      "visivel": true,
+      "entrada": "0\r",
+      "setup": {},
+      "espera": {
+       "saida": "0"
+      }
+     },
+     {
+      "nome": "entrada 7",
+      "visivel": false,
+      "dica": "falhou com 7: um dígito só",
+      "entrada": "7\r",
+      "setup": {},
+      "espera": {
+       "saida": "14"
+      }
+     },
+     {
+      "nome": "entrada 100",
+      "visivel": false,
+      "dica": "falhou com 100: o zero no meio precisa contar",
+      "entrada": "100\r",
+      "setup": {},
+      "espera": {
+       "saida": "200"
+      }
+     },
+     {
+      "nome": "entrada 999",
+      "visivel": false,
+      "dica": "falhou com 999",
+      "entrada": "999\r",
+      "setup": {},
+      "espera": {
+       "saida": "1998"
+      }
+     },
+     {
+      "nome": "entrada 5000",
+      "visivel": false,
+      "dica": "falhou com 5000",
+      "entrada": "5000\r",
+      "setup": {},
+      "espera": {
+       "saida": "10000"
+      }
+     },
+     {
+      "nome": "entrada 9999",
+      "visivel": false,
+      "dica": "falhou com 9999: o dobro tem 5 dígitos",
+      "entrada": "9999\r",
+      "setup": {},
+      "espera": {
+       "saida": "19998"
+      }
+     },
+     {
+      "nome": "entrada 12",
+      "visivel": false,
+      "dica": "falhou com 12",
+      "entrada": "12\r",
+      "setup": {},
+      "espera": {
+       "saida": "24"
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 66,
+     "ciclos": 2375
+    }
+   },
+   {
+    "id": "117-contar-argumentos-da-linha-de-comando",
+    "linguagem": "8086",
+    "titulo": "Contar argumentos da linha de comando",
+    "dificuldade": "medio",
+    "trilha": "dos",
+    "tags": [
+     "dos",
+     "psp",
+     "linha de comando",
+     "strings"
+    ],
+    "prerequisitos": [
+     "090-contar-letras-digitadas"
+    ],
+    "aula": 14,
+    "enunciado": "O DOS entrega os argumentos do programa no **PSP** (o bloco de 256 bytes que vem antes do código): em `[80h]` o **tamanho** do texto e a partir de `[81h]` o texto, terminado por `13` (Enter). Conte quantas **palavras** (sequências sem espaço) há na linha de comando e grave em `palavras`.\n\n## Exemplos\n\n| linha de comando | palavras |\n|---|---|\n| `um dois tres` | 3 |\n| (vazia) | 0 |\n| `  a   b  ` | 2 |\n\n## Restrições\n\n- No início do programa, `DS` e `ES` apontam para o **PSP**. Leia a linha **antes** de mudar `DS` para o segmento de dados.",
+    "contrato": "Memória: `palavras` (DW). Os testes passam diferentes linhas de comando e conferem `palavras`.",
+    "editorial": "O **PSP** (*Program Segment Prefix*) é a ficha que o DOS monta para cada programa: tamanho da memória, ambiente, e a linha de comando em `[80h]`. É assim que utilitários como `COPY` e `DIR` recebem seus argumentos.\n\nO detalhe clássico é o segmento: ao iniciar, `DS = ES =` PSP, e a primeira coisa que todo programa faz (`MOV DS,AX`) joga fora esse endereço. Programas que precisam da linha de comando salvam o segmento antes, ou leem o PSP imediatamente. Hoje, o INT 21h/AH=62h também devolve o segmento do PSP.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\npalavras DW 0\n.CODE\ninicio:\n    ; DS = PSP aqui: leia [80h] e [81h...] antes de MOV DS,AX\n    ; seu código aqui\n    MOV AX,@DATA\n    MOV DS,AX\n    ; grave o resultado em palavras\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\npalavras DW 0\n.CODE\ninicio:\n    XOR BX,BX          ; BX = palavras\n    XOR DX,DX          ; DL = 1 dentro de uma palavra\n    MOV SI,80h\n    MOV CL,[SI]        ; tamanho do texto\n    XOR CH,CH\n    INC SI             ; SI = 81h\n    JCXZ guarda\nvarre:\n    LODSB\n    CMP AL,' '\n    JE separa\n    CMP AL,13\n    JE separa\n    TEST DL,DL\n    JNZ proximo        ; continua a mesma palavra\n    INC BX             ; começou uma palavra nova\n    MOV DL,1\n    JMP proximo\nsepara:\n    XOR DL,DL\nproximo:\n    LOOP varre\nguarda:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV palavras,BX\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "No começo do programa `DS` é o segmento do **PSP**, não o dos seus dados. `[80h]` tem o tamanho do texto da linha de comando e `[81h]`, o texto. Leia tudo isso **antes** do `MOV DS,AX` com `@DATA`, ou guarde `BX`/`DX` e use só depois.",
+     "Percorra os bytes com `LODSB` (`SI` começa em 81h, `CX` = tamanho) e conte **começos de palavra**: um caractere que não é espaço e vem depois de um espaço (ou do início). Um indicador (por exemplo `DL`) diz se você já está dentro de uma palavra.",
+     "Trate o tamanho 0 com `JCXZ`. Para cada byte: espaço (ou 13) zera o indicador; outro caractere com o indicador zerado soma 1 em `BX` e liga o indicador. Só no fim troque `DS` e grave `BX` em `palavras`. Espaços repetidos e espaços nas pontas não criam palavras."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 14 (PSP e linha de comando).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Peter Norton e John Socha, *Peter Norton's Assembly Language Book for the IBM PC*: seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "\"um dois tres\"",
+      "visivel": true,
+      "linhaComando": "um dois tres",
+      "setup": {
+       "palavras": 30583
+      },
+      "espera": {
+       "mem": {
+        "palavras": 3
+       }
+      }
+     },
+     {
+      "nome": "\"\"",
+      "visivel": true,
+      "linhaComando": "",
+      "setup": {
+       "palavras": 30583
+      },
+      "espera": {
+       "mem": {
+        "palavras": 0
+       }
+      }
+     },
+     {
+      "nome": "\"a\"",
+      "visivel": false,
+      "dica": "falhou com um argumento só",
+      "linhaComando": "a",
+      "setup": {
+       "palavras": 30583
+      },
+      "espera": {
+       "mem": {
+        "palavras": 1
+       }
+      }
+     },
+     {
+      "nome": "\"  a   b  \"",
+      "visivel": false,
+      "dica": "falhou com espaços repetidos: eles não criam palavras",
+      "linhaComando": "  a   b  ",
+      "setup": {
+       "palavras": 30583
+      },
+      "espera": {
+       "mem": {
+        "palavras": 2
+       }
+      }
+     },
+     {
+      "nome": "\"um dois tres quatro cinco seis\"",
+      "visivel": false,
+      "dica": "falhou com 6 palavras",
+      "linhaComando": "um dois tres quatro cinco seis",
+      "setup": {
+       "palavras": 30583
+      },
+      "espera": {
+       "mem": {
+        "palavras": 6
+       }
+      }
+     },
+     {
+      "nome": "\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"",
+      "visivel": false,
+      "dica": "falhou com uma palavra longa",
+      "linhaComando": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "setup": {
+       "palavras": 30583
+      },
+      "espera": {
+       "mem": {
+        "palavras": 1
+       }
+      }
+     },
+     {
+      "nome": "\"a b c d e f g h i j\"",
+      "visivel": false,
+      "dica": "falhou com 10 palavras",
+      "linhaComando": "a b c d e f g h i j",
+      "setup": {
+       "palavras": 30583
+      },
+      "espera": {
+       "mem": {
+        "palavras": 10
+       }
+      }
+     },
+     {
+      "nome": "\"arquivo.txt -v\"",
+      "visivel": false,
+      "dica": "falhou com um ponto e um hífen no meio",
+      "linhaComando": "arquivo.txt -v",
+      "setup": {
+       "palavras": 30583
+      },
+      "espera": {
+       "mem": {
+        "palavras": 2
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 50,
+     "ciclos": 2079
+    }
+   },
+   {
+    "id": "118-escrever-na-tela-com-int-10h",
+    "linguagem": "8086",
+    "titulo": "Escrever na tela com INT 10h",
+    "dificuldade": "medio",
+    "trilha": "dos",
+    "tags": [
+     "bios",
+     "int 10h",
+     "vídeo",
+     "cursor"
+    ],
+    "prerequisitos": [
+     "037-escrever-na-tela"
+    ],
+    "aula": 14,
+    "enunciado": "Escreva o caractere `letra` na tela, na posição (`linha`, `coluna`), em **branco sobre vermelho** (atributo `4Fh`), usando o BIOS: `INT 10h`, função `02h` (posiciona o cursor) e função `09h` (escreve caractere com atributo). `linha` vai de 0 a 24 e `coluna`, de 0 a 79.\n\n## Exemplos\n\n| linha | coluna | letra | célula da tela |\n|---|---|---|---|\n| 0 | 0 | `A` | 0 |\n| 12 | 40 | `X` | 1000 |\n\n## Restrições\n\n- Sem acessar a memória de vídeo diretamente (`B800h`): passe pelo BIOS.\n- Página de vídeo 0.",
+    "contrato": "Memória: `linha`, `coluna` e `letra` (DB). Os testes conferem o caractere e o atributo da célula `linha * 80 + coluna`.",
+    "editorial": "O BIOS esconde o hardware de vídeo atrás de uma interrupção: `AH` seleciona a função. A `02h` mexe só no cursor; a `09h` escreve **caractere e atributo** sem avançar o cursor (já a `0Eh` imprime como terminal e avança). Cada célula é uma palavra, caractere no byte baixo e atributo no alto: bits 0-3 cor da letra, 4-6 cor do fundo, 7 pisca.\n\nAcessar `B800:0000` direto é mais rápido, e era o que os jogos faziam, mas só o BIOS funciona em qualquer placa de vídeo. Vale o mesmo raciocínio em sistemas modernos: a API portátil contra o acesso direto.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\nlinha  DB 0\ncoluna DB 0\nletra  DB 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\nlinha  DB 0\ncoluna DB 0\nletra  DB 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV AH,02h         ; posiciona o cursor\n    MOV BH,0           ; página 0\n    MOV DH,linha\n    MOV DL,coluna\n    INT 10h\n    MOV AH,09h         ; escreve caractere com atributo\n    MOV AL,letra\n    MOV BH,0\n    MOV BL,4Fh         ; branco sobre vermelho\n    MOV CX,1           ; uma vez\n    INT 10h\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "O BIOS de vídeo (`INT 10h`) escolhe a função em `AH`. A `02h` coloca o cursor: `DH` = linha, `DL` = coluna e `BH` = página (0). A `09h` escreve na posição do cursor: `AL` = caractere, `BL` = atributo, `BH` = página, `CX` = quantas vezes.",
+     "Atributo `4Fh`: o nibble alto (4) é o **fundo** (vermelho) e o baixo (Fh), a **cor da letra** (branco brilhante). Cada célula da tela ocupa 2 bytes (caractere e atributo) e fica na posição `linha * 80 + coluna` (modo texto 80 x 25).",
+     "`MOV AH,02h`, `MOV BH,0`, `MOV DH,linha`, `MOV DL,coluna`, `INT 10h`; depois `MOV AH,09h`, `MOV AL,letra`, `MOV BL,4Fh`, `MOV CX,1`, `INT 10h`. A `09h` **não avança** o cursor, e `CX` deve ser 1 (senão repete o caractere)."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 14 (BIOS de vídeo).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Peter Norton e John Socha, *Peter Norton's Assembly Language Book for the IBM PC*: seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "linha 0, coluna 0",
+      "visivel": true,
+      "setup": {
+       "linha": 0,
+       "coluna": 0,
+       "letra": 65
+      },
+      "espera": {
+       "video": {
+        "0": [
+         "A",
+         79
+        ]
+       }
+      }
+     },
+     {
+      "nome": "linha 12, coluna 40",
+      "visivel": true,
+      "setup": {
+       "linha": 12,
+       "coluna": 40,
+       "letra": 88
+      },
+      "espera": {
+       "video": {
+        "1000": [
+         "X",
+         79
+        ]
+       }
+      }
+     },
+     {
+      "nome": "linha 24, coluna 79",
+      "visivel": false,
+      "dica": "falhou no canto inferior direito (linha 24, coluna 79)",
+      "setup": {
+       "linha": 24,
+       "coluna": 79,
+       "letra": 90
+      },
+      "espera": {
+       "video": {
+        "1999": [
+         "Z",
+         79
+        ]
+       }
+      }
+     },
+     {
+      "nome": "linha 5, coluna 10",
+      "visivel": false,
+      "dica": "falhou com linha 5 e coluna 10",
+      "setup": {
+       "linha": 5,
+       "coluna": 10,
+       "letra": 82
+      },
+      "espera": {
+       "video": {
+        "410": [
+         "R",
+         79
+        ]
+       }
+      }
+     },
+     {
+      "nome": "linha 0, coluna 79",
+      "visivel": false,
+      "dica": "falhou na última coluna da primeira linha",
+      "setup": {
+       "linha": 0,
+       "coluna": 79,
+       "letra": 35
+      },
+      "espera": {
+       "video": {
+        "79": [
+         "#",
+         79
+        ]
+       }
+      }
+     },
+     {
+      "nome": "linha 24, coluna 0",
+      "visivel": false,
+      "dica": "falhou na primeira coluna da última linha",
+      "setup": {
+       "linha": 24,
+       "coluna": 0,
+       "letra": 42
+      },
+      "espera": {
+       "video": {
+        "1920": [
+         "*",
+         79
+        ]
+       }
+      }
+     },
+     {
+      "nome": "linha 10, coluna 1",
+      "visivel": false,
+      "dica": "falhou com linha 10 e coluna 1",
+      "setup": {
+       "linha": 10,
+       "coluna": 1,
+       "letra": 109
+      },
+      "espera": {
+       "video": {
+        "801": [
+         "m",
+         79
+        ]
+       }
+      }
+     },
+     {
+      "nome": "linha 1, coluna 0",
+      "visivel": false,
+      "dica": "falhou com linha 1, coluna 0: a posição é linha * 80 + coluna",
+      "setup": {
+       "linha": 1,
+       "coluna": 0,
+       "letra": 107
+      },
+      "espera": {
+       "video": {
+        "80": [
+         "k",
+         79
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 38,
+     "ciclos": 225
+    }
+   },
+   {
+    "id": "119-tocar-uma-nota-no-alto-falante",
+    "linguagem": "8086",
+    "titulo": "Tocar uma nota no alto-falante",
+    "dificuldade": "medio",
+    "trilha": "dos",
+    "tags": [
+     "portas",
+     "in",
+     "out",
+     "pit",
+     "alto-falante"
+    ],
+    "prerequisitos": [
+     "044-alfabeto-ate-a-letra"
+    ],
+    "aula": 15,
+    "enunciado": "Toque no alto-falante do PC a nota de `freq` Hz (de 100 a 2000), programando o **temporizador 8253/8254** (canal 2) por **portas de E/S** e ligando o alto-falante. O programa termina com o som **ligado**.\n\n## Exemplos\n\n| freq | divisor do canal 2 |\n|---|---|\n| 440 | 2711 |\n| 1000 | 1193 |\n\n## Restrições\n\n- O relógio do PIT roda a **1193182 Hz**: o divisor é `1193182 / freq` (divisão inteira).\n- Use `OUT` e `IN`, não funções do DOS ou do BIOS.",
+    "contrato": "Memória: `freq` (DW). Os testes conferem o divisor do canal 2, os bits 0 e 1 da porta `61h` e a nota tocada.",
+    "editorial": "Nos PCs antigos, o som era assim: um chip temporizador (o 8253/8254) divide um clock de 1,193182 MHz, e a saída do canal 2 vai para o alto-falante por uma porta. Nada de driver: três `OUT` e o PC apita.\n\nOs acessos por porta (`IN`/`OUT`) formam um espaço de endereços separado da memória. O padrão \"ler, alterar só os bits meus, escrever\" (*read-modify-write*) é o jeito educado de mexer numa porta compartilhada. Para silenciar, o inverso: `AND AL,0FCh` na porta `61h`.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\nfreq DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\nfreq DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV DX,12h         ; 1193182 = 0012 34DEh\n    MOV AX,34DEh\n    DIV freq           ; AX = divisor\n    MOV BX,AX\n    MOV AL,0B6h        ; canal 2, lê/grava byte baixo e alto, modo 3\n    OUT 43h,AL\n    MOV AL,BL\n    OUT 42h,AL         ; byte baixo do divisor\n    MOV AL,BH\n    OUT 42h,AL         ; byte alto\n    IN AL,61h\n    OR AL,3            ; bit 0 liga o canal 2; bit 1 liga o alto-falante\n    OUT 61h,AL\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "O canal 2 do PIT gera uma onda quadrada na frequência `1193182 / divisor`. Calcule o divisor com `DX:AX = 1193182` (`DX = 12h`, `AX = 34DEh`) e `DIV freq`: o quociente (em `AX`) cabe em 16 bits.",
+     "Programe o canal: `OUT 43h,0B6h` (canal 2, byte baixo e alto, onda quadrada) e depois mande o divisor pela porta `42h`, **byte baixo primeiro**, depois o alto (`OUT 42h,AL` duas vezes). `OUT` só aceita `AL`/`AX` e a porta em `DX` ou como constante até 0FFh.",
+     "Para ligar o som, leia a porta `61h` (`IN AL,61h`), ligue os bits 0 e 1 (`OR AL,3`) e escreva de volta (`OUT 61h,AL`). Ler antes e mexer só nos dois bits preserva os outros bits da porta, que controlam outras partes do PC."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 15 (portas de E/S e temporizador).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Peter Norton e John Socha, *Peter Norton's Assembly Language Book for the IBM PC*: seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "440 Hz",
+      "visivel": true,
+      "setup": {
+       "freq": 440
+      },
+      "espera": {
+       "portas": {
+        "61": 3,
+        "pit2": 2711
+       },
+       "notas": [
+        440
+       ]
+      }
+     },
+     {
+      "nome": "262 Hz",
+      "visivel": true,
+      "setup": {
+       "freq": 262
+      },
+      "espera": {
+       "portas": {
+        "61": 3,
+        "pit2": 4554
+       },
+       "notas": [
+        262
+       ]
+      }
+     },
+     {
+      "nome": "523 Hz",
+      "visivel": false,
+      "dica": "falhou com 523 Hz",
+      "setup": {
+       "freq": 523
+      },
+      "espera": {
+       "portas": {
+        "61": 3,
+        "pit2": 2281
+       },
+       "notas": [
+        523
+       ]
+      }
+     },
+     {
+      "nome": "880 Hz",
+      "visivel": false,
+      "dica": "falhou com 880 Hz",
+      "setup": {
+       "freq": 880
+      },
+      "espera": {
+       "portas": {
+        "61": 3,
+        "pit2": 1355
+       },
+       "notas": [
+        880
+       ]
+      }
+     },
+     {
+      "nome": "1000 Hz",
+      "visivel": false,
+      "dica": "falhou com 1000 Hz",
+      "setup": {
+       "freq": 1000
+      },
+      "espera": {
+       "portas": {
+        "61": 3,
+        "pit2": 1193
+       },
+       "notas": [
+        1000
+       ]
+      }
+     },
+     {
+      "nome": "220 Hz",
+      "visivel": false,
+      "dica": "falhou com 220 Hz: o divisor passa de 5000",
+      "setup": {
+       "freq": 220
+      },
+      "espera": {
+       "portas": {
+        "61": 3,
+        "pit2": 5423
+       },
+       "notas": [
+        220
+       ]
+      }
+     },
+     {
+      "nome": "330 Hz",
+      "visivel": false,
+      "dica": "falhou com 330 Hz",
+      "setup": {
+       "freq": 330
+      },
+      "espera": {
+       "portas": {
+        "61": 3,
+        "pit2": 3615
+       },
+       "notas": [
+        330
+       ]
+      }
+     },
+     {
+      "nome": "1760 Hz",
+      "visivel": false,
+      "dica": "falhou com 1760 Hz: o divisor é pequeno",
+      "setup": {
+       "freq": 1760
+      },
+      "espera": {
+       "portas": {
+        "61": 3,
+        "pit2": 677
+       },
+       "notas": [
+        1760
+       ]
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 40,
+     "ciclos": 298
+    }
+   },
+   {
+    "id": "120-contar-linhas-de-um-arquivo",
+    "linguagem": "8086",
+    "titulo": "Contar linhas de um arquivo",
+    "dificuldade": "medio",
+    "trilha": "dos",
+    "tags": [
+     "dos",
+     "arquivos",
+     "int 21h",
+     "handles"
+    ],
+    "prerequisitos": [
+     "090-contar-letras-digitadas"
+    ],
+    "aula": 14,
+    "enunciado": "Abra o arquivo `DADOS.TXT`, conte quantas **quebras de linha** (byte `0Ah`, LF) ele tem, grave em `linhas` e **feche o arquivo**. O arquivo tem até 200 bytes.\n\n## Exemplos\n\n| conteúdo | linhas |\n|---|---|\n| `a`⏎`b`⏎`c`⏎ | 3 |\n| (arquivo vazio) | 0 |\n| `sem fim de linha` | 0 |\n\n## Restrições\n\n- Use `INT 21h`: `3Dh` (abrir, só leitura), `3Fh` (ler), `3Eh` (fechar).\n- O arquivo deve ser fechado antes de terminar.",
+    "contrato": "Memória: `nome` (DB, ASCIIZ com `DADOS.TXT`), `conteudo` (DB, 200 bytes) e `linhas` (DW). Os testes conferem `linhas` e se o arquivo foi fechado.",
+    "editorial": "O padrão de qualquer acesso a arquivo: **abrir, usar, fechar**. Os handles são um recurso limitado do processo (20 por padrão no DOS), e esquecer o `3Eh` vaza handles e, em escritas, pode perder dados que ainda estavam no buffer do sistema.\n\nA leitura devolve o **número real de bytes lidos**, e esse número é a única forma de saber o fim do arquivo. Sempre use-o em vez de supor que o buffer foi preenchido. O CF depois do `INT 21h` é o jeito do DOS de sinalizar erro, e `AX` passa a ser o código do erro.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\nnome     DB 'DADOS.TXT',0\nconteudo DB 200 DUP(0)\nlinhas   DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\nnome     DB 'DADOS.TXT',0\nconteudo DB 200 DUP(0)\nlinhas   DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV AH,3Dh\n    MOV AL,0           ; só leitura\n    MOV DX,OFFSET nome\n    INT 21h\n    JC fim             ; não abriu\n    MOV BX,AX          ; handle\n    MOV AH,3Fh\n    MOV CX,200\n    MOV DX,OFFSET conteudo\n    INT 21h            ; AX = bytes lidos\n    MOV CX,AX\n    MOV AH,3Eh\n    PUSH CX\n    INT 21h            ; fecha (BX = handle)\n    POP CX\n    XOR DX,DX          ; DX = linhas\n    JCXZ guarda\n    MOV SI,OFFSET conteudo\nconta:\n    CMP BYTE PTR [SI],10\n    JNE proximo\n    INC DX\nproximo:\n    INC SI\n    LOOP conta\nguarda:\n    MOV linhas,DX\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "Arquivos no DOS passam por um **handle**, um número que o `INT 21h` devolve. `AH=3Dh` abre: `AL` = 0 (leitura) e `DS:DX` aponta o nome ASCIIZ. O handle volta em `AX`, e o flag **CF** avisa erro.",
+     "`AH=3Fh` lê: `BX` = handle, `CX` = quantos bytes e `DS:DX` = buffer. Em `AX` volta **quantos bytes vieram de fato** (o arquivo pode ser menor que o pedido). Esse número é o tamanho do laço de contagem.",
+     "Feche o arquivo logo depois de ler: `AH=3Eh` com `BX` = handle. Guarde o número de bytes lidos antes (o `INT 21h` do fechamento muda `AX`). Depois percorra o buffer contando bytes iguais a `10` (LF); com 0 bytes lidos, nem entre no laço (`JCXZ`)."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 14 (arquivos com handles).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Peter Norton e John Socha, *Peter Norton's Assembly Language Book for the IBM PC*: seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "3 linha(s)",
+      "visivel": true,
+      "arquivos": {
+       "DADOS.TXT": "a\nb\nc\n"
+      },
+      "setup": {
+       "linhas": 30583
+      },
+      "espera": {
+       "mem": {
+        "linhas": 3
+       },
+       "arquivosFechados": true
+      }
+     },
+     {
+      "nome": "0 linha(s)",
+      "visivel": true,
+      "arquivos": {
+       "DADOS.TXT": ""
+      },
+      "setup": {
+       "linhas": 30583
+      },
+      "espera": {
+       "mem": {
+        "linhas": 0
+       },
+       "arquivosFechados": true
+      }
+     },
+     {
+      "nome": "1 linha(s)",
+      "visivel": false,
+      "dica": "falhou com uma linha só",
+      "arquivos": {
+       "DADOS.TXT": "uma linha\n"
+      },
+      "setup": {
+       "linhas": 30583
+      },
+      "espera": {
+       "mem": {
+        "linhas": 1
+       },
+       "arquivosFechados": true
+      }
+     },
+     {
+      "nome": "50 linha(s)",
+      "visivel": false,
+      "dica": "falhou com 50 linhas (100 bytes): a leitura deve percorrer o arquivo todo",
+      "arquivos": {
+       "DADOS.TXT": "x\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\nx\n"
+      },
+      "setup": {
+       "linhas": 30583
+      },
+      "espera": {
+       "mem": {
+        "linhas": 50
+       },
+       "arquivosFechados": true
+      }
+     },
+     {
+      "nome": "0 linha(s)",
+      "visivel": false,
+      "dica": "falhou com texto sem quebra de linha: conta só os 10 (LF)",
+      "arquivos": {
+       "DADOS.TXT": "sem fim de linha"
+      },
+      "setup": {
+       "linhas": 30583
+      },
+      "espera": {
+       "mem": {
+        "linhas": 0
+       },
+       "arquivosFechados": true
+      }
+     },
+     {
+      "nome": "4 linha(s)",
+      "visivel": false,
+      "dica": "falhou com linhas em branco: cada LF conta",
+      "arquivos": {
+       "DADOS.TXT": "a\n\nb\n\n"
+      },
+      "setup": {
+       "linhas": 30583
+      },
+      "espera": {
+       "mem": {
+        "linhas": 4
+       },
+       "arquivosFechados": true
+      }
+     },
+     {
+      "nome": "2 linha(s)",
+      "visivel": false,
+      "dica": "falhou com a última linha sem LF",
+      "arquivos": {
+       "DADOS.TXT": "linha1\nlinha2\nparcial"
+      },
+      "setup": {
+       "linhas": 30583
+      },
+      "espera": {
+       "mem": {
+        "linhas": 2
+       },
+       "arquivosFechados": true
+      }
+     },
+     {
+      "nome": "1 linha(s)",
+      "visivel": false,
+      "dica": "falhou com um arquivo de um único LF",
+      "arquivos": {
+       "DADOS.TXT": "\n"
+      },
+      "setup": {
+       "linhas": 30583
+      },
+      "espera": {
+       "mem": {
+        "linhas": 1
+       },
+       "arquivosFechados": true
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 61,
+     "ciclos": 4985
+    }
+   },
+   {
+    "id": "121-inverter-a-ordem-dos-bits",
+    "linguagem": "8086",
+    "titulo": "Inverter a ordem dos bits",
+    "dificuldade": "dificil",
+    "trilha": "bits",
+    "tags": [
+     "bits",
+     "rcl",
+     "shr",
+     "carry"
+    ],
+    "prerequisitos": [
+     "022-quociente-e-resto"
+    ],
+    "aula": 4,
+    "enunciado": "Inverta a **ordem dos 16 bits** de `x`: o bit 0 vira o bit 15, o bit 1 vira o 14, e assim por diante. Grave o resultado em `res`.\n\n## Exemplos\n\n| x | res |\n|---|---|\n| 0001h | 8000h |\n| 00FFh | FF00h |\n| 1234h | 2C48h |\n\n## Restrições\n\n- Sem tabelas: use deslocamentos com carry (`SHR` e `RCL`/`RCR`).",
+    "contrato": "Memória: `x` e `res` (DW). Os testes conferem `res`.",
+    "editorial": "O carry é o \"nono bit\" que liga deslocamentos: `SHR` o preenche, `RCL`/`RCR` o consomem. Esse encadeamento é o que permite mover bits entre registradores e deslocar números maiores que 16 bits.\n\nInverter bits aparece na FFT (ordem *bit-reversed*), em CRC e em protocolos seriais que mandam o bit menos significativo primeiro. Há soluções mais rápidas por tabela de 256 bytes, ao custo de memória.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\nx   DW 0\nres DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\nx   DW 0\nres DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV AX,x\n    XOR BX,BX\n    MOV CX,16\ninverte:\n    SHR AX,1           ; CF = bit mais baixo de AX\n    RCL BX,1           ; entra por baixo em BX, empurrando os anteriores para cima\n    LOOP inverte\n    MOV res,BX\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "`SHR AX,1` joga o bit mais baixo de `AX` no **carry**. `RCL BX,1` (rotação à esquerda **através do carry**) faz o contrário: o carry entra pelo bit 0 de `BX` e o bit 15 sai. Os dois juntos transferem um bit de cada vez.",
+     "Repita 16 vezes (`CX = 16`, `LOOP`). O primeiro bit tirado de `AX` (o bit 0) é empurrado 15 vezes para cima em `BX` e acaba no bit 15; o último, no bit 0. É exatamente a inversão.",
+     "`MOV AX,x`, `XOR BX,BX`, `MOV CX,16` e o laço `SHR AX,1` / `RCL BX,1` / `LOOP`. Nenhuma instrução entre `SHR` e `RCL` pode alterar o carry: `LOOP` não altera flags, então ele pode ficar depois."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 4 (deslocamentos e rotações).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Randall Hyde, *The Art of Assembly Language* (edição 16 bits, gratuita): seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "x = 1234h",
+      "visivel": true,
+      "setup": {
+       "x": 4660,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 11336
+       }
+      }
+     },
+     {
+      "nome": "x = 0001h",
+      "visivel": true,
+      "setup": {
+       "x": 1,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 32768
+       }
+      }
+     },
+     {
+      "nome": "x = 8000h",
+      "visivel": false,
+      "dica": "falhou com 8000h: o bit 15 vira o bit 0",
+      "setup": {
+       "x": 32768,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "x = FFFFh",
+      "visivel": false,
+      "dica": "falhou com FFFFh",
+      "setup": {
+       "x": 65535,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 65535
+       }
+      }
+     },
+     {
+      "nome": "x = 0000h",
+      "visivel": false,
+      "dica": "falhou com 0",
+      "setup": {
+       "x": 0,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "x = A5A5h",
+      "visivel": false,
+      "dica": "falhou com A5A5h",
+      "setup": {
+       "x": 42405,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 42405
+       }
+      }
+     },
+     {
+      "nome": "x = 00FFh",
+      "visivel": false,
+      "dica": "falhou com 00FFh: vira FF00h",
+      "setup": {
+       "x": 255,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 65280
+       }
+      }
+     },
+     {
+      "nome": "x = F0F0h",
+      "visivel": false,
+      "dica": "falhou com F0F0h: vira 0F0Fh",
+      "setup": {
+       "x": 61680,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 3855
+       }
+      }
+     },
+     {
+      "nome": "x = 4001h",
+      "visivel": false,
+      "dica": "falhou com 4001h",
+      "setup": {
+       "x": 16385,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 32770
+       }
+      }
+     },
+     {
+      "nome": "x = 7FFEh",
+      "visivel": false,
+      "dica": "falhou com 7FFEh",
+      "setup": {
+       "x": 32766,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 32766
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 28,
+     "ciclos": 417
+    }
+   },
+   {
+    "id": "122-mesclar-vetores-ordenados",
+    "linguagem": "8086",
+    "titulo": "Mesclar vetores ordenados",
+    "dificuldade": "dificil",
+    "trilha": "vetores",
+    "tags": [
+     "vetor",
+     "merge",
+     "dois ponteiros",
+     "ordenação"
+    ],
+    "prerequisitos": [
+     "059-remover-repetidos-vizinhos",
+     "060-busca-binaria"
+    ],
+    "aula": 7,
+    "enunciado": "`a` (com `na` elementos) e `b` (com `nb` elementos) são vetores de palavras **sem sinal** já **em ordem crescente**. Grave em `c` a **mescla** dos dois, também em ordem crescente, com `na + nb` elementos. Percorra cada vetor **uma vez só**: nada de ordenar `c` depois.\n\n## Exemplos\n\n| a | b | c |\n|---|---|---|\n| 1, 3, 5 | 2, 4, 6 | 1, 2, 3, 4, 5, 6 |\n| 1, 2, 3 | 10, 20 | 1, 2, 3, 10, 20 |\n\n## Restrições\n\n- `na` e `nb` vão de 1 a 8. `c` tem 16 posições.\n- Valores repetidos entre os vetores aparecem nas duas cópias.",
+    "contrato": "Memória: `a` (DW, 8), `na` (DW), `b` (DW, 8), `nb` (DW) e `c` (DW, 16). Os testes conferem `c` inteiro.",
+    "editorial": "A mescla (*merge*) é o coração do *merge sort* e custa **O(na + nb)**: cada elemento é visitado uma vez, contra O(n²) de reordenar tudo. O truque é que a ordem prévia dos dois vetores dispensa comparar elementos do mesmo vetor entre si.\n\nTratar o fim de um dos vetores é a parte onde mais se erra: o laço principal precisa de uma saída clara para \"só sobrou um lado\". Colocar um valor-sentinela no fim de cada vetor evita esses laços extras, ao custo de uma posição a mais.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\na  DW 8 DUP(0)\nna DW 0\nb  DW 8 DUP(0)\nnb DW 0\nc  DW 16 DUP(0)\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\na  DW 8 DUP(0)\nna DW 0\nb  DW 8 DUP(0)\nnb DW 0\nc  DW 16 DUP(0)\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    XOR SI,SI          ; posição em a (bytes)\n    XOR DI,DI          ; posição em b\n    XOR BX,BX          ; posição em c\n    MOV CX,na          ; sobram em a\n    MOV DX,nb          ; sobram em b\nmescla:\n    OR CX,CX\n    JZ so_b\n    OR DX,DX\n    JZ so_a\n    MOV AX,a[SI]\n    CMP AX,b[DI]\n    JBE pega_a\n    MOV AX,b[DI]\n    ADD DI,2\n    DEC DX\n    JMP grava\npega_a:\n    ADD SI,2\n    DEC CX\ngrava:\n    MOV c[BX],AX\n    ADD BX,2\n    JMP mescla\nso_a:\n    MOV AX,a[SI]\n    MOV c[BX],AX\n    ADD SI,2\n    ADD BX,2\n    LOOP so_a\n    JMP fim\nso_b:\n    OR DX,DX\n    JZ fim\n    MOV AX,b[DI]\n    MOV c[BX],AX\n    ADD DI,2\n    ADD BX,2\n    DEC DX\n    JMP so_b\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "Use **dois ponteiros**, um em cada vetor. A cada passo compare os elementos apontados, copie o **menor** para `c` e avance só o ponteiro de onde ele veio. Guarde quantos elementos ainda faltam em cada vetor.",
+     "Enquanto os dois vetores têm elementos, é a comparação (sem sinal: `JBE`/`JA`, porque 65535 vale mais que 0). Quando um acaba, o resto do outro já está em ordem e só precisa ser copiado.",
+     "Com índices em bytes (`SI`, `DI`, `BX`; cada palavra ocupa 2), avance de 2 em 2. Para empates, copie o de `a` primeiro (`JBE`): o resultado é o mesmo e a mescla fica **estável**. Trate os dois \"sobrou só um vetor\" como laços separados no fim."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 7 (vetores).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Randall Hyde, *The Art of Assembly Language* (edição 16 bits, gratuita): seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "3 e 3 elementos",
+      "visivel": true,
+      "setup": {
+       "a": [
+        1,
+        3,
+        5,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "na": 3,
+       "b": [
+        2,
+        4,
+        6,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "nb": 3,
+       "c": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "c": [
+         1,
+         2,
+         3,
+         4,
+         5,
+         6,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "3 e 2 elementos",
+      "visivel": true,
+      "setup": {
+       "a": [
+        1,
+        2,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "na": 3,
+       "b": [
+        10,
+        20,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "nb": 2,
+       "c": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "c": [
+         1,
+         2,
+         3,
+         10,
+         20,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "2 e 3 elementos",
+      "visivel": false,
+      "dica": "falhou com o segundo vetor todo menor: o primeiro só é copiado depois",
+      "setup": {
+       "a": [
+        10,
+        20,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "na": 2,
+       "b": [
+        1,
+        2,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "nb": 3,
+       "c": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "c": [
+         1,
+         2,
+         3,
+         10,
+         20,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "1 e 1 elementos",
+      "visivel": false,
+      "dica": "falhou com um elemento em cada vetor, iguais",
+      "setup": {
+       "a": [
+        5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "na": 1,
+       "b": [
+        5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "nb": 1,
+       "c": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "c": [
+         5,
+         5,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "1 e 8 elementos",
+      "visivel": false,
+      "dica": "falhou com vetores de tamanhos muito diferentes",
+      "setup": {
+       "a": [
+        7,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "na": 1,
+       "b": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        8,
+        9
+       ],
+       "nb": 8,
+       "c": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "c": [
+         1,
+         2,
+         3,
+         4,
+         5,
+         6,
+         7,
+         8,
+         9,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "3 e 3 elementos",
+      "visivel": false,
+      "dica": "falhou com valores repetidos entre os vetores",
+      "setup": {
+       "a": [
+        1,
+        1,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "na": 3,
+       "b": [
+        1,
+        2,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "nb": 3,
+       "c": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "c": [
+         1,
+         1,
+         1,
+         2,
+         2,
+         2,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "3 e 2 elementos",
+      "visivel": false,
+      "dica": "falhou com 0 e 65535 (comparação sem sinal)",
+      "setup": {
+       "a": [
+        100,
+        200,
+        65535,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "na": 3,
+       "b": [
+        0,
+        300,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "nb": 2,
+       "c": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "c": [
+         0,
+         100,
+         200,
+         300,
+         65535,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "3 e 7 elementos",
+      "visivel": false,
+      "dica": "falhou com vetores aleatórios",
+      "setup": {
+       "a": [
+        180,
+        297,
+        480,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "na": 3,
+       "b": [
+        15,
+        39,
+        139,
+        143,
+        330,
+        341,
+        376,
+        0
+       ],
+       "nb": 7,
+       "c": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "c": [
+         15,
+         39,
+         139,
+         143,
+         180,
+         297,
+         330,
+         341,
+         376,
+         480,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "6 e 1 elementos",
+      "visivel": false,
+      "dica": "falhou com vetores aleatórios",
+      "setup": {
+       "a": [
+        8,
+        217,
+        325,
+        342,
+        431,
+        483,
+        0,
+        0
+       ],
+       "na": 6,
+       "b": [
+        50,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "nb": 1,
+       "c": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "c": [
+         8,
+         50,
+         217,
+         325,
+         342,
+         431,
+         483,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "8 e 8 elementos",
+      "visivel": false,
+      "dica": "falhou com o primeiro vetor todo menor",
+      "setup": {
+       "a": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+       ],
+       "na": 8,
+       "b": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+       ],
+       "nb": 8,
+       "c": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "c": [
+         1,
+         2,
+         3,
+         4,
+         5,
+         6,
+         7,
+         8,
+         9,
+         10,
+         11,
+         12,
+         13,
+         14,
+         15,
+         16
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 104,
+     "ciclos": 1536
+    }
+   },
+   {
+    "id": "123-subvetor-de-soma-maxima",
+    "linguagem": "8086",
+    "titulo": "Subvetor de soma máxima",
+    "dificuldade": "dificil",
+    "trilha": "vetores",
+    "tags": [
+     "vetor",
+     "kadane",
+     "programação dinâmica",
+     "sinal"
+    ],
+    "prerequisitos": [
+     "053-maior-sequencia-de-uns",
+     "059-remover-repetidos-vizinhos"
+    ],
+    "aula": 7,
+    "enunciado": "`v` tem `n` palavras **com sinal** (`n` de 1 a 12). Ache o trecho **contíguo e não vazio** de maior soma e grave essa soma em `res`. Use **uma única passada** pelo vetor.\n\n## Exemplos\n\n| v | res |\n|---|---|\n| -2, 1, -3, 4, -1, 2, 1, -5, 4 | 6 (o trecho 4, -1, 2, 1) |\n| -3, -1, -2 | -1 |\n| 1, 2, 3, 4 | 10 |\n\n## Restrições\n\n- Os valores ficam entre -1000 e 1000, então as somas cabem em 16 bits com sinal.\n- O trecho precisa ter ao menos um elemento: com todos negativos, a resposta é o **maior** elemento.",
+    "contrato": "Memória: `v` (DW, 12), `n` (DW) e `res` (DW, com sinal). Os testes conferem `res`.",
+    "editorial": "Kadane resolve em O(n) um problema que a força bruta resolve em O(n²) ou O(n³). A ideia é de programação dinâmica: a melhor resposta terminando em `i` depende só da melhor terminando em `i-1`, então basta guardar um número.\n\nO erro clássico é iniciar a melhor soma em 0, o que faz o algoritmo responder 0 para vetores só de negativos (trecho vazio). Aqui o enunciado exige trecho não vazio, e é por isso que a inicialização usa o primeiro elemento.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\nv   DW 12 DUP(0)\nn   DW 0\nres DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\nv   DW 12 DUP(0)\nn   DW 0\nres DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV CX,n\n    XOR SI,SI\n    MOV AX,v[SI]       ; AX = melhor soma até agora\n    MOV BX,AX          ; BX = melhor soma de um trecho que termina aqui\n    ADD SI,2\n    DEC CX\n    JZ grava\nlaco:\n    MOV DX,v[SI]\n    OR BX,BX\n    JG estende         ; trecho anterior positivo: vale a pena continuar\n    MOV BX,DX          ; senão recomeça neste elemento\n    JMP compara\nestende:\n    ADD BX,DX\ncompara:\n    CMP BX,AX\n    JLE proximo\n    MOV AX,BX\nproximo:\n    ADD SI,2\n    LOOP laco\ngrava:\n    MOV res,AX\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "O algoritmo de **Kadane** guarda duas somas: a melhor soma de um trecho que **termina no elemento atual** e a melhor soma vista até agora. A cada elemento, o trecho atual ou **estende** o anterior ou **recomeça** só com ele.",
+     "Estender só vale se o trecho anterior for **positivo** (soma > 0). Se for zero ou negativo, ele só atrapalha, e o elemento recomeça sozinho. Depois, atualize a melhor soma se a do trecho atual for maior.",
+     "Inicie as duas somas com `v[0]` (não com 0: com todos negativos a resposta é negativa) e comece o laço no segundo elemento. Use saltos **com sinal** (`JG`, `JLE`): `OR BX,BX` + `JG` testa BX > 0. Trate `n = 1` antes do laço."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 7 (vetores).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Kip Irvine, *Assembly Language for x86 Processors*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "9 valores",
+      "visivel": true,
+      "setup": {
+       "v": [
+        65534,
+        1,
+        65533,
+        4,
+        65535,
+        2,
+        1,
+        65531,
+        4,
+        0,
+        0,
+        0
+       ],
+       "n": 9,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 6
+       }
+      }
+     },
+     {
+      "nome": "1 valores",
+      "visivel": true,
+      "setup": {
+       "v": [
+        5,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 1,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 5
+       }
+      }
+     },
+     {
+      "nome": "3 valores",
+      "visivel": false,
+      "dica": "falhou com um único valor negativo ou todos negativos: a resposta é o maior deles, não 0",
+      "setup": {
+       "v": [
+        65533,
+        65535,
+        65534,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 3,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 65535
+       }
+      }
+     },
+     {
+      "nome": "4 valores",
+      "visivel": false,
+      "dica": "falhou com todos positivos: a soma de tudo",
+      "setup": {
+       "v": [
+        1,
+        2,
+        3,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 4,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 10
+       }
+      }
+     },
+     {
+      "nome": "5 valores",
+      "visivel": false,
+      "dica": "falhou com um trecho bom no começo",
+      "setup": {
+       "v": [
+        65535,
+        5,
+        65526,
+        6,
+        65535,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 5,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 6
+       }
+      }
+     },
+     {
+      "nome": "3 valores",
+      "visivel": false,
+      "dica": "falhou com todos zero",
+      "setup": {
+       "v": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 3,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "8 valores",
+      "visivel": false,
+      "dica": "falhou: o melhor trecho fica no meio",
+      "setup": {
+       "v": [
+        65531,
+        9,
+        65534,
+        3,
+        65535,
+        1,
+        65516,
+        4,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 8,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 10
+       }
+      }
+     },
+     {
+      "nome": "6 valores",
+      "visivel": false,
+      "dica": "falhou: a soma recomeça depois de ficar negativa",
+      "setup": {
+       "v": [
+        100,
+        65486,
+        100,
+        65236,
+        7,
+        8,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "n": 6,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 150
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 56,
+     "ciclos": 701
+    }
+   },
+   {
+    "id": "124-palindromo-sem-espacos-e-caixa",
+    "linguagem": "8086",
+    "titulo": "Palíndromo sem espaços e caixa",
+    "dificuldade": "dificil",
+    "trilha": "strings",
+    "tags": [
+     "strings",
+     "palíndromo",
+     "dois ponteiros",
+     "maiúsculas"
+    ],
+    "prerequisitos": [
+     "064-inverter-uma-string",
+     "066-comparar-duas-strings"
+    ],
+    "aula": 13,
+    "enunciado": "`texto` é uma string ASCIIZ de até 40 caracteres com **letras e espaços**. Grave em `eh` o valor **1** se ela é um **palíndromo**, ignorando os **espaços** e a diferença entre **maiúsculas e minúsculas**, ou **0** se não. A string vazia e a só de espaços são palíndromos.\n\n## Exemplos\n\n| texto | eh |\n|---|---|\n| `Ana` | 1 |\n| `Roma me tem amor` | 1 |\n| `abca` | 0 |\n\n## Restrições\n\n- Use dois ponteiros, um em cada ponta, andando em direção ao meio. Não monte uma cópia invertida.",
+    "contrato": "Memória: `eh` (DB) e `texto` (DB, 41 bytes). Os testes conferem `eh`.",
+    "editorial": "Dois ponteiros que se encontram no meio é o jeito de comparar uma string com ela mesma de trás para frente sem memória extra. O ponto delicado é a parada: quando os ponteiros se cruzam (e não só quando coincidem), pois strings de tamanho par nunca os fazem apontar para a mesma posição.\n\nO truque do bit 5 (`OR 20h`) é o jeito mais barato de comparar sem diferenciar caixa em ASCII, mas só vale para letras. Em texto com números ou símbolos, ele mudaria `@` em `` ` ``, e daria igualdades falsas.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\neh    DB 0\ntexto DB 41 DUP(0)\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\neh    DB 0\ntexto DB 41 DUP(0)\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV SI,OFFSET texto\n    MOV DI,SI\nfinal:\n    CMP BYTE PTR [DI],0\n    JE achou\n    INC DI\n    JMP final\nachou:\n    DEC DI             ; DI = último caractere (antes de texto, se vazia)\nesq:\n    CMP SI,DI\n    JAE sim\n    CMP BYTE PTR [SI],' '\n    JNE dir\n    INC SI\n    JMP esq\ndir:\n    CMP SI,DI\n    JAE sim\n    CMP BYTE PTR [DI],' '\n    JNE compara\n    DEC DI\n    JMP dir\ncompara:\n    MOV AL,[SI]\n    MOV AH,[DI]\n    OR AX,2020h        ; força minúsculas nos dois (só há letras)\n    CMP AL,AH\n    JNE nao\n    INC SI\n    DEC DI\n    JMP esq\nsim:\n    MOV eh,1\n    JMP fim\nnao:\n    MOV eh,0\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "Ache o fim da string (varrendo até o 0) e use `SI` no começo e `DI` no último caractere. A cada rodada, pule os espaços de cada lado e compare as duas letras; se forem iguais, ande para dentro; quando os ponteiros se cruzarem, é palíndromo.",
+     "Para ignorar a caixa, `OR` com `20h` transforma qualquer letra ASCII em minúscula (maiúscula e minúscula diferem só no bit 5). Como a string só tem letras e espaços, não há risco com outros símbolos: `OR AX,2020h` trata `AL` e `AH` de uma vez.",
+     "Condição de parada: `SI >= DI` (sem sinal). Verifique-a **depois de cada pulo de espaços**, não só no começo. Para a string vazia, `DI` fica **uma posição antes** do início, e `SI >= DI` já responde que sim: por isso `eh` fica antes de `texto` na memória (o endereço de `texto` nunca é 0)."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 13 (strings).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Peter Norton e John Socha, *Peter Norton's Assembly Language Book for the IBM PC*: seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "\"arara\"",
+      "visivel": true,
+      "setup": {
+       "texto": "arara",
+       "eh": 7
+      },
+      "espera": {
+       "mem": {
+        "eh": 1
+       }
+      }
+     },
+     {
+      "nome": "\"Ana\"",
+      "visivel": true,
+      "setup": {
+       "texto": "Ana",
+       "eh": 7
+      },
+      "espera": {
+       "mem": {
+        "eh": 1
+       }
+      }
+     },
+     {
+      "nome": "\"Anotaram a data da maratona\"",
+      "visivel": false,
+      "dica": "falhou com maiúsculas e minúsculas misturadas: \"Ana\" é palíndromo",
+      "setup": {
+       "texto": "Anotaram a data da maratona",
+       "eh": 7
+      },
+      "espera": {
+       "mem": {
+        "eh": 1
+       }
+      }
+     },
+     {
+      "nome": "\"Socorram me subi no onibus em Marrocos\"",
+      "visivel": false,
+      "dica": "falhou com espaços entre as palavras",
+      "setup": {
+       "texto": "Socorram me subi no onibus em Marrocos",
+       "eh": 7
+      },
+      "espera": {
+       "mem": {
+        "eh": 1
+       }
+      }
+     },
+     {
+      "nome": "\"\"",
+      "visivel": false,
+      "dica": "falhou com 38 caracteres (o limite é 40)",
+      "setup": {
+       "texto": "",
+       "eh": 7
+      },
+      "espera": {
+       "mem": {
+        "eh": 1
+       }
+      }
+     },
+     {
+      "nome": "\"a\"",
+      "visivel": false,
+      "dica": "falhou com a string vazia: é palíndromo",
+      "setup": {
+       "texto": "a",
+       "eh": 7
+      },
+      "espera": {
+       "mem": {
+        "eh": 1
+       }
+      }
+     },
+     {
+      "nome": "\"abca\"",
+      "visivel": false,
+      "dica": "falhou com um caractere",
+      "setup": {
+       "texto": "abca",
+       "eh": 7
+      },
+      "espera": {
+       "mem": {
+        "eh": 0
+       }
+      }
+     },
+     {
+      "nome": "\"Roma me tem amor\"",
+      "visivel": false,
+      "dica": "falhou com \"abca\"",
+      "setup": {
+       "texto": "Roma me tem amor",
+       "eh": 7
+      },
+      "espera": {
+       "mem": {
+        "eh": 1
+       }
+      }
+     },
+     {
+      "nome": "\"ab ba x\"",
+      "visivel": false,
+      "dica": "falhou com \"Roma me tem amor\"",
+      "setup": {
+       "texto": "ab ba x",
+       "eh": 7
+      },
+      "espera": {
+       "mem": {
+        "eh": 0
+       }
+      }
+     },
+     {
+      "nome": "\"   \"",
+      "visivel": false,
+      "dica": "falhou com \"ab ba x\"",
+      "setup": {
+       "texto": "   ",
+       "eh": 7
+      },
+      "espera": {
+       "mem": {
+        "eh": 1
+       }
+      }
+     },
+     {
+      "nome": "\"Ab Ba\"",
+      "visivel": false,
+      "dica": "falhou com só espaços: é palíndromo",
+      "setup": {
+       "texto": "Ab Ba",
+       "eh": 7
+      },
+      "espera": {
+       "mem": {
+        "eh": 1
+       }
+      }
+     },
+     {
+      "nome": "\"palindromo\"",
+      "visivel": false,
+      "dica": "falhou com \"Ab Ba\"",
+      "setup": {
+       "texto": "palindromo",
+       "eh": 7
+      },
+      "espera": {
+       "mem": {
+        "eh": 0
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 75,
+     "ciclos": 3845
+    }
+   },
+   {
+    "id": "125-procurar-substring",
+    "linguagem": "8086",
+    "titulo": "Procurar substring",
+    "dificuldade": "dificil",
+    "trilha": "strings",
+    "tags": [
+     "strings",
+     "strstr",
+     "cmpsb",
+     "busca"
+    ],
+    "prerequisitos": [
+     "104-copiar-string-com-lodsb-e-stosb",
+     "106-comparar-blocos-com-repe-cmpsb"
+    ],
+    "aula": 13,
+    "enunciado": "`texto` (até 40 caracteres) e `padrao` (até 10) são strings ASCIIZ. Grave em `indice` a posição da **primeira ocorrência** de `padrao` dentro de `texto` (o primeiro caractere tem posição 0), ou **0FFFFh** se não existir. O padrão **vazio** ocorre na posição 0.\n\n## Exemplos\n\n| texto | padrao | indice |\n|---|---|---|\n| `abracadabra` | `cad` | 4 |\n| `aaab` | `aab` | 1 |\n| `abc` | `abcd` | 0FFFFh |\n\n## Restrições\n\n- Use `REPE CMPSB` para comparar o padrão em cada posição candidata. Não precisa ser otimizado: tentar todas as posições está certo.",
+    "contrato": "Memória: `texto` (DB, 41), `padrao` (DB, 11) e `indice` (DW). O código inicial já aponta `ES` para o segmento de dados, que `CMPSB` usa. Os testes conferem `indice`.",
+    "editorial": "Procurar todas as posições é O(n·m) no pior caso, e é o que a `strstr` simples faz. Algoritmos como KMP e Boyer-Moore ficam em O(n + m) ou melhor, ao custo de uma tabela auxiliar; para padrões curtos, a versão direta com `REPE CMPSB` costuma bastar.\n\nO terminador 0 trabalha como **sentinela**: como nunca é igual a um caractere do padrão, a comparação para sozinha no fim do texto, sem precisar checar o limite a cada byte.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\ntexto  DB 41 DUP(0)\npadrao DB 11 DUP(0)\nindice DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV ES,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\ntexto  DB 41 DUP(0)\npadrao DB 11 DUP(0)\nindice DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV ES,AX\n    CLD\n    MOV SI,OFFSET padrao\n    XOR DX,DX          ; DX = tamanho do padrão\ntamanho:\n    CMP BYTE PTR [SI],0\n    JE medido\n    INC SI\n    INC DX\n    JMP tamanho\nmedido:\n    MOV BX,OFFSET texto ; BX = posição candidata\ntenta:\n    MOV SI,OFFSET padrao\n    MOV DI,BX\n    MOV CX,DX\n    JCXZ achou         ; padrão vazio\n    REPE CMPSB\n    JE achou           ; os DX bytes bateram\n    CMP BYTE PTR [BX],0\n    JE nao             ; chegou ao fim do texto\n    INC BX\n    JMP tenta\nachou:\n    MOV AX,BX\n    SUB AX,OFFSET texto\n    MOV indice,AX\n    JMP fim\nnao:\n    MOV indice,0FFFFh\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "Meça o tamanho do padrão (varrendo até o 0) e tente cada posição do texto como começo: `SI` no padrão, `DI` na posição candidata, `CX` = tamanho e `REPE CMPSB`. Se o `REPE` terminar com ZF ligado, todos os bytes bateram.",
+     "Quando falha, avance **uma só** posição (`INC BX`) e tente de novo: pular mais perderia casos como `aab` em `aaab`. Pare quando o byte da posição candidata for 0 (fim do texto): o terminador 0 nunca coincide com um caractere do padrão, então comparar perto do fim é seguro.",
+     "Dois casos de borda: padrão vazio (`CX = 0`: ache na posição 0 sem executar o `REPE`) e texto vazio com padrão (a primeira tentativa já falha e o byte é 0). O índice é `BX - OFFSET texto`. Como `CMPSB` usa `ES:DI`, o código inicial já faz `ES = DS`."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 13 (instruções de string).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Kip Irvine, *Assembly Language for x86 Processors*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "\"cad\" em \"abracadabr\"",
+      "visivel": true,
+      "setup": {
+       "texto": "abracadabra",
+       "padrao": "cad",
+       "indice": 30583
+      },
+      "espera": {
+       "mem": {
+        "indice": 4
+       }
+      }
+     },
+     {
+      "nome": "\"abra\" em \"abracadabr\"",
+      "visivel": true,
+      "setup": {
+       "texto": "abracadabra",
+       "padrao": "abra",
+       "indice": 30583
+      },
+      "espera": {
+       "mem": {
+        "indice": 0
+       }
+      }
+     },
+     {
+      "nome": "\"bra\" em \"abracadabr\"",
+      "visivel": false,
+      "dica": "falhou com o padrão no fim do texto",
+      "setup": {
+       "texto": "abracadabra",
+       "padrao": "bra",
+       "indice": 30583
+      },
+      "espera": {
+       "mem": {
+        "indice": 1
+       }
+      }
+     },
+     {
+      "nome": "\"xyz\" em \"abracadabr\"",
+      "visivel": false,
+      "dica": "falhou com um padrão que não existe",
+      "setup": {
+       "texto": "abracadabra",
+       "padrao": "xyz",
+       "indice": 30583
+      },
+      "espera": {
+       "mem": {
+        "indice": 65535
+       }
+      }
+     },
+     {
+      "nome": "\"\" em \"abc\"",
+      "visivel": false,
+      "dica": "falhou com padrão vazio: acha na posição 0",
+      "setup": {
+       "texto": "abc",
+       "padrao": "",
+       "indice": 30583
+      },
+      "espera": {
+       "mem": {
+        "indice": 0
+       }
+      }
+     },
+     {
+      "nome": "\"a\" em \"\"",
+      "visivel": false,
+      "dica": "falhou com texto vazio e padrão não vazio",
+      "setup": {
+       "texto": "",
+       "padrao": "a",
+       "indice": 30583
+      },
+      "espera": {
+       "mem": {
+        "indice": 65535
+       }
+      }
+     },
+     {
+      "nome": "\"aab\" em \"aaab\"",
+      "visivel": false,
+      "dica": "falhou com \"aab\" em \"aaab\": um falso começo não pode atrapalhar",
+      "setup": {
+       "texto": "aaab",
+       "padrao": "aab",
+       "indice": 30583
+      },
+      "espera": {
+       "mem": {
+        "indice": 1
+       }
+      }
+     },
+     {
+      "nome": "\"abcd\" em \"abc\"",
+      "visivel": false,
+      "dica": "falhou com padrão maior que o texto",
+      "setup": {
+       "texto": "abc",
+       "padrao": "abcd",
+       "indice": 30583
+      },
+      "espera": {
+       "mem": {
+        "indice": 65535
+       }
+      }
+     },
+     {
+      "nome": "\"world\" em \"hello worl\"",
+      "visivel": false,
+      "dica": "falhou com \"world\"",
+      "setup": {
+       "texto": "hello world",
+       "padrao": "world",
+       "indice": 30583
+      },
+      "espera": {
+       "mem": {
+        "indice": 6
+       }
+      }
+     },
+     {
+      "nome": "\"o w\" em \"hello worl\"",
+      "visivel": false,
+      "dica": "falhou com padrão com espaço no meio",
+      "setup": {
+       "texto": "hello world",
+       "padrao": "o w",
+       "indice": 30583
+      },
+      "espera": {
+       "mem": {
+        "indice": 4
+       }
+      }
+     },
+     {
+      "nome": "\"yz\" em \"xxxxxxxxxx\"",
+      "visivel": false,
+      "dica": "falhou com 40 caracteres",
+      "setup": {
+       "texto": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxyz",
+       "padrao": "yz",
+       "indice": 30583
+      },
+      "espera": {
+       "mem": {
+        "indice": 38
+       }
+      }
+     },
+     {
+      "nome": "\"abd\" em \"abcabcabd\"",
+      "visivel": false,
+      "dica": "falhou com um falso começo longo: \"abc\" duas vezes antes de \"abd\"",
+      "setup": {
+       "texto": "abcabcabd",
+       "padrao": "abd",
+       "indice": 30583
+      },
+      "espera": {
+       "mem": {
+        "indice": 6
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 67,
+     "ciclos": 3527
+    }
+   },
+   {
+    "id": "126-fatorial-de-32-bits",
+    "linguagem": "8086",
+    "titulo": "Fatorial de 32 bits",
+    "dificuldade": "dificil",
+    "trilha": "aritmetica",
+    "tags": [
+     "aritmética",
+     "32 bits",
+     "mul",
+     "precisão estendida"
+    ],
+    "prerequisitos": [
+     "069-soma-de-32-bits",
+     "099-multiplicacao-de-32-bits"
+    ],
+    "aula": 3,
+    "enunciado": "Calcule `n!` (`n` de 0 a 12) e grave o resultado de **32 bits** em `baixo` (os 16 bits de baixo) e `alto` (os 16 bits de cima). `0! = 1`.\n\n## Exemplos\n\n| n | n! | alto : baixo |\n|---|---|---|\n| 5 | 120 | 0000h : 0078h |\n| 10 | 3628800 | 0037h : 5F00h |\n| 12 | 479001600 | 1C8Ch : FC00h |\n\n## Restrições\n\n- Cada passo multiplica um número de **32 bits** por um de **16 bits**. O `MUL` do 8086 só faz 16 x 16: monte a conta com dois `MUL` e a soma dos pedaços.",
+    "contrato": "Memória: `n`, `baixo` e `alto` (todas DW). Os testes conferem `baixo` e `alto`.",
+    "editorial": "Multiplicação de precisão estendida: cada pedaço de 16 bits é multiplicado separadamente, e os \"vai-um\" entre pedaços são somados nos de cima. É como a multiplicação em colunas do ensino fundamental, só que na base 65536.\n\n12! = 479001600 é o maior fatorial que cabe em 32 bits sem sinal; 13! já passa de 6 bilhões. Em bibliotecas de números grandes é este mesmo padrão, repetido para vetores de pedaços de qualquer tamanho.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\nn     DW 0\nbaixo DW 0\nalto  DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\nn     DW 0\nbaixo DW 0\nalto  DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV CX,n\n    MOV AX,1           ; BX:AX = resultado (alto:baixo)\n    XOR BX,BX\n    JCXZ grava\npasso:\n    MOV SI,AX          ; guarda a parte baixa\n    MOV AX,BX\n    MUL CX             ; AX = alto * CX (cabe em 16 bits aqui)\n    MOV BX,AX\n    MOV AX,SI\n    MUL CX             ; DX:AX = baixo * CX\n    ADD BX,DX          ; o vai-um da parte baixa entra na alta\n    LOOP passo\ngrava:\n    MOV baixo,AX\n    MOV alto,BX\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "Um número de 32 bits `H:L` vezes `k` vale `H·k·65536 + L·k`. Faça dois `MUL` de 16 bits: um para `L·k` (resultado `DX:AX`) e outro para `H·k`. A parte alta do primeiro (`DX`) soma na parte baixa do segundo.",
+     "Guarde `L` antes de usar `AX` para o `MUL` da parte alta (por exemplo em `SI`). A nova parte baixa é o `AX` do `MUL L·k`; a nova parte alta é `H·k + DX`. Como o resultado final cabe em 32 bits, `H·k` nunca estoura 16 bits.",
+     "Multiplique pelos fatores `n, n-1, ..., 1` usando `CX` como contador e fator ao mesmo tempo: `LOOP` decrementa `CX` a cada volta. `n = 0` (ou 1) deixa o resultado em 1: trate `JCXZ` antes do laço, porque `LOOP` com `CX = 0` daria 65536 voltas."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 3 (multiplicação e precisão estendida).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Peter Norton e John Socha, *Peter Norton's Assembly Language Book for the IBM PC*: seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "0!",
+      "visivel": true,
+      "setup": {
+       "n": 0,
+       "baixo": 30583,
+       "alto": 30583
+      },
+      "espera": {
+       "mem": {
+        "baixo": 1,
+        "alto": 0
+       }
+      }
+     },
+     {
+      "nome": "1!",
+      "visivel": true,
+      "setup": {
+       "n": 1,
+       "baixo": 30583,
+       "alto": 30583
+      },
+      "espera": {
+       "mem": {
+        "baixo": 1,
+        "alto": 0
+       }
+      }
+     },
+     {
+      "nome": "5!",
+      "visivel": false,
+      "dica": "falhou com 5!: ainda cabe em 16 bits",
+      "setup": {
+       "n": 5,
+       "baixo": 30583,
+       "alto": 30583
+      },
+      "espera": {
+       "mem": {
+        "baixo": 120,
+        "alto": 0
+       }
+      }
+     },
+     {
+      "nome": "10!",
+      "visivel": false,
+      "dica": "falhou com 10! = 3628800: passa de 16 bits",
+      "setup": {
+       "n": 10,
+       "baixo": 30583,
+       "alto": 30583
+      },
+      "espera": {
+       "mem": {
+        "baixo": 24320,
+        "alto": 55
+       }
+      }
+     },
+     {
+      "nome": "12!",
+      "visivel": false,
+      "dica": "falhou com 12! = 479001600: usa quase os 32 bits",
+      "setup": {
+       "n": 12,
+       "baixo": 30583,
+       "alto": 30583
+      },
+      "espera": {
+       "mem": {
+        "baixo": 64512,
+        "alto": 7308
+       }
+      }
+     },
+     {
+      "nome": "8!",
+      "visivel": false,
+      "dica": "falhou com 8! = 40320",
+      "setup": {
+       "n": 8,
+       "baixo": 30583,
+       "alto": 30583
+      },
+      "espera": {
+       "mem": {
+        "baixo": 40320,
+        "alto": 0
+       }
+      }
+     },
+     {
+      "nome": "3!",
+      "visivel": false,
+      "dica": "falhou com 3!",
+      "setup": {
+       "n": 3,
+       "baixo": 30583,
+       "alto": 30583
+      },
+      "espera": {
+       "mem": {
+        "baixo": 6,
+        "alto": 0
+       }
+      }
+     },
+     {
+      "nome": "11!",
+      "visivel": false,
+      "dica": "falhou com 11!",
+      "setup": {
+       "n": 11,
+       "baixo": 30583,
+       "alto": 30583
+      },
+      "espera": {
+       "mem": {
+        "baixo": 5376,
+        "alto": 609
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 44,
+     "ciclos": 3461
+    }
+   },
+   {
+    "id": "127-delimitadores-balanceados",
+    "linguagem": "8086",
+    "titulo": "Delimitadores balanceados",
+    "dificuldade": "dificil",
+    "trilha": "pilha",
+    "tags": [
+     "pilha",
+     "parênteses",
+     "validação",
+     "push",
+     "pop"
+    ],
+    "prerequisitos": [
+     "074-expressao-pos-fixa",
+     "075-profundidade-dos-parenteses"
+    ],
+    "aula": 8,
+    "enunciado": "`texto` (ASCIIZ, até 40 caracteres) tem letras, espaços, operadores e os delimitadores `( )`, `[ ]` e `{ }`. Grave em `ok` o valor **1** se todo delimitador aberto é fechado **pelo mesmo tipo**, na ordem certa, ou **0** se não. Os outros caracteres são ignorados.\n\n## Exemplos\n\n| texto | ok |\n|---|---|\n| `{[()]}` | 1 |\n| `([)]` | 0 |\n| `((` | 0 |\n| `)(` | 0 |\n\n## Restrições\n\n- Use a **pilha do 8086** (`PUSH`/`POP`). A pilha deve voltar ao tamanho original no fim, **mesmo quando o texto é inválido**.",
+    "contrato": "Memória: `ok` (DB) e `texto` (DB, 41 bytes). Os testes conferem `ok` e o equilíbrio da pilha.",
+    "editorial": "Verificar delimitadores é a aplicação de livro-texto da pilha, e é o que todo compilador faz ao ler um código-fonte. Uma pilha de **tipos** (e não só um contador) é o que distingue `([)]` de `([])`: o contador diria que os dois estão certos.\n\nGuardar o `SP` inicial como marca de \"pilha vazia\" evita uma variável extra: o próprio ponteiro da pilha já conta o que foi empilhado. E sempre desempilhe tudo antes de sair, para o `RET` ou o retorno ao DOS não encontrar lixo.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\nok    DB 0\ntexto DB 41 DUP(0)\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\nok    DB 0\ntexto DB 41 DUP(0)\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    CLD\n    MOV SI,OFFSET texto\n    MOV BX,SP          ; marca da pilha vazia\nproximo:\n    LODSB\n    OR AL,AL\n    JZ fimtexto\n    CMP AL,'('\n    JE abre\n    CMP AL,'['\n    JE abre\n    CMP AL,'{'\n    JE abre\n    MOV AH,'('\n    CMP AL,')'\n    JE fecha\n    MOV AH,'['\n    CMP AL,']'\n    JE fecha\n    MOV AH,'{'\n    CMP AL,'}'\n    JE fecha\n    JMP proximo        ; outro caractere\nabre:\n    PUSH AX            ; empilha (o tipo está em AL)\n    JMP proximo\nfecha:\n    CMP SP,BX\n    JE nao             ; nada aberto para fechar\n    POP DX\n    CMP DL,AH          ; o que abriu é o par deste fechamento?\n    JNE nao\n    JMP proximo\nfimtexto:\n    CMP SP,BX\n    JNE nao            ; sobraram aberturas\n    MOV ok,1\n    JMP fim\nnao:\n    MOV SP,BX          ; descarta o que sobrou na pilha\n    MOV ok,0\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "Cada abertura entra na pilha e cada fechamento deve casar com o **topo**: último a abrir, primeiro a fechar. É exatamente a ordem LIFO da pilha. Percorra o texto com `LODSB` e ignore os caracteres que não são delimitadores.",
+     "Para saber se a pilha está vazia, guarde `SP` no começo (`MOV BX,SP`) e compare depois. Ao fechar: se `SP = BX`, não há o que fechar (texto inválido). Senão, `POP` e compare o tipo: o par de `)` é `(`, o de `]` é `[` e o de `}` é `{`.",
+     "No fim do texto, a pilha também precisa estar vazia (`SP = BX`), senão sobraram aberturas. Ao reprovar, devolva a pilha ao estado inicial com `MOV SP,BX`, ou o programa termina com a pilha desequilibrada. `PUSH` só empilha registradores de 16 bits: empilhe `AX` e compare só o byte baixo ao desempilhar."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 8 (pilha).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Peter Norton e John Socha, *Peter Norton's Assembly Language Book for the IBM PC*: seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "\"([]{})\"",
+      "visivel": true,
+      "setup": {
+       "texto": "([]{})",
+       "ok": 7
+      },
+      "espera": {
+       "mem": {
+        "ok": 1
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "\"(]\"",
+      "visivel": true,
+      "setup": {
+       "texto": "(]",
+       "ok": 7
+      },
+      "espera": {
+       "mem": {
+        "ok": 0
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "\"((\"",
+      "visivel": false,
+      "dica": "falhou com \"((\": sobraram aberturas",
+      "setup": {
+       "texto": "((",
+       "ok": 7
+      },
+      "espera": {
+       "mem": {
+        "ok": 0
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "\"\"",
+      "visivel": false,
+      "dica": "falhou com texto vazio: é balanceado",
+      "setup": {
+       "texto": "",
+       "ok": 7
+      },
+      "espera": {
+       "mem": {
+        "ok": 1
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "\"a(b[c]d)e\"",
+      "visivel": false,
+      "dica": "falhou com letras no meio",
+      "setup": {
+       "texto": "a(b[c]d)e",
+       "ok": 7
+      },
+      "espera": {
+       "mem": {
+        "ok": 1
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "\"{[()]}\"",
+      "visivel": false,
+      "dica": "falhou com os três tipos aninhados",
+      "setup": {
+       "texto": "{[()]}",
+       "ok": 7
+      },
+      "espera": {
+       "mem": {
+        "ok": 1
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "\")(\"",
+      "visivel": false,
+      "dica": "falhou com \")(\": fecha antes de abrir",
+      "setup": {
+       "texto": ")(",
+       "ok": 7
+      },
+      "espera": {
+       "mem": {
+        "ok": 0
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "\"([)]\"",
+      "visivel": false,
+      "dica": "falhou com \"([)]\": tipos entrelaçados",
+      "setup": {
+       "texto": "([)]",
+       "ok": 7
+      },
+      "espera": {
+       "mem": {
+        "ok": 0
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "\"{[}\"",
+      "visivel": false,
+      "dica": "falhou com \"{[}\": o tipo de fechamento não confere",
+      "setup": {
+       "texto": "{[}",
+       "ok": 7
+      },
+      "espera": {
+       "mem": {
+        "ok": 0
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "\"(((())))\"",
+      "visivel": false,
+      "dica": "falhou com 4 níveis de parênteses",
+      "setup": {
+       "texto": "(((())))",
+       "ok": 7
+      },
+      "espera": {
+       "mem": {
+        "ok": 1
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "\"x + (y * [z - 1]) / {w}\"",
+      "visivel": false,
+      "dica": "falhou com expressão aritmética",
+      "setup": {
+       "texto": "x + (y * [z - 1]) / {w}",
+       "ok": 7
+      },
+      "espera": {
+       "mem": {
+        "ok": 1
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "\"]\"",
+      "visivel": false,
+      "dica": "falhou com um fecha-colchete sozinho",
+      "setup": {
+       "texto": "]",
+       "ok": 7
+      },
+      "espera": {
+       "mem": {
+        "ok": 0
+       },
+       "pilhaEquilibrada": true
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 85,
+     "ciclos": 2303
+    }
+   },
+   {
+    "id": "128-combinacoes-recursivas",
+    "linguagem": "8086",
+    "titulo": "Combinações recursivas",
+    "dificuldade": "dificil",
+    "trilha": "procedimentos",
+    "tags": [
+     "procedimentos",
+     "recursão",
+     "quadro de pilha",
+     "binomial"
+    ],
+    "prerequisitos": [
+     "032-fatorial-recursivo",
+     "114-parametros-na-pilha"
+    ],
+    "aula": 10,
+    "enunciado": "Escreva o procedimento **recursivo** `comb`, que recebe `n` e `k` **pela pilha** (empilhados nessa ordem) e devolve em `AX` o número de combinações `C(n, k)`, com a regra de Pascal:\n\n`C(n, k) = C(n-1, k-1) + C(n-1, k)`, com `C(n, 0) = C(n, n) = 1`.\n\nGrave o resultado em `res`.\n\n## Exemplos\n\n| n | k | res |\n|---|---|---|\n| 5 | 2 | 10 |\n| 12 | 6 | 924 |\n| 7 | 0 | 1 |\n\n## Restrições\n\n- `n` vai até 12 e `0 <= k <= n`.\n- Acesse os parâmetros por `BP` e termine o procedimento com `RET 4`.\n- O procedimento deve preservar `BX`. A pilha deve terminar equilibrada.",
+    "contrato": "Memória: `n`, `k` e `res` (DW). Os testes conferem `res` e o equilíbrio da pilha.",
+    "editorial": "Esta é a recursão em árvore: cada chamada gera **duas** filhas, e o número de chamadas cresce rápido (C(12,6) faz mais de mil). É correta, mas lenta: o mesmo subproblema é recalculado várias vezes, e a programação dinâmica (guardar numa tabela o triângulo de Pascal) resolve em O(n·k).\n\nAqui o foco é o contrato de preservação de registradores: a recursão só funciona porque cada nível devolve `BX` como encontrou. Sem isso, o acumulador de um nível seria destruído pelo nível de baixo.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\nn   DW 0\nk   DW 0\nres DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\n    ; (defina o procedimento comb antes do rótulo inicio)\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\nn   DW 0\nk   DW 0\nres DW 0\n.CODE\ncomb PROC\n    PUSH BP\n    MOV BP,SP          ; [BP+4] = k, [BP+6] = n\n    PUSH BX\n    MOV AX,[BP+6]\n    MOV BX,[BP+4]\n    OR BX,BX\n    JZ um              ; k = 0\n    CMP BX,AX\n    JE um              ; k = n\n    DEC AX\n    PUSH AX            ; n - 1\n    DEC BX\n    PUSH BX            ; k - 1\n    CALL comb          ; AX = C(n-1, k-1)\n    MOV BX,AX          ; guarda (o procedimento preserva BX)\n    MOV AX,[BP+6]\n    DEC AX\n    PUSH AX            ; n - 1\n    MOV AX,[BP+4]\n    PUSH AX            ; k\n    CALL comb          ; AX = C(n-1, k)\n    ADD AX,BX\n    JMP sai\num:\n    MOV AX,1\nsai:\n    POP BX\n    POP BP\n    RET 4\ncomb ENDP\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    PUSH n\n    PUSH k\n    CALL comb\n    MOV res,AX\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "Os casos-base são `k = 0` e `k = n` (valem 1). Fora deles, duas chamadas recursivas e uma soma. Com `PUSH BP` / `MOV BP,SP`, os parâmetros ficam em `[BP+4]` (`k`, empilhado por último) e `[BP+6]` (`n`).",
+     "Cada chamada precisa dos **próprios** `n` e `k` depois da primeira recursão: releia-os de `[BP+6]` e `[BP+4]` em vez de confiar nos registradores, porque a chamada interna pode alterá-los. `PUSH AX` com `n-1` e `k-1` para a primeira chamada; `n-1` e `k` para a segunda.",
+     "Guarde o resultado da primeira chamada em `BX` e some depois da segunda. Para isso funcionar, **toda** chamada precisa preservar `BX` (`PUSH BX` no começo e `POP BX` antes de sair, em todos os caminhos). Use `RET 4` para descartar os dois parâmetros e deixar a pilha equilibrada."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 10 (procedimentos recursivos).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Kip Irvine, *Assembly Language for x86 Processors*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "C(5,2)",
+      "visivel": true,
+      "setup": {
+       "n": 5,
+       "k": 2,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 10
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "C(0,0)",
+      "visivel": true,
+      "setup": {
+       "n": 0,
+       "k": 0,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "C(10,5)",
+      "visivel": false,
+      "dica": "falhou com C(10,5) = 252",
+      "setup": {
+       "n": 10,
+       "k": 5,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 252
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "C(12,6)",
+      "visivel": false,
+      "dica": "falhou com C(12,6) = 924: o maior caso",
+      "setup": {
+       "n": 12,
+       "k": 6,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 924
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "C(6,0)",
+      "visivel": false,
+      "dica": "falhou com k = 0: vale 1",
+      "setup": {
+       "n": 6,
+       "k": 0,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "C(7,7)",
+      "visivel": false,
+      "dica": "falhou com k = n: vale 1",
+      "setup": {
+       "n": 7,
+       "k": 7,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "C(8,3)",
+      "visivel": false,
+      "dica": "falhou com C(8,3) = 56",
+      "setup": {
+       "n": 8,
+       "k": 3,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 56
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "C(12,1)",
+      "visivel": false,
+      "dica": "falhou com C(12,1) = 12",
+      "setup": {
+       "n": 12,
+       "k": 1,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 12
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "C(4,2)",
+      "visivel": false,
+      "dica": "falhou com C(4,2) = 6",
+      "setup": {
+       "n": 4,
+       "k": 2,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 6
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "C(9,4)",
+      "visivel": false,
+      "dica": "falhou com C(9,4) = 126",
+      "setup": {
+       "n": 9,
+       "k": 4,
+       "res": 30583
+      },
+      "espera": {
+       "mem": {
+        "res": 126
+       },
+       "pilhaEquilibrada": true
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 75,
+     "ciclos": 327450,
+     "exigir": [
+      "CALL",
+      "RET"
+     ]
+    }
+   },
+   {
+    "id": "129-multiplicar-matrizes-2x2",
+    "linguagem": "8086",
+    "titulo": "Multiplicar matrizes 2 x 2",
+    "dificuldade": "dificil",
+    "trilha": "enderecamento",
+    "tags": [
+     "matriz",
+     "enderecamento",
+     "base indexado",
+     "mul"
+    ],
+    "prerequisitos": [
+     "081-transpor-matriz-3x3",
+     "082-maior-de-cada-linha"
+    ],
+    "aula": 6,
+    "enunciado": "`a` e `b` são matrizes 2 x 2 de palavras **sem sinal**, guardadas **linha por linha** (quatro palavras cada). Grave em `c` o **produto de matrizes** `c = a x b`, também linha por linha: `c[i][j] = a[i][0]·b[0][j] + a[i][1]·b[1][j]`.\n\n## Exemplos\n\n| a | b | c |\n|---|---|---|\n| 1, 2, 3, 4 | 5, 6, 7, 8 | 19, 22, 43, 50 |\n| 1, 0, 0, 1 | 9, 8, 7, 6 | 9, 8, 7, 6 |\n\n## Restrições\n\n- Os valores são no máximo 150, então as somas cabem em 16 bits.\n- Use dois laços (linhas e colunas) com modo de endereçamento **base mais índice** (`a[BX]`, `b[SI]`). Não escreva as 8 multiplicações soltas.",
+    "contrato": "Memória: `a`, `b` e `c` (DW, 4 cada). Os testes conferem `c`.",
+    "editorial": "O mapa de um elemento `[i][j]` de uma matriz em ordem de linha é `(i·colunas + j)·tamanho`. Quem percorre a matriz inteira raramente refaz essa conta: avança um deslocamento por linha e outro por coluna, como aqui.\n\nO 8086 só combina **um** registrador de base (`BX`/`BP`) com **um** de índice (`SI`/`DI`) por operando, mais um deslocamento. Quando a conta precisa de mais, soma-se antes num registrador, e é esse o motivo do `DI` auxiliar na gravação.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\na DW 4 DUP(0)\nb DW 4 DUP(0)\nc DW 4 DUP(0)\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\na DW 4 DUP(0)\nb DW 4 DUP(0)\nc DW 4 DUP(0)\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    XOR BX,BX          ; BX = deslocamento da linha i (0 ou 4)\nlinha:\n    XOR SI,SI          ; SI = deslocamento da coluna j (0 ou 2)\ncoluna:\n    MOV AX,a[BX]       ; a[i][0]\n    MOV DX,b[SI]       ; b[0][j]\n    MUL DX\n    MOV CX,AX\n    MOV AX,a[BX+2]     ; a[i][1]\n    MOV DX,b[SI+4]     ; b[1][j]\n    MUL DX\n    ADD AX,CX\n    MOV DI,BX\n    ADD DI,SI\n    MOV c[DI],AX       ; c[i][j]\n    ADD SI,2\n    CMP SI,4\n    JB coluna\n    ADD BX,4\n    CMP BX,8\n    JB linha\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "Em linha por linha, o elemento `[i][j]` de uma matriz 2 x 2 de palavras fica a `i·4 + j·2` bytes do começo. Use `BX = i·4` (0 ou 4) e `SI = j·2` (0 ou 2) como deslocamentos, e acesse com `a[BX]`, `b[SI]` e `c[BX+SI]`.",
+     "`c[i][j]` precisa da **linha i** de `a` (`a[BX]` e `a[BX+2]`) e da **coluna j** de `b`: `b[0][j]` está em `b[SI]` e `b[1][j]` está uma linha depois, em `b[SI+4]`. Multiplique os pares com `MUL` e some.",
+     "`MUL` usa `AX` e destrói `DX`: `MOV AX,a[BX]` / `MOV DX,b[SI]` / `MUL DX` deixa o produto em `AX` (aqui cabe em 16 bits). Guarde o primeiro produto em `CX`, calcule o segundo e some. Como o 8086 não aceita dois registradores de base num endereço, some `BX + SI` em `DI` antes de gravar em `c[DI]`."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 6 (modos de endereçamento).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Randall Hyde, *The Art of Assembly Language* (edição 16 bits, gratuita): seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "teste 1",
+      "visivel": true,
+      "setup": {
+       "a": [
+        1,
+        2,
+        3,
+        4
+       ],
+       "b": [
+        5,
+        6,
+        7,
+        8
+       ],
+       "c": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "c": [
+         19,
+         22,
+         43,
+         50
+        ]
+       }
+      }
+     },
+     {
+      "nome": "teste 2",
+      "visivel": true,
+      "setup": {
+       "a": [
+        1,
+        0,
+        0,
+        1
+       ],
+       "b": [
+        9,
+        8,
+        7,
+        6
+       ],
+       "c": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "c": [
+         9,
+         8,
+         7,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "nome": "teste 3",
+      "visivel": false,
+      "dica": "falhou com a matriz nula",
+      "setup": {
+       "a": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "b": [
+        1,
+        2,
+        3,
+        4
+       ],
+       "c": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "c": [
+         0,
+         0,
+         0,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "teste 4",
+      "visivel": false,
+      "dica": "falhou com 2I vezes 2I: a diagonal vira 4",
+      "setup": {
+       "a": [
+        2,
+        0,
+        0,
+        2
+       ],
+       "b": [
+        2,
+        0,
+        0,
+        2
+       ],
+       "c": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "c": [
+         4,
+         0,
+         0,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "nome": "teste 5",
+      "visivel": false,
+      "dica": "falhou com valores aleatórios",
+      "setup": {
+       "a": [
+        58,
+        35,
+        54,
+        35
+       ],
+       "b": [
+        4,
+        10,
+        39,
+        37
+       ],
+       "c": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "c": [
+         1597,
+         1875,
+         1581,
+         1835
+        ]
+       }
+      }
+     },
+     {
+      "nome": "teste 6",
+      "visivel": false,
+      "dica": "falhou com valores aleatórios",
+      "setup": {
+       "a": [
+        29,
+        17,
+        6,
+        20
+       ],
+       "b": [
+        39,
+        56,
+        30,
+        21
+       ],
+       "c": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "c": [
+         1641,
+         1981,
+         834,
+         756
+        ]
+       }
+      }
+     },
+     {
+      "nome": "teste 7",
+      "visivel": false,
+      "dica": "falhou com 150: os produtos chegam a 22500",
+      "setup": {
+       "a": [
+        150,
+        0,
+        0,
+        150
+       ],
+       "b": [
+        150,
+        0,
+        0,
+        150
+       ],
+       "c": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "c": [
+         22500,
+         0,
+         0,
+         22500
+        ]
+       }
+      }
+     },
+     {
+      "nome": "teste 8",
+      "visivel": false,
+      "dica": "falhou com só uns",
+      "setup": {
+       "a": [
+        1,
+        1,
+        1,
+        1
+       ],
+       "b": [
+        1,
+        1,
+        1,
+        1
+       ],
+       "c": [
+        0,
+        0,
+        0,
+        0
+       ]
+      },
+      "espera": {
+       "mem": {
+        "c": [
+         2,
+         2,
+         2,
+         2
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 62,
+     "ciclos": 1570
+    }
+   },
+   {
+    "id": "130-numero-para-hexadecimal",
+    "linguagem": "8086",
+    "titulo": "Número para hexadecimal",
+    "dificuldade": "dificil",
+    "trilha": "numeros",
+    "tags": [
+     "conversão",
+     "hexadecimal",
+     "rol",
+     "ascii"
+    ],
+    "prerequisitos": [
+     "087-hexadecimal-em-texto-para-numero"
+    ],
+    "aula": 3,
+    "enunciado": "Converta `valor` (palavra sem sinal) em **quatro dígitos hexadecimais em maiúsculas** e grave a string ASCIIZ em `texto` (4 caracteres mais o terminador 0). Sempre 4 dígitos, com zeros à esquerda.\n\n## Exemplos\n\n| valor | texto |\n|---|---|\n| 00FFh | `00FF` |\n| 0ABCh | `0ABC` |\n| 0009h | `0009` |\n\n## Restrições\n\n- Sem tabela de caracteres: calcule o caractere de cada dígito (de 0 a 9 vira `0`..`9` e de 10 a 15 vira `A`..`F`).",
+    "contrato": "Memória: `valor` (DW) e `texto` (DB, 5 bytes, chega cheio de `~`). Os testes conferem `texto`.",
+    "editorial": "Hexadecimal é binário em pacotes de 4 bits, e é por isso que a conversão não precisa de divisão: o nibble já é o dígito. Compare com a conversão para decimal, que exige divisões sucessivas por 10.\n\nO salto entre `'9'` e `'A'` é uma \"descontinuidade\" da tabela ASCII que atrapalha toda conversão de dígitos. Há quem prefira uma tabela `DB '0123456789ABCDEF'` com `XLAT`: mais compacto, e a instrução foi feita para isso.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\nvalor DW 0\ntexto DB 5 DUP(0)\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\nvalor DW 0\ntexto DB 5 DUP(0)\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV AX,valor\n    MOV DI,OFFSET texto\n    MOV BX,4           ; quatro dígitos\ndigito:\n    MOV CL,4\n    ROL AX,CL          ; o nibble mais alto desce para o mais baixo\n    MOV DL,AL\n    AND DL,0Fh\n    CMP DL,9\n    JBE numero\n    ADD DL,7           ; salta de '9' para 'A'\nnumero:\n    ADD DL,'0'\n    MOV [DI],DL\n    INC DI\n    DEC BX\n    JNZ digito\n    MOV BYTE PTR [DI],0\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "Cada dígito hexadecimal é um **nibble** (4 bits). Para tirar o mais alto primeiro, gire `AX` à esquerda 4 posições (`MOV CL,4` / `ROL AX,CL`): o nibble de cima passa para os 4 bits de baixo, e `AND 0Fh` isola o valor 0 a 15.",
+     "Para virar caractere: some `'0'` (30h). Mas de 10 a 15 o caractere é `A`..`F`, e o ASCII tem 7 símbolos entre `'9'` (39h) e `'A'` (41h): some 7 antes quando o dígito passar de 9.",
+     "Repita 4 vezes e grave cada caractere em `[DI]`, avançando `DI`. Depois, o terminador `MOV BYTE PTR [DI],0`. Como `ROL` por 4 gira os 16 bits (os que saem entram pelo outro lado), `AX` volta ao valor original depois das 4 voltas."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 3 (sistemas de numeração).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Peter Norton e John Socha, *Peter Norton's Assembly Language Book for the IBM PC*: seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "0000h",
+      "visivel": true,
+      "setup": {
+       "valor": 0,
+       "texto": [
+        126,
+        126,
+        126,
+        126,
+        126
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         48,
+         48,
+         48,
+         48,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "00FFh",
+      "visivel": true,
+      "setup": {
+       "valor": 255,
+       "texto": [
+        126,
+        126,
+        126,
+        126,
+        126
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         48,
+         48,
+         70,
+         70,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "ABCDh",
+      "visivel": false,
+      "dica": "falhou com ABCDh: as letras A a F precisam virar caracteres, não ficar entre 0 e 9",
+      "setup": {
+       "valor": 43981,
+       "texto": [
+        126,
+        126,
+        126,
+        126,
+        126
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         65,
+         66,
+         67,
+         68,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "1234h",
+      "visivel": false,
+      "dica": "falhou com 1234h",
+      "setup": {
+       "valor": 4660,
+       "texto": [
+        126,
+        126,
+        126,
+        126,
+        126
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         49,
+         50,
+         51,
+         52,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "FFFFh",
+      "visivel": false,
+      "dica": "falhou com FFFFh",
+      "setup": {
+       "valor": 65535,
+       "texto": [
+        126,
+        126,
+        126,
+        126,
+        126
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         70,
+         70,
+         70,
+         70,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "0A0Bh",
+      "visivel": false,
+      "dica": "falhou com 0A0Bh: os zeros à esquerda aparecem",
+      "setup": {
+       "valor": 2571,
+       "texto": [
+        126,
+        126,
+        126,
+        126,
+        126
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         48,
+         65,
+         48,
+         66,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "F00Dh",
+      "visivel": false,
+      "dica": "falhou com F00Dh",
+      "setup": {
+       "valor": 61453,
+       "texto": [
+        126,
+        126,
+        126,
+        126,
+        126
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         70,
+         48,
+         48,
+         68,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "7E57h",
+      "visivel": false,
+      "dica": "falhou com 7E57h",
+      "setup": {
+       "valor": 32343,
+       "texto": [
+        126,
+        126,
+        126,
+        126,
+        126
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         55,
+         69,
+         53,
+         55,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "0009h",
+      "visivel": false,
+      "dica": "falhou com 0009h: sempre 4 dígitos",
+      "setup": {
+       "valor": 9,
+       "texto": [
+        126,
+        126,
+        126,
+        126,
+        126
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         48,
+         48,
+         48,
+         57,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "DEADh",
+      "visivel": false,
+      "dica": "falhou com DEADh",
+      "setup": {
+       "valor": 57005,
+       "texto": [
+        126,
+        126,
+        126,
+        126,
+        126
+       ]
+      },
+      "espera": {
+       "mem": {
+        "texto": [
+         68,
+         69,
+         65,
+         68,
+         0
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 48,
+     "ciclos": 450
+    }
+   },
+   {
+    "id": "131-texto-com-sinal-para-numero",
+    "linguagem": "8086",
+    "titulo": "Texto com sinal para número",
+    "dificuldade": "dificil",
+    "trilha": "numeros",
+    "tags": [
+     "conversão",
+     "sinal",
+     "neg",
+     "strings"
+    ],
+    "prerequisitos": [
+     "085-binario-para-numero",
+     "086-numero-com-sinal-para-texto"
+    ],
+    "aula": 3,
+    "enunciado": "`texto` é uma string ASCIIZ com um número decimal **com sinal** opcional (`-` ou `+`) seguido de 1 a 5 dígitos, entre -32767 e 32767. Converta-o e grave em `valor` (palavra, complemento de dois).\n\n## Exemplos\n\n| texto | valor |\n|---|---|\n| `123` | 123 |\n| `-123` | -123 (0FF85h) |\n| `+45` | 45 |\n| `-0` | 0 |\n\n## Restrições\n\n- Use `NEG` para os negativos. A string é sempre válida: não é preciso detectar erros.",
+    "contrato": "Memória: `texto` (DB, 8 bytes) e `valor` (DW). Os testes conferem `valor`.",
+    "editorial": "O padrão \"acumulador × base + dígito\" (regra de Horner) converte texto em número em qualquer base. O sinal é tratado nas pontas: reconhecido no começo, aplicado no fim, para que o miolo trabalhe só com valores positivos.\n\nCompiladores e bibliotecas (`atoi`, `strtol`) fazem o mesmo, com uma camada de validação em volta: pular espaços, rejeitar caracteres inválidos e detectar estouro antes de multiplicar, o que este exercício deixa de lado para focar na conversão.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\ntexto DB 8 DUP(0)\nvalor DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\ntexto DB 8 DUP(0)\nvalor DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV SI,OFFSET texto\n    XOR BX,BX          ; BX = acumulador\n    XOR DI,DI          ; DI = 1 se negativo\n    MOV AL,[SI]\n    CMP AL,'-'\n    JNE talvez_mais\n    MOV DI,1\n    INC SI\n    JMP digitos\ntalvez_mais:\n    CMP AL,'+'\n    JNE digitos\n    INC SI\ndigitos:\n    MOV AL,[SI]\n    OR AL,AL\n    JZ pronto\n    SUB AL,'0'\n    XOR AH,AH\n    MOV CX,AX          ; CX = dígito\n    MOV AX,10\n    MUL BX             ; AX = acumulador * 10\n    ADD AX,CX\n    MOV BX,AX\n    INC SI\n    JMP digitos\npronto:\n    OR DI,DI\n    JZ grava\n    NEG BX\ngrava:\n    MOV valor,BX\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "Olhe o primeiro caractere: se for `-`, lembre que o número é negativo e passe para o seguinte; se for `+`, só passe. Depois, para cada dígito: `acumulador = acumulador * 10 + (caractere - '0')`, até o terminador 0.",
+     "Converta o sinal **no fim**: some tudo como positivo e só depois aplique `NEG` ao resultado. Assim a lógica dos dígitos não muda. `NEG` calcula o complemento de dois (`0 - BX`), e o número vira o padrão certo de 16 bits.",
+     "`MUL BX` destrói `DX` (a parte alta do produto): guarde o indicador de sinal em `DI`, não em `DX`. O dígito sai de `AL - '0'` e entra em `CX` antes de `AX` ser usado para o `MUL`. O acumulador nunca passa de 32767 em entradas válidas."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 14 (conversões).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Peter Norton e John Socha, *Peter Norton's Assembly Language Book for the IBM PC*: seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "\"123\"",
+      "visivel": true,
+      "setup": {
+       "texto": "123",
+       "valor": 30583
+      },
+      "espera": {
+       "mem": {
+        "valor": 123
+       }
+      }
+     },
+     {
+      "nome": "\"-123\"",
+      "visivel": true,
+      "setup": {
+       "texto": "-123",
+       "valor": 30583
+      },
+      "espera": {
+       "mem": {
+        "valor": 65413
+       }
+      }
+     },
+     {
+      "nome": "\"+45\"",
+      "visivel": false,
+      "dica": "falhou com \"+45\": o sinal de mais é aceito e ignorado",
+      "setup": {
+       "texto": "+45",
+       "valor": 30583
+      },
+      "espera": {
+       "mem": {
+        "valor": 45
+       }
+      }
+     },
+     {
+      "nome": "\"0\"",
+      "visivel": false,
+      "dica": "falhou com 0",
+      "setup": {
+       "texto": "0",
+       "valor": 30583
+      },
+      "espera": {
+       "mem": {
+        "valor": 0
+       }
+      }
+     },
+     {
+      "nome": "\"-0\"",
+      "visivel": false,
+      "dica": "falhou com \"-0\"",
+      "setup": {
+       "texto": "-0",
+       "valor": 30583
+      },
+      "espera": {
+       "mem": {
+        "valor": 0
+       }
+      }
+     },
+     {
+      "nome": "\"32767\"",
+      "visivel": false,
+      "dica": "falhou com 32767 (o maior)",
+      "setup": {
+       "texto": "32767",
+       "valor": 30583
+      },
+      "espera": {
+       "mem": {
+        "valor": 32767
+       }
+      }
+     },
+     {
+      "nome": "\"-32767\"",
+      "visivel": false,
+      "dica": "falhou com -32767",
+      "setup": {
+       "texto": "-32767",
+       "valor": 30583
+      },
+      "espera": {
+       "mem": {
+        "valor": 32769
+       }
+      }
+     },
+     {
+      "nome": "\"-1\"",
+      "visivel": false,
+      "dica": "falhou com -1: o complemento de dois é 0FFFFh",
+      "setup": {
+       "texto": "-1",
+       "valor": 30583
+      },
+      "espera": {
+       "mem": {
+        "valor": 65535
+       }
+      }
+     },
+     {
+      "nome": "\"99\"",
+      "visivel": false,
+      "dica": "falhou com 99",
+      "setup": {
+       "texto": "99",
+       "valor": 30583
+      },
+      "espera": {
+       "mem": {
+        "valor": 99
+       }
+      }
+     },
+     {
+      "nome": "\"7\"",
+      "visivel": false,
+      "dica": "falhou com um dígito só",
+      "setup": {
+       "texto": "7",
+       "valor": 30583
+      },
+      "espera": {
+       "mem": {
+        "valor": 7
+       }
+      }
+     },
+     {
+      "nome": "\"-9000\"",
+      "visivel": false,
+      "dica": "falhou com -9000",
+      "setup": {
+       "texto": "-9000",
+       "valor": 30583
+      },
+      "espera": {
+       "mem": {
+        "valor": 56536
+       }
+      }
+     },
+     {
+      "nome": "\"+1\"",
+      "visivel": false,
+      "dica": "falhou com +1",
+      "setup": {
+       "texto": "+1",
+       "valor": 30583
+      },
+      "espera": {
+       "mem": {
+        "valor": 1
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 68,
+     "ciclos": 1095
+    }
+   },
+   {
+    "id": "132-contar-ticks-do-relogio",
+    "linguagem": "8086",
+    "titulo": "Contar ticks do relógio",
+    "dificuldade": "dificil",
+    "trilha": "dos",
+    "tags": [
+     "interrupção",
+     "int 1ch",
+     "timer",
+     "isr",
+     "iret"
+    ],
+    "prerequisitos": [
+     "045-instalar-interrupcao",
+     "114-parametros-na-pilha"
+    ],
+    "aula": 15,
+    "enunciado": "O BIOS chama a interrupção **1Ch** cerca de **18,2 vezes por segundo** (a cada \"tick\" do relógio). Instale uma **rotina de interrupção** nesse vetor que **conta os ticks** em `ticks`, **sem passar de 5** (depois de 5, para de contar). O programa principal zera `ticks`, espera até chegar a 5 e **devolve o vetor original** antes de terminar.\n\n## Exemplos\n\n| momento | ticks |\n|---|---|\n| ao começar | 0 |\n| depois de cerca de 0,27 s | 5 |\n\n## Restrições\n\n- Salve o vetor antigo com `INT 21h`, AH=`35h`, e instale a rotina com AH=`25h` (AL = 1Ch, DS:DX = rotina). No fim, restaure com AH=`25h`.\n- A rotina termina com `IRET` e deve **preservar** os registradores que usa.\n- A rotina usa `CS:` para acessar `ticks` (no `.COM`/modelo SMALL, `DS` dentro da interrupção não é o seu).",
+    "contrato": "Memória: `ticks` (DW). O teste liga o relógio e confere `ticks = 5` no fim. Como a rotina para em 5, o valor final é exato.",
+    "editorial": "Interrupções de hardware e de relógio são a base de qualquer sistema multitarefa: o que o programa principal faz em laço (esperar) é feito de forma independente por uma rotina que o hardware chama. Dois cuidados são universais: a ISR **preserva tudo** que toca e é **curta**, porque enquanto ela roda, o resto do sistema espera.\n\nRestaurar o vetor no fim é a regra de ouro dos programas residentes e temporários: quem instala, desinstala. Em DOS real, esquecer isso é um travamento garantido: o vetor continua apontando para um endereço onde já há outro programa.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\nticks DW 0   ; contador de ticks, mexido pela rotina\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\nticks   DW 0\nvelhoOf DW 0\nvelhoSg DW 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV ticks,0\n    MOV AX,351Ch       ; guarda o vetor antigo em ES:BX\n    INT 21h\n    MOV velhoOf,BX\n    MOV velhoSg,ES\n    PUSH DS\n    MOV AX,CS\n    MOV DS,AX\n    MOV DX,OFFSET rotina\n    MOV AX,251Ch       ; instala a rotina\n    INT 21h\n    POP DS\nespera:\n    CMP ticks,5\n    JB espera\n    PUSH DS\n    MOV DX,velhoOf     ; devolve o vetor original\n    MOV AX,velhoSg\n    MOV DS,AX\n    MOV AX,251Ch\n    INT 21h\n    POP DS\nfim:\n    MOV AX,4C00h\n    INT 21h\nrotina:\n    PUSH AX\n    PUSH DS\n    MOV AX,@DATA\n    MOV DS,AX          ; dentro da interrupção, DS é de quem foi interrompido\n    CMP ticks,5\n    JAE sai\n    INC ticks\nsai:\n    POP DS\n    POP AX\n    IRET\nEND inicio",
+    "dicas": [
+     "Uma ISR é uma rotina que o hardware (ou o BIOS) chama sozinho. O vetor 1Ch aponta para a rotina; o vetor fica na tabela de interrupções e se lê com `INT 21h`/`AH=35h` (devolve em `ES:BX`) e se grava com `AH=25h` (`AL` = número, `DS:DX` = rotina).",
+     "Dentro da rotina, os registradores são os de quem foi interrompido: **salve** tudo que usar (`PUSH`) e restaure antes do `IRET`. Em especial, `DS` não aponta para os seus dados: carregue `@DATA` em `DS` (depois de salvá-lo), ou use um prefixo `CS:` nos acessos a `ticks`.",
+     "No programa: zere `ticks`, salve o vetor antigo, instale a rotina (com `DS:DX` apontando para o **código**: `DS = CS` durante a chamada) e espere com um laço `CMP ticks,5` / `JB`. Na rotina, `CMP ticks,5` / `JAE sai` / `INC ticks` faz a contagem **parar em 5**. Antes de terminar, restaure o vetor antigo: deixar uma ISR apontando para código que saiu da memória trava o PC no tick seguinte."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 15 (interrupções e ISR).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Peter Norton e John Socha, *Peter Norton's Assembly Language Book for the IBM PC*: seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "espera de 5 ticks",
+      "visivel": true,
+      "setup": {
+       "ticks": 0
+      },
+      "espera": {
+       "mem": {
+        "ticks": 5
+       }
+      }
+     },
+     {
+      "nome": "repetido",
+      "visivel": true,
+      "setup": {
+       "ticks": 0
+      },
+      "espera": {
+       "mem": {
+        "ticks": 5
+       }
+      }
+     },
+     {
+      "nome": "com ticks sujo",
+      "visivel": false,
+      "dica": "falhou com ticks começando em 3: o programa deve zerar a contagem",
+      "setup": {
+       "ticks": 3
+      },
+      "espera": {
+       "mem": {
+        "ticks": 5
+       }
+      }
+     },
+     {
+      "nome": "quarta execução",
+      "visivel": false,
+      "dica": "falhou na quarta execução",
+      "setup": {
+       "ticks": 0
+      },
+      "espera": {
+       "mem": {
+        "ticks": 5
+       }
+      }
+     },
+     {
+      "nome": "quinta execução",
+      "visivel": false,
+      "dica": "falhou com ticks começando em 1",
+      "setup": {
+       "ticks": 1
+      },
+      "espera": {
+       "mem": {
+        "ticks": 5
+       }
+      }
+     },
+     {
+      "nome": "sexta execução",
+      "visivel": false,
+      "dica": "falhou na sexta execução",
+      "setup": {
+       "ticks": 0
+      },
+      "espera": {
+       "mem": {
+        "ticks": 5
+       }
+      }
+     },
+     {
+      "nome": "sétima execução",
+      "visivel": false,
+      "dica": "falhou com sétima execução",
+      "setup": {
+       "ticks": 4
+      },
+      "espera": {
+       "mem": {
+        "ticks": 5
+       }
+      }
+     },
+     {
+      "nome": "oitava execução",
+      "visivel": false,
+      "dica": "falhou com oitava execução",
+      "setup": {
+       "ticks": 0
+      },
+      "espera": {
+       "mem": {
+        "ticks": 5
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 87,
+     "ciclos": 240279,
+     "timer": true
+    }
+   },
+   {
+    "id": "133-cifra-de-cesar",
+    "linguagem": "8086",
+    "titulo": "Cifra de César",
+    "dificuldade": "medio",
+    "trilha": "dos",
+    "tags": [
+     "dos",
+     "int 21h",
+     "cifra",
+     "caracteres"
+    ],
+    "prerequisitos": [
+     "116-ler-numero-e-imprimir-o-dobro"
+    ],
+    "aula": 14,
+    "enunciado": "Leia uma linha digitada (terminada por **Enter**, até 20 caracteres) e imprima-a **cifrada pela cifra de César** com o deslocamento `chave` (0 a 25): cada letra avança `chave` posições no alfabeto, **dando a volta** depois do `z` (e do `Z`). Maiúsculas continuam maiúsculas, minúsculas continuam minúsculas, e os outros caracteres **não mudam**.\n\n## Exemplos\n\n| entrada | chave | saída |\n|---|---|---|\n| `abc` | 3 | `def` |\n| `xyz` | 3 | `abc` |\n| `Hello World` | 13 | `Uryyb Jbeyq` |\n\n## Restrições\n\n- Leia com `INT 21h`, função `08h` (sem eco), e imprima com a função `02h`.",
+    "contrato": "Memória: `chave` (DB). A linha vem do teclado e a saída vai para a tela. Os testes conferem o texto impresso.",
+    "editorial": "A cifra de César é a mais simples das cifras de substituição, e a aritmética modular que ela usa (voltar ao começo ao passar do fim) aparece em índices circulares, relógios e *buffers* em anel. A conta \"soma e, se passar, subtrai o módulo\" substitui um `DIV` quando o valor só pode passar do limite uma vez.\n\nComo cifra, é trivial de quebrar: só existem 25 chaves possíveis, e a análise de frequência das letras entrega a chave de qualquer texto razoável. Vale como exercício de caracteres e fluxo de entrada e saída, não como segurança.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\nchave DB 0   ; deslocamento (0 a 25)\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\nchave DB 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV BL,chave\nle:\n    MOV AH,08h\n    INT 21h            ; AL = tecla (sem eco)\n    CMP AL,13\n    JE fim\n    MOV CL,'a'        ; base do alfabeto (minúsculas)\n    CMP AL,'a'\n    JB talvez_maiuscula\n    CMP AL,'z'\n    JBE letra\n    JMP imprime\ntalvez_maiuscula:\n    CMP AL,'A'\n    JB imprime\n    CMP AL,'Z'\n    JA imprime\n    MOV CL,'A'        ; base das maiúsculas\nletra:\n    SUB AL,CL          ; AL = posição 0..25\n    ADD AL,BL\n    CMP AL,26\n    JB some_base\n    SUB AL,26          ; volta ao começo do alfabeto\nsome_base:\n    ADD AL,CL\nimprime:\n    MOV DL,AL\n    MOV AH,02h\n    INT 21h\n    JMP le\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "Trate cada caractere de uma vez: leia (`AH=08h`), transforme e imprima (`AH=02h` com o caractere em `DL`). Pare no Enter (13). Classifique o caractere: minúscula (`a`..`z`), maiúscula (`A`..`Z`) ou outro, que é impresso como veio.",
+     "Para uma letra: subtraia a **base** (`'a'` ou `'A'`) para obter a posição de 0 a 25, some a chave, e se passar de 25 (`>= 26`) subtraia 26 para dar a volta. Depois, some a base de volta. Guarde a base em um registrador (como `CL`) para o mesmo código servir às duas caixas.",
+     "Como a posição + chave vai até 50, uma **única** subtração de 26 basta. Cuidado com a ordem das comparações: os caracteres entre `'Z'` e `'a'` (como `[` e `_`) não são letras. Use `JB`/`JBE`/`JA` (sem sinal) nas comparações de caracteres."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 14 (serviços do DOS).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Peter Norton e John Socha, *Peter Norton's Assembly Language Book for the IBM PC*: seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "\"abc\" chave 3",
+      "visivel": true,
+      "entrada": "abc\r",
+      "setup": {
+       "chave": 3
+      },
+      "espera": {
+       "saida": "def"
+      }
+     },
+     {
+      "nome": "\"xyz\" chave 3",
+      "visivel": true,
+      "entrada": "xyz\r",
+      "setup": {
+       "chave": 3
+      },
+      "espera": {
+       "saida": "abc"
+      }
+     },
+     {
+      "nome": "\"Hello World\" chave 13",
+      "visivel": false,
+      "dica": "falhou: x, y, z dão a volta no alfabeto",
+      "entrada": "Hello World\r",
+      "setup": {
+       "chave": 13
+      },
+      "espera": {
+       "saida": "Uryyb Jbeyq"
+      }
+     },
+     {
+      "nome": "\"RetroCode\" chave 1",
+      "visivel": false,
+      "dica": "falhou com maiúsculas e minúsculas e chave 13",
+      "entrada": "RetroCode\r",
+      "setup": {
+       "chave": 1
+      },
+      "espera": {
+       "saida": "SfuspDpef"
+      }
+     },
+     {
+      "nome": "\"Zz Aa\" chave 25",
+      "visivel": false,
+      "dica": "falhou com chave 1",
+      "entrada": "Zz Aa\r",
+      "setup": {
+       "chave": 25
+      },
+      "espera": {
+       "saida": "Yy Zz"
+      }
+     },
+     {
+      "nome": "\"abc 123!\" chave 0",
+      "visivel": false,
+      "dica": "falhou com chave 25: a soma passa do alfabeto duas vezes seguidas só se mal feita",
+      "entrada": "abc 123!\r",
+      "setup": {
+       "chave": 0
+      },
+      "espera": {
+       "saida": "abc 123!"
+      }
+     },
+     {
+      "nome": "\"zebra\" chave 7",
+      "visivel": false,
+      "dica": "falhou com chave 0 e símbolos: números e pontuação não mudam",
+      "entrada": "zebra\r",
+      "setup": {
+       "chave": 7
+      },
+      "espera": {
+       "saida": "gliyh"
+      }
+     },
+     {
+      "nome": "\"Ola, Mundo\" chave 5",
+      "visivel": false,
+      "dica": "falhou com chave 7",
+      "entrada": "Ola, Mundo\r",
+      "setup": {
+       "chave": 5
+      },
+      "espera": {
+       "saida": "Tqf, Rzsit"
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 64,
+     "ciclos": 2281
+    }
+   },
+   {
+    "id": "134-paridade-de-uma-palavra",
+    "linguagem": "8086",
+    "titulo": "Paridade de uma palavra",
+    "dificuldade": "medio",
+    "trilha": "otimizacao",
+    "tags": [
+     "otimização",
+     "paridade",
+     "xor",
+     "pf"
+    ],
+    "prerequisitos": [
+     "091-contar-bits-por-tabela"
+    ],
+    "aula": 4,
+    "enunciado": "Grave em `res` (byte) **1** se `x` tem uma quantidade **ímpar** de bits em 1 e **0** se a quantidade é **par** (zero conta como par).\n\n## Exemplos\n\n| x | res |\n|---|---|\n| 0000h | 0 |\n| 0003h | 0 |\n| 0007h | 1 |\n| 8001h | 0 |\n\n## Restrições\n\n- Sem laços e sem deslocamentos: a resposta sai de **um `XOR` e de um salto condicional**, usando o flag de paridade do 8086.",
+    "contrato": "Memória: `x` (DW) e `res` (DB). Os testes conferem `res`.",
+    "editorial": "O flag PF é uma herança dos primeiros processadores, pensada para detectar erros em transmissões seriais com bit de paridade. Ele só olha o **byte baixo** do resultado, e é por isso que a palavra precisa ser \"dobrada\" com `XOR` antes.\n\nDobrar com XOR é o truque geral de paridade: a de 32 bits vem de dobrar 16, depois 8, e assim por diante. Os processadores modernos têm `POPCNT` (contagem de bits em uma instrução), mas a paridade ainda vale como exercício de como flags carregam informação.",
+    "codigoInicial": ".MODEL SMALL\n.STACK 100h\n.DATA\nx   DW 0\nres DB 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    ; seu código aqui\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "solucao": ".MODEL SMALL\n.STACK 100h\n.DATA\nx   DW 0\nres DB 0\n.CODE\ninicio:\n    MOV AX,@DATA\n    MOV DS,AX\n    MOV AX,x\n    XOR AL,AH          ; a paridade dos 16 bits é a paridade de AL xor AH\n    JPO impar          ; PF mede a paridade do resultado (byte baixo)\n    MOV res,0\n    JMP fim\nimpar:\n    MOV res,1\nfim:\n    MOV AX,4C00h\n    INT 21h\nEND inicio",
+    "dicas": [
+     "A paridade de uma palavra é a de seus bits todos, e o `XOR` **combina paridades**: a paridade de `a xor b` é a paridade de `a` somada à de `b`. Então a paridade dos 16 bits é a paridade dos 8 bits de `AL xor AH`.",
+     "O 8086 já calcula a paridade do **byte baixo** de qualquer resultado e guarda no flag **PF** (PF = 1 se o número de bits em 1 é **par**). Basta `XOR AL,AH` e olhar o PF: `JPO` (parity odd) salta se for ímpar.",
+     "`MOV AX,x`, `XOR AL,AH`, `JPO impar` (ou `JPE`, conforme o jeito de organizar), e grave 0 ou 1. Nenhuma instrução entre o `XOR` e o salto pode mexer nos flags; `MOV` não mexe, então não há problema em gravar antes."
+    ],
+    "referencias": [
+     "Curso Assembly 8086, aula 4 (lógica e flags).",
+     "Intel, *The 8086 Family User's Manual* (1979): descrição das instruções usadas.",
+     "Randall Hyde, *The Art of Assembly Language* (edição 16 bits, gratuita): seções sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "x = 0000h",
+      "visivel": true,
+      "setup": {
+       "x": 0,
+       "res": 7
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "x = 0001h",
+      "visivel": true,
+      "setup": {
+       "x": 1,
+       "res": 7
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "x = 0003h",
+      "visivel": false,
+      "dica": "falhou com 3: dois bits ligados é paridade par",
+      "setup": {
+       "x": 3,
+       "res": 7
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "x = 0007h",
+      "visivel": false,
+      "dica": "falhou com 7",
+      "setup": {
+       "x": 7,
+       "res": 7
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "x = FFFFh",
+      "visivel": false,
+      "dica": "falhou com FFFFh: 16 bits ligados é par",
+      "setup": {
+       "x": 65535,
+       "res": 7
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "x = 8001h",
+      "visivel": false,
+      "dica": "falhou com 8001h: um bit em cada byte",
+      "setup": {
+       "x": 32769,
+       "res": 7
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "x = 1234h",
+      "visivel": false,
+      "dica": "falhou com 1234h",
+      "setup": {
+       "x": 4660,
+       "res": 7
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "x = A5A5h",
+      "visivel": false,
+      "dica": "falhou com A5A5h",
+      "setup": {
+       "x": 42405,
+       "res": 7
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "x = 0100h",
+      "visivel": false,
+      "dica": "falhou com 0100h: o bit está no byte alto",
+      "setup": {
+       "x": 256,
+       "res": 7
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "x = 00FFh",
+      "visivel": false,
+      "dica": "falhou com 00FFh",
+      "setup": {
+       "x": 255,
+       "res": 7
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "x = FE00h",
+      "visivel": false,
+      "dica": "falhou com FE00h",
+      "setup": {
+       "x": 65024,
+       "res": 7
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "x = 5555h",
+      "visivel": false,
+      "dica": "falhou com 5555h",
+      "setup": {
+       "x": 21845,
+       "res": 7
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 29,
+     "ciclos": 109,
+     "exigir": [
+      "XOR"
+     ],
+     "proibir": [
+      "LOOP",
+      "SHL",
+      "SHR",
+      "ROL",
+      "ROR",
+      "RCL",
+      "RCR",
+      "SAR"
+     ]
+    }
+   },
+   {
     "id": "6502-001-guardar-o-valor",
     "linguagem": "6502",
     "titulo": "Guardar o valor",

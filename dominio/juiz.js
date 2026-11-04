@@ -25,8 +25,8 @@
     return prog.instrs.reduce((s, i) => s + i.size, 0);
   }
 
-  function ciclosDoTeste(codigo, teste) {
-    const run = M.runProgram(codigo, { setup: teste.setup, input: teste.entrada, maxSteps: MAX_PASSOS, arquivos: teste.arquivos });
+  function ciclosDoTeste(codigo, teste, timer) {
+    const run = M.runProgram(codigo, { setup: teste.setup, input: teste.entrada, maxSteps: MAX_PASSOS, arquivos: teste.arquivos, linhaComando: teste.linhaComando, timer: !!timer });
     return { ciclos: run.machine.cycles, passos: run.machine.steps };
   }
 
@@ -44,14 +44,14 @@
     r.bytes = tamanhoEmBytes(prog);
 
     const alvo = desafio.testes.filter(t => enviar || t.visivel);
-    const ver = Verificador.verificar({ testes: alvo, proibir: metas.proibir, exigir: metas.exigir, maxPassos: MAX_PASSOS }, codigo);
+    const ver = Verificador.verificar({ testes: alvo, proibir: metas.proibir, exigir: metas.exigir, timer: !!metas.timer, maxPassos: MAX_PASSOS }, codigo);
     r.regras = ver.estatico.slice();
     // meta "recursao": o procedimento precisa chamar a si mesmo (direta ou indiretamente)
     if (metas.recursao && !Recursao.temRecursao(prog)) r.regras.push({ ok: false, msg: 'O exercício exige recursão: um procedimento precisa chamar a si mesmo com CALL.' });
 
     alvo.forEach((teste, i) => {
       const v = ver.testes[i];
-      const medida = ciclosDoTeste(codigo, teste);
+      const medida = ciclosDoTeste(codigo, teste, metas.timer);
       const msgs = teste.visivel ? v.msgs : (v.ok ? [] : [teste.dica || 'falhou em um teste oculto']);
       r.testes.push({ nome: teste.nome || v.nome, visivel: !!teste.visivel, ok: v.ok, msgs, ciclos: medida.ciclos, passos: medida.passos });
     });
