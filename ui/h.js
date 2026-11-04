@@ -5,7 +5,7 @@
   function aplicar(el, chave, valor) {
     if (valor === null || valor === undefined || valor === false) return;
     if (chave === 'class') el.className = valor;
-    else if (chave === 'style' && typeof valor === 'object') Object.assign(el.style, valor);
+    else if (chave === 'style' && typeof valor === 'object') Object.keys(valor).forEach(k => (k.slice(0, 2) === '--' ? el.style.setProperty(k, valor[k]) : (el.style[k] = valor[k])));
     else if (chave.slice(0, 2) === 'on' && typeof valor === 'function') el.addEventListener(chave.slice(2), valor);
     else if (chave === 'value') el.value = valor;
     else el.setAttribute(chave, valor === true ? '' : valor);

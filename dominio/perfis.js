@@ -35,11 +35,11 @@
       try { if (armazem) armazem.setItem(CHAVE_PERFIS, JSON.stringify(estado)); } catch (e) { /* cheio ou bloqueado: segue na memória */ }
     }
 
-    function validarNome(nome, ignorarId) {
+    function validarNome(nome, ignorarId, permitirRepetido) {
       const limpo = limpar(nome);
       if (!limpo) throw new Error('Escreva um nome.');
       if (limpo.length > MAX_NOME) throw new Error('O nome pode ter no máximo ' + MAX_NOME + ' caracteres.');
-      if (estado.lista.some(p => p.id !== ignorarId && comparavel(p.nome) === comparavel(limpo))) throw new Error('Nome inválido: já existe um perfil chamado "' + limpo + '".');
+      if (!permitirRepetido && estado.lista.some(p => p.id !== ignorarId && comparavel(p.nome) === comparavel(limpo))) throw new Error('Nome inválido: já existe um perfil chamado "' + limpo + '".');
       return limpo;
     }
 
@@ -48,8 +48,9 @@
     return {
       lista() { return estado.lista.map(p => Object.assign({}, p)); },
       ativo() { const p = achar(estado.ativo); return p ? Object.assign({}, p) : null; },
-      criar(nome) {
-        const limpo = validarNome(nome);
+      // opcoes.permitirRepetido: contas diferentes podem ter o mesmo nome de exibição
+      criar(nome, opcoes) {
+        const limpo = validarNome(nome, undefined, !!(opcoes && opcoes.permitirRepetido));
         const perfil = { id: gerarId(), nome: limpo, criadoEm: agora() };
         // o primeiro perfil herda o progresso que já estava gravado antes dos perfis existirem
         if (estado.lista.length === 0 && armazem) {

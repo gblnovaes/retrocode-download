@@ -16,8 +16,13 @@
   const prefs = lerPrefs();
   // quem está jogando: cada perfil tem o seu progresso, em chave própria
   const perfis = root.Perfis.criarPerfis(armazem());
-  const perfil = perfis.ativo();
-  // sem perfil ativo a tela de boas-vindas bloqueia o app; o progresso fica só na memória até lá
+  // sessionStorage guarda a sessão de quem não marcou "lembrar de mim" (some ao fechar o navegador)
+  const armazemSessao = () => { try { return root.sessionStorage; } catch (e) { return null; } };
+  const contas = root.Contas.criarContas({ armazem: armazem(), armazemSessao: armazemSessao(), perfis });
+  const conta = contas.atual();
+  if (conta && (!perfis.ativo() || perfis.ativo().id !== conta.perfilId)) perfis.trocar(conta.perfilId);
+  const perfil = conta ? perfis.ativo() : null;
+  // sem conta aberta a tela de acesso bloqueia o app; o progresso fica só na memória até lá
   const progresso = root.Progresso.criarProgresso(perfil ? armazem() : null, perfil ? root.Perfis.chaveProgresso(perfil.id) : undefined);
   // estado só da sessão (não é gravado): filtros, busca e abas
   const vol = { busca: '', filtroDesafios: 'todos', nivelTabela: 'todos', mostrarTodos: {}, abaEnunciado: 'enunciado' };
@@ -40,8 +45,15 @@
     return d ? { desafio: d, resgatado: !!progresso.dados().diario[chave].resgatado } : null;
   }
 
+  // primeiro desafio ainda não resolvido do nível escolhido no cadastro (na linguagem atual)
+  function primeiroDoNivel(nivel) {
+    const dif = root.Contas.dificuldadeDoNivel(nivel);
+    const lista = doIdioma().filter(d => d.dificuldade === dif);
+    return lista.find(d => !progresso.resumo(d.id).resolvido) || lista[0] || null;
+  }
+
   const medalhas = (agora) => root.Medalhas.avaliar(progresso.dados(), desafios(), prefs.linguagem, estatisticas(agora));
 
-  const api = { prefs, perfis, perfil, progresso, vol, definir, desafios, doIdioma, achar, estatisticas, medalhas, desafioDoDia, ACENTOS };
+  const api = { prefs, perfis, perfil, contas, conta, Contas: root.Contas, primeiroDoNivel, progresso, vol, definir, desafios, doIdioma, achar, estatisticas, medalhas, desafioDoDia, ACENTOS };
   root.Estado = api;
 })(typeof self !== 'undefined' ? self : this);

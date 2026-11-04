@@ -14,7 +14,7 @@
   }
 
   function exportarProgresso() {
-    const quem = E.perfil ? root.ViewPerfil.slug(E.perfil.nome) + '-' : '';
+    const quem = E.conta ? root.ViewPerfil.slug(E.conta.usuario) + '-' : '';
     const nome = 'retrocode-progresso-' + quem + root.Calendario.chaveDia(new Date()) + '.json';
     const url = URL.createObjectURL(new Blob([E.progresso.exportar()], { type: 'application/json' }));
     const a = h('a', { href: url, download: nome, style: { display: 'none' } });
@@ -101,7 +101,7 @@
     const hoje = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
     const prox = proximoDesafio();
     return h('header', { class: 'topo' },
-      h('div', null, h('span', { class: 'data' }, hoje.charAt(0).toUpperCase() + hoje.slice(1)), h('h1', null, 'Olá, ' + (E.perfil ? E.perfil.nome : 'jogador'))),
+      h('div', null, h('span', { class: 'data' }, hoje.charAt(0).toUpperCase() + hoje.slice(1)), h('h1', null, 'Olá, ' + (E.conta ? E.conta.nome : 'jogador'))),
       h('div', { class: 'acoes' },
         h('label', { class: 'busca' }, icone('busca', 16), h('span', { class: 'so-leitor' }, 'Buscar desafio'),
           h('input', { type: 'search', placeholder: 'Buscar desafio…', onkeydown: (e) => { if (e.key === 'Enter') { E.vol.busca = e.target.value; location.hash = '#/desafios'; } } })),
@@ -115,11 +115,17 @@
     atualizarLateral() { const nova = lateral(rota().nome); const antiga = raiz.querySelector('.lateral'); if (antiga) antiga.replaceWith(nova); }
   };
 
+  // conta aberta: a página recarrega para ler o progresso do perfil dela; conta nova começa no primeiro desafio do nível escolhido
+  function depoisDoAcesso(conta, nova) {
+    if (nova) { const d = E.primeiroDoNivel(conta.nivel); location.hash = d ? '#/desafio/' + d.id : '#/dashboard'; }
+    location.reload();
+  }
+
   function desenhar(focoId, mesmaTela) {
     limpezas.forEach(f => f()); limpezas = [];
     const topo = window.scrollY;
     const r = rota();
-    if (!E.perfil) { raiz.textContent = ''; raiz.appendChild(root.ViewPerfil.boasVindas()); document.title = 'Bem-vindo · RetroCode'; const campo = document.getElementById('nome-perfil'); if (campo) campo.focus(); return; }
+    if (!E.conta) { raiz.textContent = ''; raiz.appendChild(root.ViewAcesso.acesso(depoisDoAcesso)); document.title = 'Entrar · RetroCode'; return; }
     let conteudo;
     if (r.nome === 'desafios') conteudo = root.ViewDesafios.render(ctx);
     else if (r.nome === 'historico') conteudo = root.ViewHistorico.render(ctx);

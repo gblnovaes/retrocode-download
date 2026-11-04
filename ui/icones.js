@@ -8,6 +8,8 @@
     chama: '<path d="M12 22c4 0 7-3 7-7 0-3-2-6-4-8 0 3-2 4-3 4 0-3-1-6-4-9 0 4-3 6-3 11 0 5 3 9 7 9z"></path>',
     busca: '<circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path>',
     play: '<polygon points="6 4 20 12 6 20 6 4"></polygon>',
+    seta: '<path d="M5 12h14M13 6l6 6-6 6"></path>',
+    sair: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line>',
     ok: '<polyline points="20 6 9 17 4 12"></polyline>',
     x: '<path d="M18 6 6 18M6 6l12 12"></path>',
     circulo: '<circle cx="12" cy="12" r="4"></circle>',
