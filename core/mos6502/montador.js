@@ -304,8 +304,10 @@
           const [opcode] = DEFS[it.mn][modo];
           const inicio = pc;
           let corpo = [opcode];
+          let alvo;
           if (cls.expr !== null) {
             const v = avaliarEm(it.mn, cls.expr, ctx).valor;
+            alvo = v;
             if (modo === 'imm') corpo.push(byte(v, ' em ' + it.mn + ' #' + cls.expr.trim()));
             else if (modo === 'rel') {
               const d = v - (pc + 2);
@@ -320,7 +322,7 @@
             }
           }
           emitir(corpo);
-          instrucoes.push({ linha: it.linha, endereco: inicio, tam: corpo.length, mn: it.mn, modo });
+          instrucoes.push({ linha: it.linha, endereco: inicio, tam: corpo.length, mn: it.mn, modo, alvo });
         }
       } catch (e) {
         if (!(e instanceof ErroMontagem)) throw e;

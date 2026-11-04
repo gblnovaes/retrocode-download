@@ -16,6 +16,7 @@
   const node = typeof require === 'function' && typeof module === 'object';
   const Cpu = node ? require('../core/mos6502/cpu.js') : root.Mos6502;
   const Mont = node ? require('../core/mos6502/montador.js') : root.Mos6502;
+  const Recursao = node ? require('./recursao6502.js') : root.Recursao6502;
 
   const MAX_PASSOS = 200000;
   const REGISTRADORES = ['A', 'X', 'Y', 'SP'];
@@ -90,6 +91,9 @@
     const usados = new Set(prog.instrucoes.map(i => i.mn));
     for (const p of metas.proibir || []) if (usados.has(p)) r.regras.push({ ok: false, msg: 'O exercício proíbe a instrução ' + p + '.' });
     for (const p of metas.exigir || []) r.regras.push(usados.has(p) ? { ok: true, msg: 'Usa ' + p + '.' } : { ok: false, msg: 'O exercício pede que você use ' + p + '.' });
+
+    // meta "recursao": algum procedimento precisa chamar a si mesmo (direta ou indiretamente)
+    if (metas.recursao && !Recursao.temRecursao(prog)) r.regras.push({ ok: false, msg: 'O exercício exige recursão: um procedimento precisa chamar a si mesmo com JSR.' });
 
     const alvo = desafio.testes.filter(t => enviar || t.visivel);
     for (const teste of alvo) {
