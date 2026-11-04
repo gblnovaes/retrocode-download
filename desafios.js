@@ -43645,6 +43645,5036 @@
       "CPX"
      ]
     }
+   },
+   {
+    "id": "6502-056-divisao-de-16-bits",
+    "linguagem": "6502",
+    "titulo": "Divisão de 16 bits",
+    "dificuldade": "dificil",
+    "trilha": "aritmetica",
+    "tags": [
+     "divisão",
+     "16 bits",
+     "resto",
+     "rol"
+    ],
+    "prerequisitos": [
+     "6502-030-divisao-de-8-bits",
+     "6502-007-soma-de-16-bits"
+    ],
+    "aula": null,
+    "enunciado": "Divida o número de 16 bits `dividendo` pelo byte `divisor` (1 a 255) e guarde o `quociente` de **16 bits** e o `resto` de 8 bits.\n\n## Exemplos\n\n| dividendo | divisor | quociente | resto |\n|---|---|---|---|\n| 1000 | 7 | 142 | 6 |\n| 65535 | 255 | 257 | 0 |\n| 300 | 255 | 1 | 45 |\n\n## Restrições\n\n- `divisor` nunca é 0. Todos os números são sem sinal.",
+    "contrato": "Memória: `dividendo` ($10-$11), `divisor` ($12), `quociente` ($14-$15) e `resto` ($16). Os testes conferem `quociente` e `resto`.",
+    "editorial": "A divisão de 16 por 8 bits é o primeiro caso em que o resto parcial \"estoura\" o acumulador: com divisor 200, um resto parcial de 150 vira 301 depois do deslocamento. O carry guarda esse 9º bit, e `BCS subtrai` o trata sem comparação. Esquecer isso passa nos testes com divisores pequenos e falha com 200 e 255.\n\nO quociente e o dividendo dividem os mesmos 2 bytes: a cada volta, um bit do dividendo sai e um do quociente entra, como numa fila. É assim que as rotinas de divisão de bibliotecas de 6502 (e da maioria das CPUs sem `DIV`) economizam memória.",
+    "codigoInicial": "; quociente e resto de dividendo / divisor\ndividendo = $10   ; 16 bits\ndivisor   = $12\nquociente = $14   ; 16 bits\nresto     = $16\n\n    ; seu código aqui\n    BRK",
+    "solucao": "dividendo = $10\ndivisor   = $12\nquociente = $14\nresto     = $16\n\n    LDA dividendo\n    STA quociente\n    LDA dividendo+1\n    STA quociente+1\n    LDA #0         ; A é o resto parcial\n    LDX #16\nlaco:\n    ASL quociente\n    ROL quociente+1\n    ROL A          ; o próximo bit do dividendo entra no resto\n    BCS subtrai    ; 9 bits: com certeza >= divisor\n    CMP divisor\n    BCC sem\nsubtrai:\n    SBC divisor    ; o carry está ligado nos dois caminhos\n    INC quociente  ; bit 0 livre após o ASL\nsem:\n    DEX\n    BNE laco\n    STA resto\n    BRK",
+    "dicas": [
+     "É o mesmo algoritmo da divisão de 8 bits (desafio 030), com **16 voltas**: o dividendo vai saindo pela esquerda de `quociente` e os bits do quociente vão entrando por baixo.",
+     "O par `ASL quociente` / `ROL quociente+1` é um deslocamento de 16 bits; o bit que sai vai para o carry e entra no resto parcial (`ROL A`). O resto parcial é só 8 bits, mas o `ROL` pode produzir um 9º bit: nesse caso o carry fica ligado e o resto certamente é maior que o divisor.",
+     "Se `A >= divisor` (carry ligado depois do `CMP`, ou `BCS` do 9º bit), subtraia com `SBC divisor` (sem `SEC`) e ligue o bit 0 do quociente com `INC quociente`. Ao final, `STA resto`."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Lance Leventhal, *6502 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "1000 / 7",
+      "visivel": true,
+      "setup": {
+       "dividendo": {
+        "w": 1000
+       },
+       "divisor": 7,
+       "quociente": {
+        "w": 7
+       },
+       "resto": 9
+      },
+      "espera": {
+       "mem": {
+        "quociente": {
+         "w": 142
+        },
+        "resto": 6
+       }
+      }
+     },
+     {
+      "nome": "65535 / 1",
+      "visivel": true,
+      "setup": {
+       "dividendo": {
+        "w": 65535
+       },
+       "divisor": 1,
+       "quociente": {
+        "w": 7
+       },
+       "resto": 9
+      },
+      "espera": {
+       "mem": {
+        "quociente": {
+         "w": 65535
+        },
+        "resto": 0
+       }
+      }
+     },
+     {
+      "nome": "65535 / 255",
+      "visivel": false,
+      "dica": "falhou com divisor 1: o quociente é o dividendo inteiro",
+      "setup": {
+       "dividendo": {
+        "w": 65535
+       },
+       "divisor": 255,
+       "quociente": {
+        "w": 7
+       },
+       "resto": 9
+      },
+      "espera": {
+       "mem": {
+        "quociente": {
+         "w": 257
+        },
+        "resto": 0
+       }
+      }
+     },
+     {
+      "nome": "0 / 9",
+      "visivel": false,
+      "dica": "falhou com dividendo zero",
+      "setup": {
+       "dividendo": {
+        "w": 0
+       },
+       "divisor": 9,
+       "quociente": {
+        "w": 7
+       },
+       "resto": 9
+      },
+      "espera": {
+       "mem": {
+        "quociente": {
+         "w": 0
+        },
+        "resto": 0
+       }
+      }
+     },
+     {
+      "nome": "256 / 128",
+      "visivel": false,
+      "dica": "falhou com 256 / 128",
+      "setup": {
+       "dividendo": {
+        "w": 256
+       },
+       "divisor": 128,
+       "quociente": {
+        "w": 7
+       },
+       "resto": 9
+      },
+      "espera": {
+       "mem": {
+        "quociente": {
+         "w": 2
+        },
+        "resto": 0
+       }
+      }
+     },
+     {
+      "nome": "255 / 255",
+      "visivel": false,
+      "dica": "falhou com 255 / 255",
+      "setup": {
+       "dividendo": {
+        "w": 255
+       },
+       "divisor": 255,
+       "quociente": {
+        "w": 7
+       },
+       "resto": 9
+      },
+      "espera": {
+       "mem": {
+        "quociente": {
+         "w": 1
+        },
+        "resto": 0
+       }
+      }
+     },
+     {
+      "nome": "40000 / 200",
+      "visivel": false,
+      "dica": "falhou com divisor grande (200): o resto parcial passa de 8 bits",
+      "setup": {
+       "dividendo": {
+        "w": 40000
+       },
+       "divisor": 200,
+       "quociente": {
+        "w": 7
+       },
+       "resto": 9
+      },
+      "espera": {
+       "mem": {
+        "quociente": {
+         "w": 200
+        },
+        "resto": 0
+       }
+      }
+     },
+     {
+      "nome": "12345 / 100",
+      "visivel": false,
+      "dica": "falhou com 12345 / 100",
+      "setup": {
+       "dividendo": {
+        "w": 12345
+       },
+       "divisor": 100,
+       "quociente": {
+        "w": 7
+       },
+       "resto": 9
+      },
+      "espera": {
+       "mem": {
+        "quociente": {
+         "w": 123
+        },
+        "resto": 45
+       }
+      }
+     },
+     {
+      "nome": "1 / 2",
+      "visivel": false,
+      "dica": "falhou com dividendo menor que o divisor",
+      "setup": {
+       "dividendo": {
+        "w": 1
+       },
+       "divisor": 2,
+       "quociente": {
+        "w": 7
+       },
+       "resto": 9
+      },
+      "espera": {
+       "mem": {
+        "quociente": {
+         "w": 0
+        },
+        "resto": 1
+       }
+      }
+     },
+     {
+      "nome": "65535 / 2",
+      "visivel": false,
+      "dica": "falhou com 65535 / 2",
+      "setup": {
+       "dividendo": {
+        "w": 65535
+       },
+       "divisor": 2,
+       "quociente": {
+        "w": 7
+       },
+       "resto": 9
+      },
+      "espera": {
+       "mem": {
+        "quociente": {
+         "w": 32767
+        },
+        "resto": 1
+       }
+      }
+     },
+     {
+      "nome": "300 / 255",
+      "visivel": false,
+      "dica": "falhou com 300 / 255: o resto é 45",
+      "setup": {
+       "dividendo": {
+        "w": 300
+       },
+       "divisor": 255,
+       "quociente": {
+        "w": 7
+       },
+       "resto": 9
+      },
+      "espera": {
+       "mem": {
+        "quociente": {
+         "w": 1
+        },
+        "resto": 45
+       }
+      }
+     },
+     {
+      "nome": "50000 / 3",
+      "visivel": false,
+      "dica": "falhou com 50000 / 3",
+      "setup": {
+       "dividendo": {
+        "w": 50000
+       },
+       "divisor": 3,
+       "quociente": {
+        "w": 7
+       },
+       "resto": 9
+      },
+      "espera": {
+       "mem": {
+        "quociente": {
+         "w": 16666
+        },
+        "resto": 2
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 33,
+     "ciclos": 530,
+     "exigir": [
+      "ROL"
+     ]
+    }
+   },
+   {
+    "id": "6502-057-multiplicacao-16x16",
+    "linguagem": "6502",
+    "titulo": "Multiplicação 16 x 16",
+    "dificuldade": "dificil",
+    "trilha": "aritmetica",
+    "tags": [
+     "multiplicação",
+     "32 bits",
+     "ror",
+     "deslocamento"
+    ],
+    "prerequisitos": [
+     "6502-029-multiplicacao-8x8",
+     "6502-007-soma-de-16-bits"
+    ],
+    "aula": null,
+    "enunciado": "Multiplique `a` por `b` (16 bits cada, sem sinal) e guarde o produto de **32 bits** em `prod` (4 bytes, byte baixo primeiro).\n\n## Exemplos\n\n| a | b | prod |\n|---|---|---|\n| 300 | 400 | 120000 |\n| 256 | 256 | 65536 |\n| 65535 | 65535 | 4294836225 |\n\n## Restrições\n\n- `a` e `b` podem ser alterados.",
+    "contrato": "Memória: `a` ($10-$11), `b` ($12-$13) e `prod` ($14-$17). Os testes conferem o produto de 32 bits.",
+    "editorial": "O produto de dois números de 16 bits ocupa até 32 bits, e a técnica é a mesma do 8x8: somar o multiplicando na metade alta quando o bit do multiplicador vale 1, depois deslocar tudo para a direita. A cada deslocamento, um bit do produto final \"cai\" para a metade baixa e libera um bit do multiplicador. Depois das 16 voltas, o multiplicador sumiu e o produto de 32 bits está completo.\n\nO ponto frágil é o carry: o 33º bit da soma alta precisa entrar por cima do `ROR prod+3`. Por isso o `JMP desloca` pula o `CLC` do caminho \"bit zero\" e o carry da soma chega intacto ao primeiro `ROR`. Com 65535 × 65535 esse bit é decisivo.",
+    "codigoInicial": "; prod = a x b\na    = $10   ; 16 bits\nb    = $12   ; 16 bits\nprod = $14   ; 32 bits\n\n    ; seu código aqui\n    BRK",
+    "solucao": "a    = $10\nb    = $12\nprod = $14\n\n    LDA b\n    STA prod       ; a metade baixa guarda o multiplicador\n    LDA b+1\n    STA prod+1\n    LDA #0\n    STA prod+2     ; a metade alta acumula o produto\n    STA prod+3\n    LDX #16\nlaco:\n    LDA prod\n    AND #1\n    BEQ nao        ; bit 0 do multiplicador\n    CLC\n    LDA prod+2\n    ADC a\n    STA prod+2\n    LDA prod+3\n    ADC a+1\n    STA prod+3     ; o carry é o bit 32 da soma\n    JMP desloca\nnao:\n    CLC\ndesloca:\n    ROR prod+3     ; desloca os 32 bits para a direita,\n    ROR prod+2     ; trazendo o carry por cima\n    ROR prod+1\n    ROR prod\n    DEX\n    BNE laco\n    BRK",
+    "dicas": [
+     "É a multiplicação 8x8 (desafio 029) com o dobro de largura: **16 voltas**, produto de 32 bits. Os dois bytes baixos de `prod` guardam o multiplicador e vão sendo consumidos.",
+     "Cada volta: olhe o bit 0 de `prod` (`LDA prod`, `AND #1`). Se for 1, some `a` na metade **alta** (`prod+2`, `prod+3`, em 16 bits, com `CLC` antes). O carry dessa soma é o bit mais alto do produto parcial.",
+     "Depois, desloque os 32 bits para a direita: `ROR prod+3`, `ROR prod+2`, `ROR prod+1`, `ROR prod`, com o carry entrando por cima. Se o bit era 0, passe por um `CLC` para entrar zero. Repita 16 vezes."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Lance Leventhal, *6502 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "300 x 400",
+      "visivel": true,
+      "setup": {
+       "a": {
+        "w": 300
+       },
+       "b": {
+        "w": 400
+       },
+       "prod": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "prod": {
+         "w": [
+          54464,
+          1
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "65535 x 65535",
+      "visivel": true,
+      "setup": {
+       "a": {
+        "w": 65535
+       },
+       "b": {
+        "w": 65535
+       },
+       "prod": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "prod": {
+         "w": [
+          1,
+          65534
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "0 x 12345",
+      "visivel": false,
+      "dica": "falhou com 65535 x 65535 (o maior produto: $FFFE0001)",
+      "setup": {
+       "a": {
+        "w": 0
+       },
+       "b": {
+        "w": 12345
+       },
+       "prod": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "prod": {
+         "w": [
+          0,
+          0
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "1 x 1",
+      "visivel": false,
+      "dica": "falhou com um fator zero",
+      "setup": {
+       "a": {
+        "w": 1
+       },
+       "b": {
+        "w": 1
+       },
+       "prod": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "prod": {
+         "w": [
+          1,
+          0
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "256 x 256",
+      "visivel": false,
+      "dica": "falhou com 1 x 1",
+      "setup": {
+       "a": {
+        "w": 256
+       },
+       "b": {
+        "w": 256
+       },
+       "prod": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "prod": {
+         "w": [
+          0,
+          1
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "1000 x 1000",
+      "visivel": false,
+      "dica": "falhou com 256 x 256 (65536 passa de 16 bits)",
+      "setup": {
+       "a": {
+        "w": 1000
+       },
+       "b": {
+        "w": 1000
+       },
+       "prod": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "prod": {
+         "w": [
+          16960,
+          15
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "65535 x 1",
+      "visivel": false,
+      "dica": "falhou com 1000 x 1000",
+      "setup": {
+       "a": {
+        "w": 65535
+       },
+       "b": {
+        "w": 1
+       },
+       "prod": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "prod": {
+         "w": [
+          65535,
+          0
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "12345 x 6789",
+      "visivel": false,
+      "dica": "falhou com 65535 x 1",
+      "setup": {
+       "a": {
+        "w": 12345
+       },
+       "b": {
+        "w": 6789
+       },
+       "prod": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "prod": {
+         "w": [
+          55197,
+          1278
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "255 x 255",
+      "visivel": false,
+      "dica": "falhou com 12345 x 6789",
+      "setup": {
+       "a": {
+        "w": 255
+       },
+       "b": {
+        "w": 255
+       },
+       "prod": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "prod": {
+         "w": [
+          65025,
+          0
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "40000 x 3",
+      "visivel": false,
+      "dica": "falhou com 255 x 255",
+      "setup": {
+       "a": {
+        "w": 40000
+       },
+       "b": {
+        "w": 3
+       },
+       "prod": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "prod": {
+         "w": [
+          54464,
+          1
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "2 x 32768",
+      "visivel": false,
+      "dica": "falhou com 40000 x 3",
+      "setup": {
+       "a": {
+        "w": 2
+       },
+       "b": {
+        "w": 32768
+       },
+       "prod": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "prod": {
+         "w": [
+          0,
+          1
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "65535 x 2",
+      "visivel": false,
+      "dica": "falhou com 2 x 32768",
+      "setup": {
+       "a": {
+        "w": 65535
+       },
+       "b": {
+        "w": 2
+       },
+       "prod": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "prod": {
+         "w": [
+          65534,
+          1
+         ]
+        }
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 51,
+     "ciclos": 901,
+     "exigir": [
+      "ROR"
+     ]
+    }
+   },
+   {
+    "id": "6502-058-fibonacci-de-32-bits",
+    "linguagem": "6502",
+    "titulo": "Fibonacci de 32 bits",
+    "dificuldade": "dificil",
+    "trilha": "aritmetica",
+    "tags": [
+     "fibonacci",
+     "32 bits",
+     "adc",
+     "laço"
+    ],
+    "prerequisitos": [
+     "6502-007-soma-de-16-bits",
+     "6502-043-soma-de-palavras"
+    ],
+    "aula": null,
+    "enunciado": "Calcule o **n-ésimo número de Fibonacci** (`F0 = 0`, `F1 = 1`, `Fn = Fn-1 + Fn-2`) para `n` de 0 a **47** e guarde em `res`, com **32 bits** (4 bytes, byte baixo primeiro). `F47` = 2.971.215.073 é o maior que cabe.\n\n## Exemplos\n\n| n | res |\n|---|---|\n| 0 | 0 |\n| 10 | 55 |\n| 30 | 832040 |\n| 47 | 2971215073 |\n\n## Restrições\n\n- A resposta é sem sinal, em 4 bytes.",
+    "contrato": "Memória: `n` ($10), `res` ($20-$23) e `prox` ($24-$27) para uso livre. Os testes conferem `res`.",
+    "editorial": "O laço interno soma números de 4 bytes com **um** `CLC` por volta externa: o carry de cada byte é o vai-um do seguinte. O 6502 não tem instrução de comparação que preserve o carry, e `CPX`/`CPY` o sobrescrevem; a saída é um teste de fim que usa só instruções que não tocam em C: `TXA` e `EOR` nesse caso. Esse é um dos truques que distinguem código de 6502 \"que funciona\" de código \"que funciona com 4 bytes\".\n\nOs números de Fibonacci crescem com a razão áurea (φ ≈ 1,618): F47 cabe em 32 bits, F48 não. Por isso a faixa do enunciado vai até 47, e 16 bits só dariam até F24.",
+    "codigoInicial": "; res = F(n)\nn    = $10\nres  = $20   ; 32 bits: F(n)\nprox = $24   ; 32 bits: F(n+1)\n\n    ; seu código aqui\n    BRK",
+    "solucao": "n    = $10\nres  = $20\nprox = $24\n\n    LDA #0\n    LDX #7\nzera:\n    STA res,X      ; zera res e prox (8 bytes)\n    DEX\n    BPL zera\n    LDA #1\n    STA prox       ; res = F0 = 0, prox = F1 = 1\n    LDY n\n    BEQ fim\nlaco:\n    CLC\n    LDX #0\nsoma:\n    LDA res,X\n    ADC prox,X     ; novo prox = res + prox\n    PHA\n    LDA prox,X\n    STA res,X      ; novo res = prox antigo\n    PLA\n    STA prox,X\n    INX\n    TXA\n    EOR #4         ; fim dos 4 bytes? (não altera o carry, ao contrário do CPX)\n    BNE soma\n    DEY\n    BNE laco\nfim:\n    BRK",
+    "dicas": [
+     "Guarde dois números de 32 bits, `res = F(k)` e `prox = F(k+1)`. A cada volta, o novo `prox` é a soma e o novo `res` é o `prox` antigo. Depois de `n` voltas, `res = F(n)`.",
+     "Some os 4 bytes com um laço de índice `X` e **o carry viajando** entre os bytes (um só `CLC` no começo da volta). Em cada byte: `LDA res,X`, `ADC prox,X`, `PHA`; depois mova `prox,X` para `res,X` e `PLA` para `prox,X`.",
+     "Cuidado: `CPX #4` **destrói o carry**. Teste o fim do laço sem mexer nele: `INX`, `TXA`, `EOR #4`, `BNE soma` (os três não alteram o carry). Trate `n = 0` antes do laço."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Lance Leventhal, *6502 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "n = 0",
+      "visivel": true,
+      "setup": {
+       "n": 0,
+       "res": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": [
+          0,
+          0
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "n = 1",
+      "visivel": true,
+      "setup": {
+       "n": 1,
+       "res": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": [
+          1,
+          0
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "n = 2",
+      "visivel": false,
+      "dica": "falhou com n = 2",
+      "setup": {
+       "n": 2,
+       "res": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": [
+          1,
+          0
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "n = 10",
+      "visivel": false,
+      "dica": "falhou com n = 10",
+      "setup": {
+       "n": 10,
+       "res": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": [
+          55,
+          0
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "n = 24",
+      "visivel": false,
+      "dica": "falhou com n = 24",
+      "setup": {
+       "n": 24,
+       "res": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": [
+          46368,
+          0
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "n = 47",
+      "visivel": false,
+      "dica": "falhou com n = 47: o maior que cabe em 32 bits (2971215073)",
+      "setup": {
+       "n": 47,
+       "res": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": [
+          9441,
+          45337
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "n = 13",
+      "visivel": false,
+      "dica": "falhou com n = 13",
+      "setup": {
+       "n": 13,
+       "res": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": [
+          233,
+          0
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "n = 30",
+      "visivel": false,
+      "dica": "falhou com n = 30 (passa de 16 bits)",
+      "setup": {
+       "n": 30,
+       "res": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": [
+          45608,
+          12
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "n = 40",
+      "visivel": false,
+      "dica": "falhou com n = 40",
+      "setup": {
+       "n": 40,
+       "res": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": [
+          32459,
+          1561
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "n = 46",
+      "visivel": false,
+      "dica": "falhou com n = 46",
+      "setup": {
+       "n": 46,
+       "res": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": [
+          58719,
+          28019
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "n = 5",
+      "visivel": false,
+      "dica": "falhou com n = 5",
+      "setup": {
+       "n": 5,
+       "res": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": [
+          5,
+          0
+         ]
+        }
+       }
+      }
+     },
+     {
+      "nome": "n = 20",
+      "visivel": false,
+      "dica": "falhou com n = 20",
+      "setup": {
+       "n": 20,
+       "res": {
+        "w": [
+         7,
+         7
+        ]
+       }
+      },
+      "espera": {
+       "mem": {
+        "res": {
+         "w": [
+          6765,
+          0
+         ]
+        }
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 42,
+     "ciclos": 7228,
+     "exigir": [
+      "ADC"
+     ]
+    }
+   },
+   {
+    "id": "6502-059-crivo-de-eratostenes",
+    "linguagem": "6502",
+    "titulo": "Crivo de Eratóstenes",
+    "dificuldade": "dificil",
+    "trilha": "vetores",
+    "tags": [
+     "crivo",
+     "primos",
+     "laços aninhados",
+     "tabela"
+    ],
+    "prerequisitos": [
+     "6502-040-busca-linear",
+     "6502-017-soma-do-vetor"
+    ],
+    "aula": null,
+    "enunciado": "Para `n` de 2 a 50, preencha `tabela[0..n]` com **1** nos índices que são **primos** e **0** nos demais (0 e 1 não são primos), e grave em `res` **quantos primos** existem até `n`. Use o **crivo de Eratóstenes**: parta de \"todos são primos\" e, para cada primo `p`, apague os seus múltiplos.\n\n## Exemplos\n\n| n | primos até n | res |\n|---|---|---|\n| 10 | 2, 3, 5, 7 | 4 |\n| 20 | 2, 3, 5, 7, 11, 13, 17, 19 | 8 |\n| 50 | 15 primos | 15 |\n\n## Restrições\n\n- `tabela` chega com lixo (`$EE`).\n- Só os índices de 0 a `n` são conferidos.",
+    "contrato": "Memória: `n` ($10), `res` ($11), `tmp` ($12) e `tabela` ($0300, 51 bytes). Os testes conferem `tabela[0..n]` e `res`.",
+    "editorial": "O crivo de Eratóstenes (séc. III a.C.) é um dos algoritmos mais antigos que ainda se usa: em vez de testar a divisibilidade de cada número, apaga-se de uma vez os múltiplos de cada primo. O custo é próximo de n·log(log n), contra n·√n da divisão por tentativa.\n\nDois detalhes de 6502: o laço externo só precisa ir até √n (aqui, 7), porque todo composto até 50 tem um divisor primo até 7; e `CPX`/`CPY` com `BCC` + `BEQ` formam o \"menor ou igual\", já que o 6502 não tem desvio dedicado para isso.",
+    "codigoInicial": "; tabela[i] = 1 se i é primo; res = total de primos até n\nn      = $10\nres    = $11\ntmp    = $12\ntabela = $0300   ; 51 bytes\n\n    ; seu código aqui\n    BRK",
+    "solucao": "n      = $10\nres    = $11\ntmp    = $12\ntabela = $0300\n\n    LDX #0\ninicia:\n    LDA #1\n    STA tabela,X   ; todos começam como \"primo\"\n    INX\n    CPX n\n    BCC inicia\n    BEQ inicia     ; vai até X = n, inclusive\n    LDA #0\n    STA tabela     ; 0 e 1 não são primos\n    STA tabela+1\n    LDX #2         ; X = p\nexterno:\n    LDA tabela,X\n    BEQ proximo    ; p já foi apagado: não é primo\n    STX tmp\n    TXA\n    ASL A\n    TAY            ; Y = 2p, o primeiro múltiplo\nmarca:\n    CPY n\n    BEQ apaga\n    BCS proximo    ; passou de n\napaga:\n    LDA #0\n    STA tabela,Y\n    TYA\n    CLC\n    ADC tmp        ; próximo múltiplo\n    TAY\n    JMP marca\nproximo:\n    INX\n    CPX #8         ; basta p até 7 (8 x 8 > 50)\n    BNE externo\n    LDA #0\n    STA res\n    LDX #0\nconta:\n    LDA tabela,X\n    CLC\n    ADC res\n    STA res\n    INX\n    CPX n\n    BCC conta\n    BEQ conta\n    BRK",
+    "dicas": [
+     "O crivo tem três fases: **iniciar** tudo como \"primo\" (1), **apagar** os múltiplos de cada primo, e **contar** os que restaram.",
+     "Para cada `p` de 2 a 7 (qualquer composto até 50 tem um fator primo até 7): se `tabela[p]` ainda é 1, apague `2p`, `3p`, `4p`... até passar de `n`. Se `tabela[p]` é 0, `p` é composto e já teve seus múltiplos apagados. Use `Y` para o múltiplo e `tmp` para guardar `p`.",
+     "Cuidado com o limite **inclusivo** (`0..n`): `CPX n` seguido de `BCC` e `BEQ` cobre `X <= n`. Na contagem, como a tabela só tem 0 e 1, a soma dos elementos é o total. Índices maiores que `n` nunca são escritos."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Lance Leventhal, *6502 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "n = 2",
+      "visivel": true,
+      "setup": {
+       "n": 2,
+       "tabela": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "tabela": [
+         0,
+         0,
+         1
+        ],
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "n = 10",
+      "visivel": true,
+      "setup": {
+       "n": 10,
+       "tabela": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "tabela": [
+         0,
+         0,
+         1,
+         1,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0
+        ],
+        "res": 4
+       }
+      }
+     },
+     {
+      "nome": "n = 50",
+      "visivel": false,
+      "dica": "falhou com n = 50 (todos os primos até 47)",
+      "setup": {
+       "n": 50,
+       "tabela": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "tabela": [
+         0,
+         0,
+         1,
+         1,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         0,
+         0
+        ],
+        "res": 15
+       }
+      }
+     },
+     {
+      "nome": "n = 30",
+      "visivel": false,
+      "dica": "falhou com n = 30",
+      "setup": {
+       "n": 30,
+       "tabela": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "tabela": [
+         0,
+         0,
+         1,
+         1,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         1,
+         0
+        ],
+        "res": 10
+       }
+      }
+     },
+     {
+      "nome": "n = 20",
+      "visivel": false,
+      "dica": "falhou com n = 20",
+      "setup": {
+       "n": 20,
+       "tabela": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "tabela": [
+         0,
+         0,
+         1,
+         1,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0
+        ],
+        "res": 8
+       }
+      }
+     },
+     {
+      "nome": "n = 3",
+      "visivel": false,
+      "dica": "falhou com n = 3",
+      "setup": {
+       "n": 3,
+       "tabela": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "tabela": [
+         0,
+         0,
+         1,
+         1
+        ],
+        "res": 2
+       }
+      }
+     },
+     {
+      "nome": "n = 7",
+      "visivel": false,
+      "dica": "falhou com n = 7 (limite é primo)",
+      "setup": {
+       "n": 7,
+       "tabela": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "tabela": [
+         0,
+         0,
+         1,
+         1,
+         0,
+         1,
+         0,
+         1
+        ],
+        "res": 4
+       }
+      }
+     },
+     {
+      "nome": "n = 49",
+      "visivel": false,
+      "dica": "falhou com n = 49 (7 x 7: o 49 não é primo)",
+      "setup": {
+       "n": 49,
+       "tabela": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "tabela": [
+         0,
+         0,
+         1,
+         1,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         0
+        ],
+        "res": 15
+       }
+      }
+     },
+     {
+      "nome": "n = 12",
+      "visivel": false,
+      "dica": "falhou com n = 12",
+      "setup": {
+       "n": 12,
+       "tabela": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "tabela": [
+         0,
+         0,
+         1,
+         1,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0
+        ],
+        "res": 5
+       }
+      }
+     },
+     {
+      "nome": "n = 25",
+      "visivel": false,
+      "dica": "falhou com n = 25 (5 x 5)",
+      "setup": {
+       "n": 25,
+       "tabela": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "tabela": [
+         0,
+         0,
+         1,
+         1,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         0
+        ],
+        "res": 9
+       }
+      }
+     },
+     {
+      "nome": "n = 36",
+      "visivel": false,
+      "dica": "falhou com n = 36",
+      "setup": {
+       "n": 36,
+       "tabela": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "tabela": [
+         0,
+         0,
+         1,
+         1,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         1,
+         0,
+         0,
+         0,
+         0,
+         0,
+         1,
+         0,
+         1,
+         0,
+         0,
+         0,
+         0,
+         0
+        ],
+        "res": 11
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 80,
+     "ciclos": 3361,
+     "exigir": [
+      "CPY"
+     ]
+    }
+   },
+   {
+    "id": "6502-060-ordenacao-por-insercao",
+    "linguagem": "6502",
+    "titulo": "Ordenação por inserção",
+    "dificuldade": "dificil",
+    "trilha": "vetores",
+    "tags": [
+     "ordenação",
+     "inserção",
+     "deslocamento",
+     "indexado"
+    ],
+    "prerequisitos": [
+     "6502-039-ordenacao-bolha",
+     "6502-018-maior-elemento"
+    ],
+    "aula": null,
+    "enunciado": "Ordene `vetor` (`n` de 0 a 16 bytes, sem sinal) em ordem **crescente**, no próprio lugar, por **inserção**: para cada elemento, a partir do segundo, deslize os maiores que ele uma casa para a direita e coloque-o no buraco.\n\n## Exemplos\n\n| antes | depois |\n|---|---|\n| 5, 3, 9, 1, 7 | 1, 3, 5, 7, 9 |\n| 7 | 7 |\n| 255, 0, 128 | 0, 128, 255 |\n\n## Restrições\n\n- Os bytes depois de `n` não podem mudar.\n- Os elementos podem se repetir.",
+    "contrato": "Memória: `vetor` ($0200, 16 bytes), `n` ($20) e `chave` ($21) livre para uso. Os testes conferem o vetor ordenado e que o resto não mudou.",
+    "editorial": "A inserção faz menos trocas que a bolha: cada elemento é movido **uma vez** (para o buraco), e não por sucessivas trocas de vizinhos. No melhor caso (vetor já ordenado), é linear. Em vetores pequenos ou quase ordenados, é o algoritmo quadrático mais rápido, e é o que bibliotecas reais usam para os pedaços finais do quicksort.\n\nO `BEQ poe` junto com o `BCC` faz a ordenação ser **estável**: elementos iguais mantêm a ordem em que apareceram. Isso importa quando os bytes carregam informação além da chave (por exemplo, cor + prioridade).",
+    "codigoInicial": "; ordena vetor por inserção\nvetor = $0200   ; até 16 bytes\nn     = $20\nchave = $21\n\n    ; seu código aqui\n    BRK",
+    "solucao": "vetor = $0200\nn     = $20\nchave = $21\n\n    LDX #1         ; X = índice do elemento a inserir\nexterno:\n    CPX n\n    BCS fim\n    LDA vetor,X\n    STA chave\n    TXA\n    TAY            ; Y = posição do buraco\ninterno:\n    TYA\n    BEQ poe        ; chegou ao começo\n    LDA vetor-1,Y\n    CMP chave\n    BCC poe        ; o da esquerda é menor: achou o lugar\n    BEQ poe        ; igual: mantém a ordem original\n    STA vetor,Y    ; o da esquerda desliza para a direita\n    DEY\n    JMP interno\npoe:\n    LDA chave\n    STA vetor,Y\n    INX\n    BNE externo\nfim:\n    BRK",
+    "dicas": [
+     "A parte da esquerda do vetor está sempre ordenada. Pegue o próximo elemento (`chave`), deslize para a direita os que são maiores, e solte `chave` no buraco que sobrou.",
+     "Guarde a `chave` em memória e use `Y` como a posição do buraco, começando em `X`. Enquanto `Y > 0` e `vetor[Y-1] > chave`: `STA vetor,Y` (copia o vizinho para a direita) e `DEY`.",
+     "O teste do vizinho: `LDA vetor-1,Y`, `CMP chave`, `BCC poe` (menor) e `BEQ poe` (igual: pare, é o que torna a ordenação estável). O teste `Y = 0` é `TYA` / `BEQ poe`. Com `n = 0` ou `1`, o laço de fora nem começa."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Lance Leventhal, *6502 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "5, 3, 9, 1, 7",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        5,
+        3,
+        9,
+        1,
+        7,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 5
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         3,
+         5,
+         7,
+         9,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "1, 2, 3, 4, 5",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 5
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         3,
+         4,
+         5,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "9, 8, 7, 6, 5, 4, 3, 2, 1",
+      "visivel": false,
+      "dica": "falhou com o vetor em ordem decrescente (pior caso)",
+      "setup": {
+       "vetor": [
+        9,
+        8,
+        7,
+        6,
+        5,
+        4,
+        3,
+        2,
+        1,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 9
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         3,
+         4,
+         5,
+         6,
+         7,
+         8,
+         9,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "7",
+      "visivel": false,
+      "dica": "falhou com um único elemento",
+      "setup": {
+       "vetor": [
+        7,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 1
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         7,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "(vazio)",
+      "visivel": false,
+      "dica": "falhou com vetor vazio",
+      "setup": {
+       "vetor": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 0
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "4, 4, 4, 4",
+      "visivel": false,
+      "dica": "falhou com elementos iguais",
+      "setup": {
+       "vetor": [
+        4,
+        4,
+        4,
+        4,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 4
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         4,
+         4,
+         4,
+         4,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "255, 0, 128, 1, 254",
+      "visivel": false,
+      "dica": "falhou com 255, 0, 128, 1, 254 (sem sinal)",
+      "setup": {
+       "vetor": [
+        255,
+        0,
+        128,
+        1,
+        254,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 5
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         0,
+         1,
+         128,
+         254,
+         255,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "2, 1",
+      "visivel": false,
+      "dica": "falhou com dois elementos",
+      "setup": {
+       "vetor": [
+        2,
+        1,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 2
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "16 elementos",
+      "visivel": false,
+      "dica": "falhou com 16 elementos aleatórios",
+      "setup": {
+       "vetor": [
+        212,
+        199,
+        123,
+        191,
+        77,
+        237,
+        199,
+        46,
+        249,
+        58,
+        104,
+        189,
+        164,
+        66,
+        140,
+        71
+       ],
+       "n": 16
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         46,
+         58,
+         66,
+         71,
+         77,
+         104,
+         123,
+         140,
+         164,
+         189,
+         191,
+         199,
+         199,
+         212,
+         237,
+         249
+        ]
+       }
+      }
+     },
+     {
+      "nome": "15 elementos",
+      "visivel": false,
+      "dica": "falhou com 15 elementos aleatórios",
+      "setup": {
+       "vetor": [
+        199,
+        61,
+        73,
+        125,
+        48,
+        174,
+        52,
+        95,
+        124,
+        74,
+        127,
+        207,
+        48,
+        163,
+        227,
+        238
+       ],
+       "n": 15
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         48,
+         48,
+         52,
+         61,
+         73,
+         74,
+         95,
+         124,
+         125,
+         127,
+         163,
+         174,
+         199,
+         207,
+         227,
+         238
+        ]
+       }
+      }
+     },
+     {
+      "nome": "1, 3, 2, 3, 1, 2",
+      "visivel": false,
+      "dica": "falhou com repetidos misturados",
+      "setup": {
+       "vetor": [
+        1,
+        3,
+        2,
+        3,
+        1,
+        2,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 6
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         1,
+         2,
+         2,
+         3,
+         3,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 41,
+     "ciclos": 2632,
+     "exigir": [
+      "CMP"
+     ]
+    }
+   },
+   {
+    "id": "6502-061-quicksort-recursivo",
+    "linguagem": "6502",
+    "titulo": "Quicksort recursivo",
+    "dificuldade": "dificil",
+    "trilha": "procedimentos",
+    "tags": [
+     "quicksort",
+     "recursão",
+     "partição",
+     "pilha"
+    ],
+    "prerequisitos": [
+     "6502-049-fatorial-recursivo",
+     "6502-039-ordenacao-bolha"
+    ],
+    "aula": null,
+    "enunciado": "Ordene `vetor` (`n` de 0 a 16 bytes, sem sinal) em ordem crescente, no próprio lugar, com **quicksort recursivo**: escolha um **pivô** (o último elemento), **particione** o vetor (menores à esquerda, maiores à direita), coloque o pivô no lugar e ordene recursivamente os dois lados.\n\n## Exemplos\n\n| antes | depois |\n|---|---|\n| 5, 3, 9, 1, 7, 2, 8 | 1, 2, 3, 5, 7, 8, 9 |\n| 7 | 7 |\n| 2, 1 | 1, 2 |\n\n## Restrições\n\n- Os bytes depois de `n` não podem mudar.\n- A sub-rotina precisa se chamar. O juiz verifica a recursão.\n- A pilha deve terminar equilibrada.",
+    "contrato": "Memória: `vetor` ($0200, 16 bytes), `n` ($20) e quatro variáveis livres: `lo` ($21), `hi` ($22), `piv` ($23) e `tmp` ($24). Os testes conferem o vetor ordenado, o resto intacto e a pilha equilibrada.",
+    "editorial": "O quicksort divide o vetor em torno de um pivô e deixa cada metade para uma chamada recursiva. No 6502, o difícil é a **gestão de variáveis**: `lo` e `hi` estão em memória (global), então a chamada recursiva os destrói, e o código precisa guardar o que ainda vai usar (`p` e `hi`) na pilha antes de chamar. É a mesma regra do fatorial, com dois valores.\n\nPontos de atenção: com `p = lo`, o lado esquerdo seria `[lo, lo-1]`, e com `lo = 0` o `DEX` daria `$FF`; por isso o teste `CPX lo` antes. A profundidade da pilha é de no máximo 15 chamadas (vetor ordenado em ordem inversa), e cada uma usa 4 bytes: 60 de 256 bytes de pilha.",
+    "codigoInicial": "; ordena vetor com quicksort recursivo\nvetor = $0200   ; até 16 bytes\nn     = $20\nlo    = $21\nhi    = $22\npiv   = $23\ntmp   = $24\n\n    ; seu código aqui\n    BRK",
+    "solucao": "vetor = $0200\nn     = $20\nlo    = $21\nhi    = $22\npiv   = $23\ntmp   = $24\n\n    LDA n\n    CMP #2\n    BCC fim        ; 0 ou 1 elemento: nada a fazer\n    LDX #0         ; lo = 0\n    LDY n\n    DEY            ; hi = n - 1\n    JSR qs\nfim:\n    BRK\n\nqs:                ; ordena vetor[X..Y] (X = lo, Y = hi)\n    STX lo\n    STY hi\n    TXA\n    CMP hi\n    BCS retorna    ; lo >= hi: um elemento ou nenhum\n    LDA vetor,Y\n    STA piv        ; pivô = último\n    LDX lo         ; X: próxima posição dos menores\n    LDY lo         ; Y: elemento examinado\npart:\n    CPY hi\n    BEQ fimpart\n    LDA vetor,Y\n    CMP piv\n    BCS prox       ; >= pivô: fica onde está\n    PHA            ; < pivô: troca vetor[X] e vetor[Y]\n    LDA vetor,X\n    STA vetor,Y\n    PLA\n    STA vetor,X\n    INX\nprox:\n    INY\n    JMP part\nfimpart:\n    LDY hi         ; põe o pivô em vetor[X]\n    LDA vetor,X\n    STA vetor,Y\n    LDA piv\n    STA vetor,X\n    TXA            ; p = X, a posição final do pivô\n    PHA            ; guarda p e hi: a recursão vai sobrescrever lo e hi\n    LDA hi\n    PHA\n    CPX lo\n    BEQ semesq     ; nada à esquerda do pivô\n    DEX            ; lado esquerdo: [lo, p-1]\n    TXA\n    TAY\n    LDX lo\n    JSR qs\nsemesq:\n    PLA\n    TAY            ; Y = hi\n    PLA\n    TAX            ; X = p\n    STY tmp\n    CPX tmp\n    BCS retorna    ; p >= hi: nada à direita\n    INX            ; lado direito: [p+1, hi]\n    JSR qs\nretorna:\n    RTS",
+    "dicas": [
+     "Quicksort em três passos: **particionar** em torno do pivô, deixar o pivô na posição final `p`, e chamar a si mesmo para `[lo, p-1]` e `[p+1, hi]`. Passe `lo` em `X` e `hi` em `Y`.",
+     "Particionar (esquema de Lomuto): `X` é a próxima posição dos menores, `Y` percorre de `lo` até `hi-1`. Se `vetor[Y] < pivô`, troque `vetor[X]` com `vetor[Y]` (pela pilha) e `INX`. No fim, troque `vetor[X]` com o pivô: ele está na posição final `X`.",
+     "A recursão **sobrescreve** `lo` e `hi`: antes da primeira chamada, empilhe `p` e `hi` (`PHA`) e recupere depois (`PLA`). Só chame para o lado esquerdo se `p > lo`, e para o direito se `p < hi`, senão `p-1` daria `$FF` com `lo = 0`."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Lance Leventhal, *6502 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "5, 3, 9, 1, 7, 2, 8",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        5,
+        3,
+        9,
+        1,
+        7,
+        2,
+        8,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 7
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         3,
+         5,
+         7,
+         8,
+         9,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "1, 2, 3, 4, 5, 6",
+      "visivel": true,
+      "setup": {
+       "vetor": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 6
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         3,
+         4,
+         5,
+         6,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "9, 8, 7, 6, 5, 4, 3, 2, 1",
+      "visivel": false,
+      "dica": "falhou com o vetor em ordem decrescente (pior caso de recursão)",
+      "setup": {
+       "vetor": [
+        9,
+        8,
+        7,
+        6,
+        5,
+        4,
+        3,
+        2,
+        1,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 9
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         3,
+         4,
+         5,
+         6,
+         7,
+         8,
+         9,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "7",
+      "visivel": false,
+      "dica": "falhou com um único elemento",
+      "setup": {
+       "vetor": [
+        7,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 1
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         7,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "(vazio)",
+      "visivel": false,
+      "dica": "falhou com vetor vazio",
+      "setup": {
+       "vetor": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 0
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "4, 4, 4, 4, 4",
+      "visivel": false,
+      "dica": "falhou com todos iguais",
+      "setup": {
+       "vetor": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 5
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         4,
+         4,
+         4,
+         4,
+         4,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "255, 0, 128, 1, 254, 100",
+      "visivel": false,
+      "dica": "falhou com 255, 0, 128, 1, 254, 100 (sem sinal)",
+      "setup": {
+       "vetor": [
+        255,
+        0,
+        128,
+        1,
+        254,
+        100,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 6
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         0,
+         1,
+         100,
+         128,
+         254,
+         255,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "2, 1",
+      "visivel": false,
+      "dica": "falhou com dois elementos",
+      "setup": {
+       "vetor": [
+        2,
+        1,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 2
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         2,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "16 elementos",
+      "visivel": false,
+      "dica": "falhou com 16 elementos aleatórios",
+      "setup": {
+       "vetor": [
+        25,
+        154,
+        8,
+        178,
+        107,
+        232,
+        209,
+        138,
+        61,
+        88,
+        92,
+        224,
+        159,
+        31,
+        208,
+        193
+       ],
+       "n": 16
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         8,
+         25,
+         31,
+         61,
+         88,
+         92,
+         107,
+         138,
+         154,
+         159,
+         178,
+         193,
+         208,
+         209,
+         224,
+         232
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "14 elementos",
+      "visivel": false,
+      "dica": "falhou com 14 elementos aleatórios",
+      "setup": {
+       "vetor": [
+        162,
+        57,
+        137,
+        18,
+        80,
+        79,
+        194,
+        115,
+        205,
+        121,
+        177,
+        15,
+        172,
+        17,
+        238,
+        238
+       ],
+       "n": 14
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         15,
+         17,
+         18,
+         57,
+         79,
+         80,
+         115,
+         121,
+         137,
+         162,
+         172,
+         177,
+         194,
+         205,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     },
+     {
+      "nome": "3, 1, 3, 2, 3, 1, 2, 3",
+      "visivel": false,
+      "dica": "falhou com repetidos misturados",
+      "setup": {
+       "vetor": [
+        3,
+        1,
+        3,
+        2,
+        3,
+        1,
+        2,
+        3,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ],
+       "n": 8
+      },
+      "espera": {
+       "mem": {
+        "vetor": [
+         1,
+         1,
+         2,
+         2,
+         3,
+         3,
+         3,
+         3,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238,
+         238
+        ]
+       },
+       "pilhaEquilibrada": true
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 105,
+     "ciclos": 2662,
+     "recursao": true,
+     "exigir": [
+      "JSR",
+      "RTS"
+     ]
+    }
+   },
+   {
+    "id": "6502-062-crc-8",
+    "linguagem": "6502",
+    "titulo": "CRC-8",
+    "dificuldade": "dificil",
+    "trilha": "bits",
+    "tags": [
+     "crc",
+     "checksum",
+     "eor",
+     "asl"
+    ],
+    "prerequisitos": [
+     "6502-013-contar-bits-ligados",
+     "6502-035-paridade-de-um-byte"
+    ],
+    "aula": null,
+    "enunciado": "Calcule o **CRC-8** dos `n` bytes de `dados` (de 0 a 16) e guarde em `res`. Parâmetros: polinômio **`$07`**, valor inicial **`$00`**, sem inversão de bits, processando o bit mais alto primeiro.\n\nO algoritmo, por byte: faça `crc = crc XOR byte`; depois, 8 vezes: desloque `crc` à esquerda e, **se o bit que saiu era 1**, faça `crc = crc XOR $07`.\n\n## Exemplos\n\n| dados | res |\n|---|---|\n| (vazio) | `$00` |\n| `$31, $32, $33` (\"123\") | `$C0` |\n| `$01` | `$07` |\n\n## Restrições\n\n- Use o cálculo por bits; tabelas de 256 bytes estão fora do desafio.",
+    "contrato": "Memória: `dados` ($0200, 16 bytes), `n` ($20) e `res` ($21). Os testes conferem `res`.",
+    "editorial": "O CRC (*cyclic redundancy check*) detecta erros de transmissão tratando a mensagem como um polinômio sobre GF(2) e calculando o resto da divisão por um polinômio fixo. Em hardware é um registrador de deslocamento com XOR; em software de 8 bits, é este laço: a cada bit, `ASL` e, se saiu 1, `EOR` com o polinômio.\n\nO polinômio `$07` (x⁸ + x² + x + 1) é o do CRC-8 mais difundido (usado em SMBus e ATM). Códigos reais para 6502, como os de drives de disquete, usam tabelas de 256 bytes para processar um byte por vez: trocam 256 bytes de memória por uma redução de ~8× nos ciclos, a troca típica entre espaço e tempo.",
+    "codigoInicial": "; res = CRC-8 (poly $07) de dados\ndados = $0200   ; até 16 bytes\nn     = $20\nres   = $21\n\n    ; seu código aqui\n    BRK",
+    "solucao": "dados = $0200\nn     = $20\nres   = $21\n\n    LDA #0\n    LDX #0\nbyte:\n    CPX n\n    BEQ fim\n    EOR dados,X    ; mistura o byte no CRC\n    LDY #8\nbit:\n    ASL A          ; o bit mais alto vai para o carry\n    BCC sem\n    EOR #$07       ; saiu um 1: aplica o polinômio\nsem:\n    DEY\n    BNE bit\n    INX\n    BNE byte\nfim:\n    STA res\n    BRK",
+    "dicas": [
+     "O CRC é a divisão polinomial: processe os bits um a um, deslocando o registrador e, a cada 1 que sai pelo topo, subtraia (XOR) o polinômio.",
+     "Mantenha o CRC em **A** (começa em 0). Para cada byte: `EOR dados,X`, e depois 8 voltas de `ASL A` seguido de `BCC sem` / `EOR #$07`. O `Y` conta os 8 bits e `X` anda pelos dados.",
+     "Termine com `STA res`. Com `n = 0`, o laço de fora nem roda e `res = 0` (o `A` começou zerado)."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Lance Leventhal, *6502 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "$31, $32, $33",
+      "visivel": true,
+      "setup": {
+       "dados": [
+        49,
+        50,
+        51
+       ],
+       "n": 3,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 192
+       }
+      }
+     },
+     {
+      "nome": "(vazio)",
+      "visivel": true,
+      "setup": {
+       "dados": [],
+       "n": 0,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "$00",
+      "visivel": false,
+      "dica": "falhou com dados vazios: o CRC é 0",
+      "setup": {
+       "dados": [
+        0
+       ],
+       "n": 1,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "$FF",
+      "visivel": false,
+      "dica": "falhou com $00",
+      "setup": {
+       "dados": [
+        255
+       ],
+       "n": 1,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 243
+       }
+      }
+     },
+     {
+      "nome": "8 bytes",
+      "visivel": false,
+      "dica": "falhou com $FF",
+      "setup": {
+       "dados": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+       ],
+       "n": 8,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 62
+       }
+      }
+     },
+     {
+      "nome": "$80",
+      "visivel": false,
+      "dica": "falhou com 8 bytes (1..8)",
+      "setup": {
+       "dados": [
+        128
+       ],
+       "n": 1,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 137
+       }
+      }
+     },
+     {
+      "nome": "16 bytes",
+      "visivel": false,
+      "dica": "falhou com $80 (só o bit mais alto)",
+      "setup": {
+       "dados": [
+        105,
+        47,
+        144,
+        37,
+        142,
+        156,
+        56,
+        37,
+        33,
+        215,
+        251,
+        7,
+        51,
+        95,
+        205,
+        142
+       ],
+       "n": 16,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 229
+       }
+      }
+     },
+     {
+      "nome": "$12, $34",
+      "visivel": false,
+      "dica": "falhou com 16 bytes",
+      "setup": {
+       "dados": [
+        18,
+        52
+       ],
+       "n": 2,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 241
+       }
+      }
+     },
+     {
+      "nome": "$AA, $AA, $AA, $AA, $AA",
+      "visivel": false,
+      "dica": "falhou com dois bytes",
+      "setup": {
+       "dados": [
+        170,
+        170,
+        170,
+        170,
+        170
+       ],
+       "n": 5,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 71
+       }
+      }
+     },
+     {
+      "nome": "$01",
+      "visivel": false,
+      "dica": "falhou com 5 bytes iguais",
+      "setup": {
+       "dados": [
+        1
+       ],
+       "n": 1,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 7
+       }
+      }
+     },
+     {
+      "nome": "9 bytes",
+      "visivel": false,
+      "dica": "falhou com $01",
+      "setup": {
+       "dados": [
+        134,
+        113,
+        165,
+        220,
+        59,
+        132,
+        41,
+        163,
+        54
+       ],
+       "n": 9,
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 129
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 27,
+     "ciclos": 1607,
+     "exigir": [
+      "EOR",
+      "ASL"
+     ]
+    }
+   },
+   {
+    "id": "6502-063-compressao-rle",
+    "linguagem": "6502",
+    "titulo": "Compressão RLE",
+    "dificuldade": "dificil",
+    "trilha": "vetores",
+    "tags": [
+     "rle",
+     "compressão",
+     "laço",
+     "indexado"
+    ],
+    "prerequisitos": [
+     "6502-044-comprimento-da-string",
+     "6502-041-contar-ocorrencias"
+    ],
+    "aula": null,
+    "enunciado": "`entrada` guarda até 30 bytes **diferentes de zero**, terminados por um byte `0`. Comprima-os em `saida` pelo método **RLE** (*run-length encoding*): cada sequência de bytes iguais vira o par **(quantidade, valor)**. Termine `saida` com um byte `0`.\n\n## Exemplos\n\n| entrada | saida |\n|---|---|\n| `65, 65, 65, 66, 66, 67` | `3, 65, 2, 66, 1, 67, 0` |\n| (vazio) | `0` |\n| `88` x 20 | `20, 88, 0` |\n\n## Restrições\n\n- Uma sequência tem no máximo 30 bytes, então a quantidade cabe em um byte.\n- `saida` chega com lixo: grave também o terminador.",
+    "contrato": "Memória: `entrada` ($0200, 31 bytes), `saida` ($0300, até 61 bytes), `cur` ($10) e `cont` ($11) livres para uso. Os testes conferem `saida` até o terminador.",
+    "editorial": "RLE é a compressão mais simples que existe, e funciona muito bem em dados com longas repetições: telas de jogos de 8 bits, com áreas de uma só cor, comprimem muitas vezes. Em dados sem repetição, ela **dobra** o tamanho (cada byte vira um par), e é por isso que formatos reais (PCX, BMP RLE) misturam trechos literais e trechos repetidos.\n\nO truque do terminador: como a entrada é terminada em zero e nenhum byte de dados é zero, o `CMP cur` falha sozinho no zero final, e o mesmo teste serve para \"mudou o valor\" e \"acabou a entrada\". Um terminador que **não** podia aparecer nos dados simplifica o laço.",
+    "codigoInicial": "; saida = RLE de entrada\nentrada = $0200   ; bytes != 0, terminado em 0\nsaida   = $0300   ; pares (quantidade, valor), terminado em 0\ncur     = $10\ncont    = $11\n\n    ; seu código aqui\n    BRK",
+    "solucao": "entrada = $0200\nsaida   = $0300\ncur     = $10\ncont    = $11\n\n    LDX #0         ; X: leitura\n    LDY #0         ; Y: escrita\nproximo:\n    LDA entrada,X\n    BEQ fim\n    STA cur\n    LDA #0\n    STA cont\nconta:\n    LDA entrada,X\n    CMP cur\n    BNE grava      ; byte diferente (ou o zero final): acabou a sequência\n    INC cont\n    INX\n    BNE conta\ngrava:\n    LDA cont\n    STA saida,Y\n    INY\n    LDA cur\n    STA saida,Y\n    INY\n    JMP proximo\nfim:\n    LDA #0\n    STA saida,Y    ; terminador",
+    "dicas": [
+     "Dois índices: `X` lê a entrada, `Y` escreve a saída. Para cada sequência: guarde o valor (`cur`), conte quantos seguidos são iguais (`cont`) e grave o par.",
+     "O laço de contagem: `LDA entrada,X`, `CMP cur`, `BNE grava`; se igual, `INC cont` e `INX`. O terminador `0` nunca é igual a `cur` (que é diferente de zero), então ele **encerra a contagem sozinho**, sem teste extra.",
+     "Grave `cont` e `cur` em `saida,Y` (com `INY` entre os dois) e volte ao início (`JMP proximo`). No `fim` (entrada acabou), escreva o terminador: `LDA #0`, `STA saida,Y`."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Lance Leventhal, *6502 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "65, 65, 65, 66, 66, 67",
+      "visivel": true,
+      "setup": {
+       "entrada": [
+        65,
+        65,
+        65,
+        66,
+        66,
+        67,
+        0
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         3,
+         65,
+         2,
+         66,
+         1,
+         67,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "65",
+      "visivel": true,
+      "setup": {
+       "entrada": [
+        65,
+        0
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         1,
+         65,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "(vazio)",
+      "visivel": false,
+      "dica": "falhou com entrada vazia: só o terminador",
+      "setup": {
+       "entrada": [
+        0
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "65, 66, 67, 68",
+      "visivel": false,
+      "dica": "falhou sem repetições",
+      "setup": {
+       "entrada": [
+        65,
+        66,
+        67,
+        68,
+        0
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         1,
+         65,
+         1,
+         66,
+         1,
+         67,
+         1,
+         68,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "20 bytes",
+      "visivel": false,
+      "dica": "falhou com uma sequência longa de 20 bytes iguais",
+      "setup": {
+       "entrada": [
+        88,
+        88,
+        88,
+        88,
+        88,
+        88,
+        88,
+        88,
+        88,
+        88,
+        88,
+        88,
+        88,
+        88,
+        88,
+        88,
+        88,
+        88,
+        88,
+        88,
+        0
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         20,
+         88,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "1, 1, 2, 2, 2, 1",
+      "visivel": false,
+      "dica": "falhou com um valor que volta depois (1,1,2,2,2,1: três sequências)",
+      "setup": {
+       "entrada": [
+        1,
+        1,
+        2,
+        2,
+        2,
+        1,
+        0
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         2,
+         1,
+         3,
+         2,
+         1,
+         1,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "255, 255, 254",
+      "visivel": false,
+      "dica": "falhou com valores altos (255)",
+      "setup": {
+       "entrada": [
+        255,
+        255,
+        254,
+        0
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         2,
+         255,
+         1,
+         254,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "9, 9, 9, 9, 8, 8, 8, 8, 7",
+      "visivel": false,
+      "dica": "falhou com várias sequências de 4",
+      "setup": {
+       "entrada": [
+        9,
+        9,
+        9,
+        9,
+        8,
+        8,
+        8,
+        8,
+        7,
+        0
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         4,
+         9,
+         4,
+         8,
+         1,
+         7,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "5, 6, 5, 6, 5, 6",
+      "visivel": false,
+      "dica": "falhou com alternância (nenhuma sequência passa de 1)",
+      "setup": {
+       "entrada": [
+        5,
+        6,
+        5,
+        6,
+        5,
+        6,
+        0
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         1,
+         5,
+         1,
+         6,
+         1,
+         5,
+         1,
+         6,
+         1,
+         5,
+         1,
+         6,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "30 bytes",
+      "visivel": false,
+      "dica": "falhou com 30 bytes iguais",
+      "setup": {
+       "entrada": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        0
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         30,
+         200,
+         0
+        ]
+       }
+      }
+     },
+     {
+      "nome": "3, 3",
+      "visivel": false,
+      "dica": "falhou com dois bytes iguais",
+      "setup": {
+       "entrada": [
+        3,
+        3,
+        0
+       ],
+       "saida": [
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238,
+        238
+       ]
+      },
+      "espera": {
+       "mem": {
+        "saida": [
+         2,
+         3,
+         0
+        ]
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 47,
+     "ciclos": 635,
+     "exigir": [
+      "CMP"
+     ]
+    }
+   },
+   {
+    "id": "6502-064-raiz-quadrada-de-16-bits",
+    "linguagem": "6502",
+    "titulo": "Raiz quadrada de 16 bits",
+    "dificuldade": "dificil",
+    "trilha": "aritmetica",
+    "tags": [
+     "raiz quadrada",
+     "16 bits",
+     "números ímpares",
+     "sbc"
+    ],
+    "prerequisitos": [
+     "6502-033-raiz-quadrada-inteira",
+     "6502-031-negar-16-bits"
+    ],
+    "aula": null,
+    "enunciado": "Calcule a **raiz quadrada inteira** (arredondada para baixo) de `n`, um número de **16 bits** sem sinal, e guarde em `res` (de 8 bits: o máximo é 255, que é a raiz de 65535).\n\nÉ o desafio 033 com os números maiores: a soma dos primeiros `k` ímpares é `k²`, então a raiz é a quantidade de ímpares (1, 3, 5, ...) que se consegue subtrair de `n`.\n\n## Exemplos\n\n| n | res |\n|---|---|\n| 100 | 10 |\n| 65535 | 255 |\n| 65024 | 254 |\n| 3 | 1 |\n\n## Restrições\n\n- `n` pode ser alterado.",
+    "contrato": "Memória: `n` ($10-$11), `odd` ($14-$15, 16 bits, livre para uso) e `res` ($16). Os testes conferem `res`.",
+    "editorial": "A subtração com teste (\"cabe?\") em 16 bits é o núcleo de qualquer divisão ou raiz sem hardware: calcula-se a diferença nos dois bytes e o **carry final** responde. Só se grava o resultado se coube; o byte baixo fica em X enquanto o alto é calculado, porque o `SBC` do byte alto precisa do carry do baixo, e não há registrador sobrando.\n\nA raiz de 65535 é 255: o contador `res` fica com o maior valor de 8 bits e a próxima soma de ímpares (511 + 513) passa de `n`. Algoritmos mais rápidos (o bit a bit, que dá a raiz em 8 voltas) existem, mas o das subtrações de ímpares é o mais simples de provar correto.",
+    "codigoInicial": "; res = piso da raiz quadrada de n\nn   = $10   ; 16 bits\nodd = $14   ; 16 bits, o ímpar da vez\nres = $16\n\n    ; seu código aqui\n    BRK",
+    "solucao": "n   = $10\nodd = $14\nres = $16\n\n    LDA #1\n    STA odd\n    LDA #0\n    STA odd+1\n    STA res\nlaco:\n    LDA n\n    SEC\n    SBC odd\n    TAX            ; byte baixo da diferença\n    LDA n+1\n    SBC odd+1\n    BCC fim        ; n < ímpar: o último não coube\n    STA n+1\n    STX n\n    INC res\n    LDA odd\n    CLC\n    ADC #2         ; próximo ímpar\n    STA odd\n    BCC laco\n    INC odd+1\n    JMP laco\nfim:\n    BRK",
+    "dicas": [
+     "Mesmo método do desafio 033, mas `n` e o ímpar da vez passam de 255: tudo em **16 bits**. `res` conta quantos ímpares couberam; no máximo 255.",
+     "Subtração de 16 bits **sem gravar**: `SEC`, `LDA n`, `SBC odd`, `TAX` (guarda o byte baixo); `LDA n+1`, `SBC odd+1`. Se o carry desligar (`BCC fim`), o ímpar não coube. Se coube, grave: `STA n+1`, `STX n`.",
+     "Some 2 ao ímpar em 16 bits: `LDA odd`, `CLC`, `ADC #2`, `STA odd`, e só incremente `odd+1` se houve carry (`BCC laco` pula o `INC odd+1`). O maior ímpar usado é 511."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Lance Leventhal, *6502 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "n = 0",
+      "visivel": true,
+      "setup": {
+       "n": {
+        "w": 0
+       },
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 0
+       }
+      }
+     },
+     {
+      "nome": "n = 1",
+      "visivel": true,
+      "setup": {
+       "n": {
+        "w": 1
+       },
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "n = 3",
+      "visivel": false,
+      "dica": "falhou com n = 3 (raiz 1)",
+      "setup": {
+       "n": {
+        "w": 3
+       },
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "n = 4",
+      "visivel": false,
+      "dica": "falhou com n = 4 (quadrado perfeito)",
+      "setup": {
+       "n": {
+        "w": 4
+       },
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 2
+       }
+      }
+     },
+     {
+      "nome": "n = 100",
+      "visivel": false,
+      "dica": "falhou com n = 100",
+      "setup": {
+       "n": {
+        "w": 100
+       },
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 10
+       }
+      }
+     },
+     {
+      "nome": "n = 65535",
+      "visivel": false,
+      "dica": "falhou com n = 65535 (raiz 255)",
+      "setup": {
+       "n": {
+        "w": 65535
+       },
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "n = 65025",
+      "visivel": false,
+      "dica": "falhou com n = 65025 = 255 x 255",
+      "setup": {
+       "n": {
+        "w": 65025
+       },
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 255
+       }
+      }
+     },
+     {
+      "nome": "n = 65024",
+      "visivel": false,
+      "dica": "falhou com n = 65024 (um a menos que 255 x 255)",
+      "setup": {
+       "n": {
+        "w": 65024
+       },
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 254
+       }
+      }
+     },
+     {
+      "nome": "n = 255",
+      "visivel": false,
+      "dica": "falhou com n = 255",
+      "setup": {
+       "n": {
+        "w": 255
+       },
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 15
+       }
+      }
+     },
+     {
+      "nome": "n = 10000",
+      "visivel": false,
+      "dica": "falhou com n = 10000",
+      "setup": {
+       "n": {
+        "w": 10000
+       },
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 100
+       }
+      }
+     },
+     {
+      "nome": "n = 2",
+      "visivel": false,
+      "dica": "falhou com n = 2",
+      "setup": {
+       "n": {
+        "w": 2
+       },
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 1
+       }
+      }
+     },
+     {
+      "nome": "n = 40000",
+      "visivel": false,
+      "dica": "falhou com n = 40000",
+      "setup": {
+       "n": {
+        "w": 40000
+       },
+       "res": 99
+      },
+      "espera": {
+       "mem": {
+        "res": 200
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 43,
+     "ciclos": 10749,
+     "exigir": [
+      "SBC"
+     ]
+    }
+   },
+   {
+    "id": "6502-065-numero-de-16-bits-para-texto",
+    "linguagem": "6502",
+    "titulo": "Número de 16 bits para texto",
+    "dificuldade": "dificil",
+    "trilha": "numeros",
+    "tags": [
+     "conversão",
+     "decimal",
+     "16 bits",
+     "ascii"
+    ],
+    "prerequisitos": [
+     "6502-047-numero-para-texto",
+     "6502-007-soma-de-16-bits"
+    ],
+    "aula": null,
+    "enunciado": "Converta `n` (16 bits sem sinal, de 0 a 65535) para texto decimal **sem zeros à esquerda** e grave em `texto`, terminado em zero. O número 0 vira `\"0\"`.\n\nÉ o desafio 047 com cinco dígitos: os divisores agora são **10000, 1000, 100, 10 e 1**, todos de 16 bits.\n\n## Exemplos\n\n| n | texto |\n|---|---|\n| 0 | `\"0\"` |\n| 256 | `\"256\"` |\n| 10000 | `\"10000\"` |\n| 65535 | `\"65535\"` |\n\n## Restrições\n\n- `texto` chega com lixo: grave também o terminador.\n- A pilha deve terminar equilibrada.",
+    "contrato": "Memória: `n` ($10-$11, pode ser alterado), `dig` ($12) livre para uso e `texto` ($0200, 6 bytes). Os testes conferem `texto` incluindo o terminador.",
+    "editorial": "Do ponto de vista do algoritmo, nada muda em relação a 8 bits: só a largura. A diferença é a **disciplina de registradores**: o byte baixo da diferença precisa sobreviver ao cálculo do alto, e como A, X e Y já estão ocupados (A com o dígito, X no divisor, Y na saída), a pilha serve de quarto registrador. Cada caminho do laço precisa do seu `PLA`, e é por isso que o juiz confere a pilha equilibrada.\n\nMostrar um número de 16 bits na tela é o que os jogos de 8 bits fazem com o placar: algumas rotinas convertem em decimal por subtrações como esta, e outras guardam o placar direto em BCC (desafio 028) para nunca precisar converter.",
+    "codigoInicial": "; texto = n em decimal, terminado em zero\nn     = $10   ; 16 bits\ndig   = $12\ntexto = $0200   ; até 5 dígitos + zero\n\n    ; seu código aqui\n    BRK",
+    "solucao": "n     = $10\ndig   = $12\ntexto = $0200\n\n    LDX #0         ; X: deslocamento na tabela de divisores (2 por palavra)\n    LDY #0         ; Y: posição de escrita\nprox:\n    LDA #0\n    STA dig\nconta:\n    LDA n\n    SEC\n    SBC divisores,X\n    PHA            ; byte baixo da diferença\n    LDA n+1\n    SBC divisores+1,X\n    BCC fimconta   ; n < divisor\n    STA n+1\n    PLA\n    STA n\n    INC dig\n    JMP conta\nfimconta:\n    PLA            ; descarta o byte baixo (equilibra a pilha)\n    LDA dig\n    BNE escreve    ; dígito não nulo sempre aparece\n    CPY #0\n    BNE escreve    ; depois do primeiro dígito, zeros aparecem\n    CPX #8\n    BNE pula       ; zero à esquerda: omite (menos nas unidades)\nescreve:\n    CLC\n    ADC #'0'\n    STA texto,Y\n    INY\npula:\n    INX\n    INX\n    CPX #10\n    BNE prox\n    LDA #0\n    STA texto,Y    ; terminador\n    BRK\n\ndivisores:\n    .word 10000, 1000, 100, 10, 1",
+    "dicas": [
+     "Mesmo método do desafio 047: subtraia **10000**, depois **1000**, **100**, **10** e **1**, contando quantas vezes coube cada um. A tabela é de palavras (`.word`), então o índice anda de 2 em 2.",
+     "A subtração de 16 bits só é gravada se **couber**: calcule `n - divisor` sem alterar `n` (guarde o byte baixo na pilha com `PHA` e o alto fica em A). Se `BCC` (não coube), descarte o byte baixo com `PLA`; se coube, `STA n+1` e `PLA` / `STA n`.",
+     "A supressão de zeros à esquerda é a do 047: escreva o dígito se não for zero, **ou** se algo já foi escrito (`Y > 0`), **ou** se for o último (unidades: `X = 8`). No fim, o terminador. Cada `PHA` deve ter um `PLA` nos dois caminhos."
+    ],
+    "referencias": [
+     "MOS Technology, *MCS6500 Microcomputer Family Programming Manual* (1976): descrição das instruções usadas.",
+     "Rodnay Zaks, *Programming the 6502*: capítulos sobre as instruções usadas.",
+     "Lance Leventhal, *6502 Assembly Language Programming*: capítulos sobre as instruções usadas."
+    ],
+    "testes": [
+     {
+      "nome": "n = 0",
+      "visivel": true,
+      "setup": {
+       "n": {
+        "w": 0
+       },
+       "texto": "??????"
+      },
+      "espera": {
+       "mem": {
+        "texto": "0\u0000"
+       }
+      }
+     },
+     {
+      "nome": "n = 7",
+      "visivel": true,
+      "setup": {
+       "n": {
+        "w": 7
+       },
+       "texto": "??????"
+      },
+      "espera": {
+       "mem": {
+        "texto": "7\u0000"
+       }
+      }
+     },
+     {
+      "nome": "n = 10",
+      "visivel": false,
+      "dica": "falhou com 0: deve virar \"0\"",
+      "setup": {
+       "n": {
+        "w": 10
+       },
+       "texto": "??????"
+      },
+      "espera": {
+       "mem": {
+        "texto": "10\u0000"
+       }
+      }
+     },
+     {
+      "nome": "n = 255",
+      "visivel": false,
+      "dica": "falhou com 255",
+      "setup": {
+       "n": {
+        "w": 255
+       },
+       "texto": "??????"
+      },
+      "espera": {
+       "mem": {
+        "texto": "255\u0000"
+       }
+      }
+     },
+     {
+      "nome": "n = 256",
+      "visivel": false,
+      "dica": "falhou com 256 (passa de 8 bits)",
+      "setup": {
+       "n": {
+        "w": 256
+       },
+       "texto": "??????"
+      },
+      "espera": {
+       "mem": {
+        "texto": "256\u0000"
+       }
+      }
+     },
+     {
+      "nome": "n = 1000",
+      "visivel": false,
+      "dica": "falhou com 1000: zeros no fim",
+      "setup": {
+       "n": {
+        "w": 1000
+       },
+       "texto": "??????"
+      },
+      "espera": {
+       "mem": {
+        "texto": "1000\u0000"
+       }
+      }
+     },
+     {
+      "nome": "n = 65535",
+      "visivel": false,
+      "dica": "falhou com 65535 (5 dígitos, o maior)",
+      "setup": {
+       "n": {
+        "w": 65535
+       },
+       "texto": "??????"
+      },
+      "espera": {
+       "mem": {
+        "texto": "65535\u0000"
+       }
+      }
+     },
+     {
+      "nome": "n = 12345",
+      "visivel": false,
+      "dica": "falhou com 12345",
+      "setup": {
+       "n": {
+        "w": 12345
+       },
+       "texto": "??????"
+      },
+      "espera": {
+       "mem": {
+        "texto": "12345\u0000"
+       }
+      }
+     },
+     {
+      "nome": "n = 99",
+      "visivel": false,
+      "dica": "falhou com 99",
+      "setup": {
+       "n": {
+        "w": 99
+       },
+       "texto": "??????"
+      },
+      "espera": {
+       "mem": {
+        "texto": "99\u0000"
+       }
+      }
+     },
+     {
+      "nome": "n = 100",
+      "visivel": false,
+      "dica": "falhou com 100",
+      "setup": {
+       "n": {
+        "w": 100
+       },
+       "texto": "??????"
+      },
+      "espera": {
+       "mem": {
+        "texto": "100\u0000"
+       }
+      }
+     },
+     {
+      "nome": "n = 10000",
+      "visivel": false,
+      "dica": "falhou com 10000 (4 zeros seguidos)",
+      "setup": {
+       "n": {
+        "w": 10000
+       },
+       "texto": "??????"
+      },
+      "espera": {
+       "mem": {
+        "texto": "10000\u0000"
+       }
+      }
+     },
+     {
+      "nome": "n = 40000",
+      "visivel": false,
+      "dica": "falhou com 40000",
+      "setup": {
+       "n": {
+        "w": 40000
+       },
+       "texto": "??????"
+      },
+      "espera": {
+       "mem": {
+        "texto": "40000\u0000"
+       }
+      }
+     }
+    ],
+    "metas": {
+     "bytes": 74,
+     "ciclos": 1231,
+     "exigir": [
+      "SBC"
+     ]
+    }
    }
   ];
   if (typeof module === 'object' && module.exports) module.exports = root.DESAFIOS;
