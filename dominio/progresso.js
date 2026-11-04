@@ -32,15 +32,17 @@
     return lido;
   }
 
-  function criarProgresso(armazem) {
+  // `chave` escolhe onde gravar (um progresso por perfil); sem ela vale a chave original
+  function criarProgresso(armazem, chave) {
+    const CHAVE_USADA = chave || CHAVE;
     let estado = vazio();
     try {
-      const bruto = armazem && armazem.getItem(CHAVE);
+      const bruto = armazem && armazem.getItem(CHAVE_USADA);
       if (bruto) { const lido = JSON.parse(bruto); if (valido(lido)) estado = normalizar(lido); }
     } catch (e) { /* dados corrompidos: começa vazio */ }
 
     function gravar() {
-      try { if (armazem) armazem.setItem(CHAVE, JSON.stringify(estado)); } catch (e) { /* cheio ou bloqueado: segue na memória */ }
+      try { if (armazem) armazem.setItem(CHAVE_USADA, JSON.stringify(estado)); } catch (e) { /* cheio ou bloqueado: segue na memória */ }
     }
 
     function entrada(id) {

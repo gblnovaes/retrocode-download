@@ -14,7 +14,11 @@
   }
 
   const prefs = lerPrefs();
-  const progresso = root.Progresso.criarProgresso(armazem());
+  // quem está jogando: cada perfil tem o seu progresso, em chave própria
+  const perfis = root.Perfis.criarPerfis(armazem());
+  const perfil = perfis.ativo();
+  // sem perfil ativo a tela de boas-vindas bloqueia o app; o progresso fica só na memória até lá
+  const progresso = root.Progresso.criarProgresso(perfil ? armazem() : null, perfil ? root.Perfis.chaveProgresso(perfil.id) : undefined);
   // estado só da sessão (não é gravado): filtros, busca e abas
   const vol = { busca: '', filtroDesafios: 'todos', nivelTabela: 'todos', mostrarTodos: {}, abaEnunciado: 'enunciado' };
 
@@ -38,6 +42,6 @@
 
   const medalhas = (agora) => root.Medalhas.avaliar(progresso.dados(), desafios(), prefs.linguagem, estatisticas(agora));
 
-  const api = { prefs, progresso, vol, definir, desafios, doIdioma, achar, estatisticas, medalhas, desafioDoDia, ACENTOS };
+  const api = { prefs, perfis, perfil, progresso, vol, definir, desafios, doIdioma, achar, estatisticas, medalhas, desafioDoDia, ACENTOS };
   root.Estado = api;
 })(typeof self !== 'undefined' ? self : this);

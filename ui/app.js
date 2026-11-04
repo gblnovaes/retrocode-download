@@ -14,7 +14,8 @@
   }
 
   function exportarProgresso() {
-    const nome = 'retrocode-progresso-' + root.Calendario.chaveDia(new Date()) + '.json';
+    const quem = E.perfil ? root.ViewPerfil.slug(E.perfil.nome) + '-' : '';
+    const nome = 'retrocode-progresso-' + quem + root.Calendario.chaveDia(new Date()) + '.json';
     const url = URL.createObjectURL(new Blob([E.progresso.exportar()], { type: 'application/json' }));
     const a = h('a', { href: url, download: nome, style: { display: 'none' } });
     document.body.appendChild(a); a.click(); a.remove();
@@ -59,6 +60,7 @@
     const link = (href, icon, texto, ativo) => h('a', { href, 'aria-current': ativo ? 'page' : null }, icone(icon), texto);
     return h('nav', { class: 'lateral', 'aria-label': 'Principal' },
       h('div', { class: 'marca' }, h('div', { class: 'marca-icone' }, icone('codigo', 20, 2.4)), h('div', null, h('b', null, 'RetroCode'), h('small', { class: 'slogan' }, '> desafios old school', h('span', { class: 'cursor' }, '_')))),
+      root.ViewPerfil.painel({ aviso }),
       h('div', { class: 'menu' },
         link('#/dashboard', 'painel', 'Dashboard', atual === 'dashboard'),
         link('#/desafios', 'codigo', 'Desafios por nível', atual === 'desafios' || atual === 'resolver'),
@@ -99,7 +101,7 @@
     const hoje = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
     const prox = proximoDesafio();
     return h('header', { class: 'topo' },
-      h('div', null, h('span', { class: 'data' }, hoje.charAt(0).toUpperCase() + hoje.slice(1)), h('h1', null, 'Olá, Gabriel')),
+      h('div', null, h('span', { class: 'data' }, hoje.charAt(0).toUpperCase() + hoje.slice(1)), h('h1', null, 'Olá, ' + (E.perfil ? E.perfil.nome : 'jogador'))),
       h('div', { class: 'acoes' },
         h('label', { class: 'busca' }, icone('busca', 16), h('span', { class: 'so-leitor' }, 'Buscar desafio'),
           h('input', { type: 'search', placeholder: 'Buscar desafio…', onkeydown: (e) => { if (e.key === 'Enter') { E.vol.busca = e.target.value; location.hash = '#/desafios'; } } })),
@@ -117,6 +119,7 @@
     limpezas.forEach(f => f()); limpezas = [];
     const topo = window.scrollY;
     const r = rota();
+    if (!E.perfil) { raiz.textContent = ''; raiz.appendChild(root.ViewPerfil.boasVindas()); document.title = 'Bem-vindo · RetroCode'; const campo = document.getElementById('nome-perfil'); if (campo) campo.focus(); return; }
     let conteudo;
     if (r.nome === 'desafios') conteudo = root.ViewDesafios.render(ctx);
     else if (r.nome === 'historico') conteudo = root.ViewHistorico.render(ctx);
